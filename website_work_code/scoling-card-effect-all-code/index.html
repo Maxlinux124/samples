@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium 3D Circular Carousel - Rubbish Removal Dublin</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="relative min-h-screen py-16 flex flex-col justify-center items-center">
+
+    <canvas id="particleCanvas"></canvas>
+
+    <div class="absolute w-[600px] h-[600px] ambient-glow top-10 left-1/2 -translate-x-1/2 pointer-events-none z-0"></div>
+    <div class="absolute w-[400px] h-[400px] ambient-glow bottom-10 right-10 pointer-events-none z-0"></div>
+
+    <div class="w-full max-w-7xl mx-auto px-6 relative z-10 flex flex-col justify-between h-full">
+        
+        <div class="text-center mb-10">
+            <span class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-4 py-1.5 rounded-full text-xs font-bold tracking-[0.2em] uppercase shadow-lg shadow-emerald-500/5">
+                <i class="fas fa-magic mr-2 animate-pulse"></i> Ultra-Modern 3D Experience
+            </span>
+            <h1 class="font-heading text-4xl md:text-6xl font-extrabold mt-6 tracking-tighter">
+                Why Choose <span class="text-emerald-400">Fast Junk</span> Removal?
+            </h1>
+            <p class="text-slate-400 mt-4 max-w-2xl mx-auto text-sm md:text-base leading-relaxed">
+                Dublin's trusted choice. <span class="text-white font-semibold">Mouse se drag karein, swipe karein, ya arrow keys use karein</span>. 3D circular ring khud-ba-khud rotate hogi aur front card real depth dikhayega.
+            </p>
+        </div>
+
+        <div class="stage-3d w-full h-[480px] flex items-center justify-center overflow-visible my-4">
+            
+            <div id="ring3D" class="ring-3d">
+                
+                <div class="card-item-3d p-8 flex flex-col justify-between" data-index="0">
+                    <div>
+                        <div class="w-14 h-14 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-2xl flex items-center justify-center mb-8 shadow-lg layer-depth-2">
+                            <i class="fas fa-headset text-xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4 text-white layer-depth-1">24/7 Rubbish Support</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed layer-depth-1">Hum Dublin me 24/7 active hain. Aap kabhi bhi hume urgent collections ke liye contact kar sakte hain.</p>
+                    </div>
+                    <span class="text-emerald-400/10 font-heading font-black text-6xl text-right block select-none">01</span>
+                </div>
+
+                <div class="card-item-3d p-8 flex flex-col justify-between" data-index="1">
+                    <div>
+                        <div class="w-14 h-14 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-2xl flex items-center justify-center mb-8 shadow-lg layer-depth-2">
+                            <i class="fas fa-map-marked-alt text-xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4 text-white layer-depth-1">Local Dublin Service</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed layer-depth-1">Poore Dublin me hamari local teams maujood hain, jo quick pickup ke liye ready rehti hain.</p>
+                    </div>
+                    <span class="text-emerald-400/10 font-heading font-black text-6xl text-right block select-none">02</span>
+                </div>
+
+                <div class="card-item-3d p-8 flex flex-col justify-between" data-index="2">
+                    <div>
+                        <div class="w-14 h-14 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-2xl flex items-center justify-center mb-8 shadow-lg layer-depth-2">
+                            <i class="fas fa-shipping-fast text-xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4 text-white layer-depth-1">Fast Urgent Response</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed layer-depth-1">Urgent jobs ke liye fast response time. Time par aana aur jaldi kachra clear karna hamari specialty hai.</p>
+                    </div>
+                    <span class="text-emerald-400/10 font-heading font-black text-6xl text-right block select-none">03</span>
+                </div>
+
+                <div class="card-item-3d p-8 flex flex-col justify-between" data-index="3">
+                    <div>
+                        <div class="w-14 h-14 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-2xl flex items-center justify-center mb-8 shadow-lg layer-depth-2">
+                            <i class="fas fa-smile-beam text-xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4 text-white layer-depth-1">Friendly & Helpful</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed layer-depth-1">Hamare crew members friendly, supportive, aur helpful hain jo customer ki har baat sunte hain.</p>
+                    </div>
+                    <span class="text-emerald-400/10 font-heading font-black text-6xl text-right block select-none">04</span>
+                </div>
+
+                <div class="card-item-3d p-8 flex flex-col justify-between" data-index="4">
+                    <div>
+                        <div class="w-14 h-14 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-2xl flex items-center justify-center mb-8 shadow-lg layer-depth-2">
+                            <i class="fas fa-dumbbell text-xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4 text-white layer-depth-1">Heavy Lifting Included</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed layer-depth-1">Aapko kachra bahar rakhne ya heavy items lift karne ki zarurat nahi. Pura loading hum khud karenge.</p>
+                    </div>
+                    <span class="text-emerald-400/10 font-heading font-black text-6xl text-right block select-none">05</span>
+                </div>
+
+                <div class="card-item-3d p-8 flex flex-col justify-between" data-index="5">
+                    <div>
+                        <div class="w-14 h-14 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-2xl flex items-center justify-center mb-8 shadow-lg layer-depth-2">
+                            <i class="fas fa-calendar-check text-xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4 text-white layer-depth-1">Flexible Bookings</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed layer-depth-1">Ghar ho ya office, hum flexible collections offer karte hain jo aapke free schedule ke mutabiq fit ho.</p>
+                    </div>
+                    <span class="text-emerald-400/10 font-heading font-black text-6xl text-right block select-none">06</span>
+                </div>
+
+                <div class="card-item-3d p-8 flex flex-col justify-between" data-index="6">
+                    <div>
+                        <div class="w-14 h-14 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-2xl flex items-center justify-center mb-8 shadow-lg layer-depth-2">
+                            <i class="fas fa-leaf text-xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4 text-white layer-depth-1">Eco-Friendly Disposal</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed layer-depth-1">We love our environment. Hum recycle hone layak kachre ko alag karke legal disposal points par bhejte hain.</p>
+                    </div>
+                    <span class="text-emerald-400/10 font-heading font-black text-6xl text-right block select-none">07</span>
+                </div>
+
+                <div class="card-item-3d p-8 flex flex-col justify-between" data-index="7">
+                    <div>
+                        <div class="w-14 h-14 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-2xl flex items-center justify-center mb-8 shadow-lg layer-depth-2">
+                            <i class="fas fa-broom text-xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4 text-white layer-depth-1">Clean & Careful Work</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed layer-depth-1">Kachra uthane ke baad hamari team poori jagah ko clear aur clean karti hai, takki koi kachra na bache.</p>
+                    </div>
+                    <span class="text-emerald-400/10 font-heading font-black text-6xl text-right block select-none">08</span>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="flex flex-col items-center gap-6 mt-10 relative z-20">
+            <div class="flex items-center gap-6">
+                <button id="prevBtn" class="w-14 h-14 bg-white/5 border border-white/10 rounded-full flex items-center justify-center hover:bg-emerald-500 hover:text-black transition-all duration-300 shadow-lg hover:shadow-emerald-500/20">
+                    <i class="fas fa-chevron-left text-lg"></i>
+                </button>
+                
+                <div id="paginationDots" class="flex gap-2.5">
+                    </div>
+                
+                <button id="nextBtn" class="w-14 h-14 bg-white/5 border border-white/10 rounded-full flex items-center justify-center hover:bg-emerald-500 hover:text-black transition-all duration-300 shadow-lg hover:shadow-emerald-500/20">
+                    <i class="fas fa-chevron-right text-lg"></i>
+                </button>
+            </div>
+
+            <p class="text-xs text-slate-500 font-bold uppercase tracking-widest flex items-center gap-2">
+                <span class="inline-block w-2.5 h-2.5 bg-emerald-500 rounded-full animate-ping"></span>
+                Hold click & drag mouse to spin manually
+            </p>
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

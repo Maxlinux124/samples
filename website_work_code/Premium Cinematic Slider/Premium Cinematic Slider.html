@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>Cinematic Interactive Service Slider</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@700&display=swap');
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #0c0d12;
+            color: #ffffff;
+            overflow-x: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .font-heading {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* Glassmorphism Classes */
+        .glass-nav {
+            background: rgba(12, 13, 18, 0.45);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .glass-card-tag {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        /* Active Card Cinematic Highlights & Physics Transforms */
+        .interactive-card {
+            transform-style: preserve-3d;
+            will-change: transform, box-shadow, border-color;
+            transition: border-color 0.4s ease, box-shadow 0.4s ease;
+        }
+
+        .interactive-card.active {
+            box-shadow: 0 35px 70px rgba(0, 0, 0, 0.6), 
+                        0 0 50px rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.35);
+        }
+
+        /* Background Image Cross-Fade */
+        .bg-slide {
+            position: absolute;
+            inset: 0;
+            background-size: cover;
+            background-position: center;
+            transition: opacity 1.4s cubic-bezier(0.16, 1, 0.3, 1), transform 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+            transform: scale(1.08);
+            opacity: 0;
+            z-index: 0;
+        }
+
+        .bg-slide.active {
+            opacity: 0.22;
+            transform: scale(1.0);
+        }
+
+        /* Dynamic Title Slide Up */
+        .text-animate {
+            animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes slideUp {
+            0% { opacity: 0; transform: translateY(40px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Vertical text rotation */
+        .vertical-text {
+            writing-mode: vertical-lr;
+            transform: rotate(180deg);
+        }
+
+        /* Drag Grab State Handlers */
+        .slider-grabbed {
+            cursor: grabbing !important;
+        }
+    </style>
+</head>
+<body class="relative min-h-screen flex flex-col justify-between overflow-hidden">
+
+    <!-- Cinematic Background Images (Transitions handled programmatically) -->
+    <div id="bgSlide0" class="bg-slide active" style="background-image: url('https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=1600&auto=format&fit=crop');"></div>
+    <div id="bgSlide1" class="bg-slide" style="background-image: url('https://images.unsplash.com/photo-1511520790268-68b13d294bc1?q=80&w=1600&auto=format&fit=crop');"></div>
+    <div id="bgSlide2" class="bg-slide" style="background-image: url('https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?q=80&w=1600&auto=format&fit=crop');"></div>
+    <div id="bgSlide3" class="bg-slide" style="background-image: url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=1600&auto=format&fit=crop');"></div>
+
+    <!-- Gradient darkness overlays matching travel aesthetic -->
+    <div class="absolute inset-0 bg-gradient-to-r from-[#0c0d12] via-[#0c0d12]/90 to-transparent z-0 pointer-events-none"></div>
+    <div class="absolute inset-0 bg-gradient-to-t from-[#0c0d12] via-transparent to-[#0c0d12]/40 z-0 pointer-events-none"></div>
+
+    <!-- HEADER / NAVIGATION -->
+    <header class="glass-nav relative z-50 py-5 px-8 md:px-16 flex justify-between items-center">
+        <div class="flex items-center gap-3 cursor-pointer">
+            <div class="w-8 h-8 rounded-full border border-white/25 flex items-center justify-center">
+                <i class="fas fa-globe text-xs text-white/80"></i>
+            </div>
+            <span class="font-heading font-black tracking-widest text-sm text-white uppercase">GLOBE EXPRESS</span>
+        </div>
+        
+        <div class="hidden md:flex gap-8 text-[11px] font-bold uppercase tracking-[0.25em] text-white/60">
+            <a href="#" class="hover:text-white transition text-white">Home</a>
+            <a href="#" class="hover:text-white transition">Holidays</a>
+            <a href="#" class="hover:text-white transition">Destinations</a>
+            <a href="#" class="hover:text-white transition">Flights</a>
+            <a href="#" class="hover:text-white transition">Offers</a>
+            <a href="#" class="hover:text-white transition">Contacts</a>
+        </div>
+
+        <div class="flex items-center gap-6 text-white/80">
+            <i class="fas fa-search cursor-pointer hover:text-white transition"></i>
+            <i class="far fa-user cursor-pointer hover:text-white transition"></i>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="relative z-10 grid lg:grid-cols-12 gap-12 items-center px-8 md:px-16 py-8 flex-grow">
+        
+        <!-- LEFT PANEL: Dynamic Metadata & Slogan -->
+        <div id="metaPanel" class="lg:col-span-5 space-y-6 text-animate">
+            <div class="flex items-center gap-3">
+                <span class="w-10 h-[1px] bg-white/40"></span>
+                <span id="metaCategory" class="text-xs font-bold text-white/50 uppercase tracking-[0.3em]">Sahara Desert - Morocco</span>
+            </div>
+            
+            <h1 id="metaTitle" class="font-heading text-5xl md:text-7xl font-extrabold tracking-tighter text-white uppercase leading-[0.95]">
+                MARRAKECH <br/>MERZOUGA
+            </h1>
+            
+            <p id="metaDesc" class="text-white/50 text-sm md:text-base leading-relaxed max-w-md">
+                Experience the magic of golden dunes at sunset. Ride camels through the vast Sahara and spend premium stargazing nights in our ultimate luxury camp retreats.
+            </p>
+
+            <div class="pt-4">
+                <button class="glass-card-tag hover:bg-white hover:text-slate-900 transition-all px-8 py-4 rounded-full text-xs font-black uppercase tracking-widest flex items-center gap-3 shadow-lg">
+                    <span>EXPLORE DESTINATIONS</span> <i class="fas fa-arrow-right text-[10px]"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL: Physics drag-based slider track structure -->
+        <div class="lg:col-span-7 relative h-[460px] flex items-center overflow-hidden cursor-grab" id="sliderViewport">
+            <div id="cardTrack" class="absolute flex gap-6 items-center will-change-transform py-6" style="transform: translateX(0px);">
+                
+                <!-- Card 1 -->
+                <div class="interactive-card relative flex-shrink-0 w-36 sm:w-44 h-80 sm:h-[400px] rounded-[2rem] overflow-hidden border border-white/10" data-index="0">
+                    <img src="https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=400&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none" alt="Yosemite">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/20 to-black/30 z-10"></div>
+                    <div class="absolute top-4 left-4 z-20">
+                        <span class="glass-card-tag px-3 py-1 rounded-full text-[9px] font-bold tracking-widest text-white uppercase">US</span>
+                    </div>
+                    <div class="absolute bottom-6 left-6 right-6 z-20 flex justify-between items-end">
+                        <div class="vertical-text font-heading font-extrabold text-sm tracking-widest text-white uppercase">
+                            Yosemite National Park
+                        </div>
+                        <span class="font-heading text-xs font-bold text-white/50">01</span>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="interactive-card relative flex-shrink-0 w-36 sm:w-44 h-80 sm:h-[400px] rounded-[2rem] overflow-hidden border border-white/10" data-index="1">
+                    <img src="https://images.unsplash.com/photo-1511520790268-68b13d294bc1?q=80&w=400&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none" alt="Spain">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/20 to-black/30 z-10"></div>
+                    <div class="absolute top-4 left-4 z-20">
+                        <span class="glass-card-tag px-3 py-1 rounded-full text-[9px] font-bold tracking-widest text-white uppercase">Spain</span>
+                    </div>
+                    <div class="absolute bottom-6 left-6 right-6 z-20 flex justify-between items-end">
+                        <div class="vertical-text font-heading font-extrabold text-sm tracking-widest text-white uppercase">
+                            Los Lances Beach
+                        </div>
+                        <span class="font-heading text-xs font-bold text-white/50">02</span>
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="interactive-card relative flex-shrink-0 w-36 sm:w-44 h-80 sm:h-[400px] rounded-[2rem] overflow-hidden border border-white/10" data-index="2">
+                    <img src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?q=80&w=400&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none" alt="Turkey">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/20 to-black/30 z-10"></div>
+                    <div class="absolute top-4 left-4 z-20">
+                        <span class="glass-card-tag px-3 py-1 rounded-full text-[9px] font-bold tracking-widest text-white uppercase">Morocco</span>
+                    </div>
+                    <div class="absolute bottom-6 left-6 right-6 z-20 flex justify-between items-end">
+                        <div class="vertical-text font-heading font-extrabold text-sm tracking-widest text-white uppercase">
+                            Marrakech Merzouga
+                        </div>
+                        <span class="font-heading text-xs font-bold text-white/50">03</span>
+                    </div>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="interactive-card relative flex-shrink-0 w-36 sm:w-44 h-80 sm:h-[400px] rounded-[2rem] overflow-hidden border border-white/10" data-index="3">
+                    <img src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=400&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none" alt="France">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/20 to-black/30 z-10"></div>
+                    <div class="absolute top-4 left-4 z-20">
+                        <span class="glass-card-tag px-3 py-1 rounded-full text-[9px] font-bold tracking-widest text-white uppercase">Turkey</span>
+                    </div>
+                    <div class="absolute bottom-6 left-6 right-6 z-20 flex justify-between items-end">
+                        <div class="vertical-text font-heading font-extrabold text-sm tracking-widest text-white uppercase">
+                            Göreme Valley
+                        </div>
+                        <span class="font-heading text-xs font-bold text-white/50">04</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- FOOTER CONTROLS BAR -->
+    <footer class="relative z-10 px-8 md:px-16 pb-10 grid md:grid-cols-12 gap-8 items-center">
+        
+        <!-- Left Section: Playback controls -->
+        <div class="md:col-span-4 flex items-center gap-6">
+            <button id="playPauseBtn" class="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-white/80 hover:text-white hover:border-white transition-colors duration-300">
+                <i class="fas fa-pause text-xs" id="playIcon"></i>
+            </button>
+            <div class="text-[11px] font-bold text-white/60 tracking-widest">
+                <span id="currentTime">0:10</span> / <span id="totalTime">0:18</span>
+            </div>
+            <button id="volumeBtn" class="text-white/60 hover:text-white transition-colors">
+                <i class="fas fa-volume-up text-sm" id="volumeIcon"></i>
+            </button>
+        </div>
+
+        <!-- Center Section: Timeline Slider with step indicator -->
+        <div class="md:col-span-5 flex items-center gap-6">
+            <div class="relative flex-grow h-1 bg-white/20 rounded-full cursor-pointer group" id="timelineRail">
+                <div id="timelineProgress" class="absolute top-0 left-0 h-full bg-white rounded-full" style="width: 55%;"></div>
+                <div id="timelineHandle" class="absolute w-3 h-3 bg-white rounded-full -top-1 transform -translate-x-1/2 scale-0 group-hover:scale-100 transition-transform duration-200" style="left: 55%;"></div>
+            </div>
+            <span id="slideIndexDisplay" class="font-heading text-base font-bold text-white tracking-widest">03</span>
+        </div>
+
+        <!-- Right Section: Arrow Navigation -->
+        <div class="md:col-span-3 flex justify-end gap-3">
+            <button id="prevBtn" class="w-12 h-12 rounded-full border border-white/20 hover:border-white flex items-center justify-center text-white/80 hover:text-white transition-colors">
+                <i class="fas fa-chevron-left text-xs"></i>
+            </button>
+            <button id="nextBtn" class="w-12 h-12 rounded-full border border-white/20 hover:border-white flex items-center justify-center text-white/80 hover:text-white transition-colors">
+                <i class="fas fa-chevron-right text-xs"></i>
+            </button>
+        </div>
+
+    </footer>
+
+    <!-- INTERACTIVE ENGINE SCRIPT -->
+    <script>
+        const slidesData = [
+            {
+                category: "Yosemite - California, US",
+                title: "YOSEMITE <br/>VALLEY",
+                desc: "Marvel at giant sequoias, towering granite cliffs like El Capitan, and majestic waterfalls. Perfect editorial shooting under raw, dramatic daylight."
+            },
+            {
+                category: "Tarifa - Cadiz, Spain",
+                title: "LOS LANCES <br/>BEACH",
+                desc: "Feel the vibrant ocean breeze and capture the high-speed motion of kite-surfers dancing over glowing gold and aqua Mediterranean waters."
+            },
+            {
+                category: "Sahara Desert - Morocco",
+                title: "MARRAKECH <br/>MERZOUGA",
+                desc: "Experience the magic of golden dunes at sunset. Ride camels through the vast Sahara and spend premium stargazing nights in our ultimate luxury camp retreats."
+            },
+            {
+                category: "Cappadocia - Turkey",
+                title: "GÖREME <br/>VALLEY",
+                desc: "Witness hundreds of hot air balloons floating over the fairy chimneys at dawn, creating a surreal landscape of pastel pink and copper tones."
+            }
+        ];
+
+        const track = document.getElementById('cardTrack');
+        const viewport = document.getElementById('sliderViewport');
+        const cards = Array.from(document.querySelectorAll('.interactive-card'));
+        
+        let activeIndex = 2; // Default to index 2 (Marrakech Merzouga matching screenshot metadata)
+        let isPlaying = true;
+        let progressPercent = 55;
+        let playInterval = null;
+        let audioMuted = false;
+
+        // Custom Drag & Physics state
+        let isDragging = false;
+        let startX = 0;
+        let currentTranslate = 0;
+        let prevTranslate = 0;
+        let animationID = 0;
+        let dragVelocity = 0;
+        let lastMoveTime = 0;
+        let lastMoveX = 0;
+
+        // Calculate dynamic card sizes and spacing constraints
+        function getCardSpacing() {
+            const cardWidth = cards[0].offsetWidth;
+            const gap = 24; // Tailwind's gap-6
+            return cardWidth + gap;
+        }
+
+        function getMaxTranslate() {
+            return 0; // First card centered
+        }
+
+        function getMinTranslate() {
+            return -(cards.length - 1) * getCardSpacing();
+        }
+
+        // Snap active card safely inside track
+        function snapToSlide(index) {
+            activeIndex = Math.max(0, Math.min(index, slidesData.length - 1));
+            const spacing = getCardSpacing();
+            
+            // Centralise current active slide relative to the viewport middle point
+            const centerOffset = viewport.offsetWidth / 2 - cards[0].offsetWidth / 2;
+            currentTranslate = -activeIndex * spacing + centerOffset;
+            prevTranslate = currentTranslate;
+            
+            track.style.transition = 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
+            setTrackPosition();
+            updateUIVisuals();
+        }
+
+        function setTrackPosition() {
+            track.style.transform = `translateX(${currentTranslate}px)`;
+        }
+
+        // Highlight active slides, handle scaling transitions and trigger metadata changes
+        function updateUIVisuals() {
+            cards.forEach((card, i) => {
+                const img = card.querySelector('img');
+                if (i === activeIndex) {
+                    card.classList.add('active');
+                    card.style.transform = 'scale(1.08)';
+                    card.style.opacity = '1';
+                    if (img) img.style.transform = 'scale(1.05)';
+                } else {
+                    card.classList.remove('active');
+                    card.style.transform = 'scale(0.9)';
+                    card.style.opacity = '0.45';
+                    if (img) img.style.transform = 'scale(1.0)';
+                }
+            });
+
+            // Sync dynamic backgrounds
+            const bgSlides = document.querySelectorAll('.bg-slide');
+            bgSlides.forEach((bg, i) => {
+                if (i === activeIndex) {
+                    bg.classList.add('active');
+                } else {
+                    bg.classList.remove('active');
+                }
+            });
+
+            // Text layout animation transitions
+            const metaPanel = document.getElementById('metaPanel');
+            metaPanel.style.opacity = '0';
+            metaPanel.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                document.getElementById('metaCategory').innerText = slidesData[activeIndex].category;
+                document.getElementById('metaTitle').innerHTML = slidesData[activeIndex].title;
+                document.getElementById('metaDesc').innerText = slidesData[activeIndex].desc;
+                
+                metaPanel.style.opacity = '1';
+                metaPanel.style.transform = 'translateY(0)';
+            }, 250);
+
+            // Sync indices displays
+            document.getElementById('slideIndexDisplay').innerText = `0${activeIndex + 1}`;
+        }
+
+        // Drag Physics Systems (Momentum/Inertia calculations)
+        function pointerDown(e) {
+            isDragging = true;
+            viewport.classList.add('slider-grabbed');
+            startX = getPositionX(e);
+            prevTranslate = currentTranslate;
+            
+            track.style.transition = 'none'; // Instant drag sync
+            lastMoveTime = performance.now();
+            lastMoveX = startX;
+            dragVelocity = 0;
+            
+            cancelAnimationFrame(animationID);
+        }
+
+        function pointerMove(e) {
+            if (!isDragging) return;
+            const currentX = getPositionX(e);
+            const deltaX = currentX - startX;
+            currentTranslate = prevTranslate + deltaX;
+            
+            // Constrain outer limits slightly for elasticity feel
+            const max = viewport.offsetWidth / 2 - cards[0].offsetWidth / 2;
+            const min = -(cards.length - 1) * getCardSpacing() + max;
+            if (currentTranslate > max) {
+                currentTranslate = max + (currentTranslate - max) * 0.3;
+            } else if (currentTranslate < min) {
+                currentTranslate = min + (currentTranslate - min) * 0.3;
+            }
+
+            // Realtime velocity tracking
+            const now = performance.now();
+            const timeDelta = now - lastMoveTime;
+            if (timeDelta > 0) {
+                dragVelocity = (currentX - lastMoveX) / timeDelta;
+            }
+            lastMoveX = currentX;
+            lastMoveTime = now;
+            
+            setTrackPosition();
+            detectActiveCardByPosition();
+        }
+
+        function pointerUp() {
+            if (!isDragging) return;
+            isDragging = false;
+            viewport.classList.remove('slider-grabbed');
+
+            // Apply inertia momentum
+            if (Math.abs(dragVelocity) > 0.15) {
+                applyInertiaDeceleration();
+            } else {
+                snapNearestCard();
+            }
+        }
+
+        function getPositionX(e) {
+            return e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+        }
+
+        // Natural Inertia decay cycle
+        function applyInertiaDeceleration() {
+            const friction = 0.94; // Velocity reduction factor
+            currentTranslate += dragVelocity * 16;
+            dragVelocity *= friction;
+
+            // Constrain boundaries during decay
+            const max = viewport.offsetWidth / 2 - cards[0].offsetWidth / 2;
+            const min = -(cards.length - 1) * getCardSpacing() + max;
+            if (currentTranslate > max || currentTranslate < min) {
+                dragVelocity = 0;
+            }
+
+            setTrackPosition();
+            detectActiveCardByPosition();
+
+            if (Math.abs(dragVelocity) > 0.05) {
+                animationID = requestAnimationFrame(applyInertiaDeceleration);
+            } else {
+                snapNearestCard();
+            }
+        }
+
+        // Highlight nearest item during drags
+        function detectActiveCardByPosition() {
+            const spacing = getCardSpacing();
+            const centerOffset = viewport.offsetWidth / 2 - cards[0].offsetWidth / 2;
+            const calculatedIndex = Math.round((centerOffset - currentTranslate) / spacing);
+            const boundedIndex = Math.max(0, Math.min(calculatedIndex, slidesData.length - 1));
+            
+            if (boundedIndex !== activeIndex) {
+                activeIndex = boundedIndex;
+                updateUIVisuals();
+            }
+        }
+
+        function snapNearestCard() {
+            snapToSlide(activeIndex);
+        }
+
+        // Pointer event bindings
+        viewport.addEventListener('mousedown', pointerDown);
+        viewport.addEventListener('mousemove', pointerMove);
+        window.addEventListener('mouseup', pointerUp);
+
+        viewport.addEventListener('touchstart', pointerDown, { passive: true });
+        viewport.addEventListener('touchmove', pointerMove, { passive: true });
+        window.addEventListener('touchend', pointerUp);
+
+        // Click-to-slide targeting
+        cards.forEach((card, index) => {
+            card.addEventListener('click', (e) => {
+                if (Math.abs(dragVelocity) < 0.1) {
+                    snapToSlide(index);
+                }
+            });
+        });
+
+        // Control bar actions & timeline seek loops
+        function nextSlide() {
+            let nextIndex = (activeIndex + 1) % slidesData.length;
+            snapToSlide(nextIndex);
+        }
+
+        function prevSlide() {
+            let prevIndex = (activeIndex - 1 + slidesData.length) % slidesData.length;
+            snapToSlide(prevIndex);
+        }
+
+        document.getElementById('nextBtn').addEventListener('click', nextSlide);
+        document.getElementById('prevBtn').addEventListener('click', prevSlide);
+
+        // Timeline progression
+        function updateTimeline() {
+            document.getElementById('timelineProgress').style.width = `${progressPercent}%`;
+            document.getElementById('timelineHandle').style.left = `${progressPercent}%`;
+            
+            // Display fake time indices matching cinematic scale
+            let elapsedSec = Math.round((progressPercent / 100) * 18);
+            let doubleDigit = elapsedSec < 10 ? `0${elapsedSec}` : elapsedSec;
+            document.getElementById('currentTime').innerText = `0:${doubleDigit}`;
+        }
+
+        function scrubTimeline(e) {
+            const rect = document.getElementById('timelineRail').getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            progressPercent = Math.round((clickX / rect.width) * 100);
+            updateTimeline();
+        }
+
+        document.getElementById('timelineRail').addEventListener('click', scrubTimeline);
+
+        // Play Pause system cycle
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const playIcon = document.getElementById('playIcon');
+
+        playPauseBtn.addEventListener('click', () => {
+            isPlaying = !isPlaying;
+            if (isPlaying) {
+                playIcon.className = 'fas fa-pause text-xs';
+                startAutoplay();
+            } else {
+                playIcon.className = 'fas fa-play text-xs';
+                clearInterval(playInterval);
+            }
+        });
+
+        function startAutoplay() {
+            clearInterval(playInterval);
+            playInterval = setInterval(() => {
+                progressPercent += 1;
+                if (progressPercent > 100) {
+                    progressPercent = 0;
+                    nextSlide();
+                }
+                updateTimeline();
+            }, 180); // Corresponds to total cycle duration of 18 seconds
+        }
+
+        // Simple volume state mock
+        const volumeBtn = document.getElementById('volumeBtn');
+        const volumeIcon = document.getElementById('volumeIcon');
+        volumeBtn.addEventListener('click', () => {
+            audioMuted = !audioMuted;
+            if (audioMuted) {
+                volumeIcon.className = 'fas fa-volume-mute text-sm text-red-500';
+            } else {
+                volumeIcon.className = 'fas fa-volume-up text-sm';
+            }
+        });
+
+        // Initialize complete showcase layout
+        window.addEventListener('resize', () => {
+            snapToSlide(activeIndex);
+        });
+
+        window.onload = function() {
+            snapToSlide(2); // Start at index 2 matching reference image exactly
+            startAutoplay();
+        };
+    </script>
+</body>
+</html>

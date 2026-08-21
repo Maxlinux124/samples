@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ultra-Premium Cinematic Slider</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <div class="bg-container">
+    <div class="bg-slide active" id="bgLayer1"></div>
+    <div class="bg-slide" id="bgLayer2"></div>
+    <div class="bg-overlay"></div>
+  </div>
+
+  <nav class="glass-nav">
+    <div class="logo">TRAVERSE</div>
+    <div class="nav-links">
+      <a href="#" class="active">Explore</a>
+      <a href="#">Destinations</a>
+      <a href="#">Journal</a>
+    </div>
+  </nav>
+
+  <main class="main-content">
+    <div class="hero-meta">
+      <h5 id="metaCategory" class="category-tag">SWITZERLAND ALPS</h5>
+      <h1 id="metaTitle" class="hero-title">SAINT<br>ANTÖNIEN</h1>
+      <p id="metaDesc" class="hero-desc">Discover the hidden gem of the Swiss Alps, where dramatic peaks meet serene alpine valleys.</p>
+      <button class="btn-explore">Explore Destination <i class="fas fa-arrow-right"></i></button>
+    </div>
+
+    <div class="slider-viewport" id="sliderViewport">
+      <div class="track" id="cardTrack">
+        
+        <div class="card active" data-index="0">
+          <div class="card-badge">01</div>
+          <img src="https://images.unsplash.com/photo-1542224566-6e85f2e6772f?auto=format&fit=crop&w=800&q=80" alt="Swiss">
+          <div class="card-glass-overlay"></div>
+          <div class="card-info"><span>Switzerland Alps</span><h4>SAINT ANTÖNIEN</h4></div>
+        </div>
+
+        <div class="card" data-index="1">
+          <div class="card-badge">02</div>
+          <img src="asset/imge2.jpg" alt="Japan">
+          <div class="card-glass-overlay"></div>
+          <div class="card-info"><span>Japan Alps</span><h4>NAGANO PREFECTURE</h4></div>
+        </div>
+
+        <div class="card" data-index="2">
+          <div class="card-badge">03</div>
+          <img src="https://images.unsplash.com/photo-1539650116574-8efeb43e2750?auto=format&fit=crop&w=800&q=80" alt="Morocco">
+          <div class="card-glass-overlay"></div>
+          <div class="card-info"><span>Sahara Desert</span><h4>MARRAKECH MERZOUGA</h4></div>
+        </div>
+
+        <div class="card" data-index="3">
+          <div class="card-badge">04</div>
+          <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80" alt="USA">
+          <div class="card-glass-overlay"></div>
+          <div class="card-info"><span>Yosemite Valley</span><h4>YOSEMITE NATIONAL</h4></div>
+        </div>
+
+        <div class="card" data-index="4">
+          <div class="card-badge">05</div>
+          <img src="https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=800&q=80" alt="Italy">
+          <div class="card-glass-overlay"></div>
+          <div class="card-info"><span>Dolomites</span><h4>VAL DI FUNES</h4></div>
+        </div>
+
+        <div class="card" data-index="5">
+          <div class="card-badge">06</div>
+          <img src="https://images.unsplash.com/photo-1516483638261-f4dbaf036963?auto=format&fit=crop&w=800&q=80" alt="Italy Coast">
+          <div class="card-glass-overlay"></div>
+          <div class="card-info"><span>Amalfi Coast</span><h4>POSITANO SCENIC</h4></div>
+        </div>
+
+        <div class="card" data-index="6">
+          <div class="card-badge">07</div>
+          <img src="https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=800&q=80" alt="Greece">
+          <div class="card-glass-overlay"></div>
+          <div class="card-info"><span>Santorini</span><h4>OIA CALDERA</h4></div>
+        </div>
+
+        <div class="card" data-index="7">
+          <div class="card-badge">08</div>
+          <img src="https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=800&q=80" alt="Vietnam">
+          <div class="card-glass-overlay"></div>
+          <div class="card-info"><span>Vietnam Eco</span><h4>HA LONG BAY</h4></div>
+        </div>
+
+        <div class="card" data-index="8">
+          <div class="card-badge">09</div>
+          <img src="https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?auto=format&fit=crop&w=800&q=80" alt="Oregon">
+          <div class="card-glass-overlay"></div>
+          <div class="card-info"><span>Deep Woodlands</span><h4>PORTLAND FORESTS</h4></div>
+        </div>
+
+        <div class="card" data-index="9">
+          <div class="card-badge">10</div>
+          <img src="https://images.unsplash.com/photo-1547036967-23d11aacaee0?auto=format&fit=crop&w=800&q=80" alt="Iceland">
+          <div class="card-glass-overlay"></div>
+          <div class="card-info"><span>Aurora Lights</span><h4>REYKJAVIK PLAINS</h4></div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer-controls">
+    <div class="timeline-container">
+      <div class="time-display" id="timeDisplay">0:00 / 0:05</div>
+      <div class="timeline-rail" id="timelineRail">
+        <div class="progress-bar" id="timelineProgress"></div>
+      </div>
+    </div>
+    
+    <div class="action-buttons">
+      <button id="prevBtn" class="ctrl-btn"><i class="fas fa-chevron-left"></i></button>
+      <button id="nextBtn" class="ctrl-btn"><i class="fas fa-chevron-right"></i></button>
+      <button id="playPauseBtn" class="ctrl-btn play-pause"><i class="fas fa-pause" id="playIcon"></i></button>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

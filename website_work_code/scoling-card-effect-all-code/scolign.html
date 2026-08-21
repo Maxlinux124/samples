@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>Premium 3D Circular Carousel - Rubbish Removal Dublin</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@700&display=swap');
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #020617; /* Dark Obsidian Space Theme */
+            color: #ffffff;
+            overflow-x: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .font-heading {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* 3D Stage Setup */
+        .stage-3d {
+            perspective: 2000px; 
+            perspective-origin: 50% 35%;
+        }
+
+        /* 3D Carousel Ring Container */
+        .ring-3d {
+            position: relative;
+            width: 100%;
+            height: 480px;
+            transform-style: preserve-3d;
+            will-change: transform;
+        }
+
+        /* Premium 3D Card Base Styling */
+        .card-item-3d {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 310px;
+            height: 410px;
+            margin-left: -155px; /* Perfect centering */
+            margin-top: -205px;
+            transform-style: preserve-3d;
+            backface-visibility: hidden;
+            transition: opacity 0.5s, filter 0.5s, border-color 0.3s, box-shadow 0.3s;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 2.5rem;
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            cursor: grab;
+        }
+
+        .card-item-3d:active {
+            cursor: grabbing;
+        }
+
+        /* Highlight of Active Front Card */
+        .card-item-3d.active-card {
+            border-color: rgba(16, 185, 129, 0.5);
+            box-shadow: 0 0 50px rgba(16, 185, 129, 0.25), 
+                        0 25px 60px rgba(0, 0, 0, 0.8),
+                        inset 0 0 20px rgba(16, 185, 129, 0.1);
+        }
+
+        /* Inner Elements depth mapping for parallax look */
+        .layer-depth-1 { transform: translateZ(35px); }
+        .layer-depth-2 { transform: translateZ(55px); }
+
+        /* Background Soft Lighting */
+        .ambient-glow {
+            filter: blur(140px);
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.18) 0%, rgba(2, 6, 23, 0) 70%);
+        }
+
+        /* Particle Canvas overlay */
+        #particleCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body class="relative min-h-screen py-16 flex flex-col justify-center items-center">
+
+    <!-- Ambient particles for depth -->
+    <canvas id="particleCanvas"></canvas>
+
+    <!-- Background glowing visual spots -->
+    <div class="absolute w-[600px] h-[600px] ambient-glow top-10 left-1/2 -translate-x-1/2 pointer-events-none z-0"></div>
+    <div class="absolute w-[400px] h-[400px] ambient-glow bottom-10 right-10 pointer-events-none z-0"></div>
+
+    <div class="w-full max-w-7xl mx-auto px-6 relative z-10 flex flex-col justify-between h-full">
+        
+        <!-- Header Section -->
+        <div class="text-center mb-10">
+            <span class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-4 py-1.5 rounded-full text-xs font-bold tracking-[0.2em] uppercase shadow-lg shadow-emerald-500/5">
+                <i class="fas fa-magic mr-2 animate-pulse"></i> Ultra-Modern 3D Experience
+            </span>
+            <h1 class="font-heading text-4xl md:text-6xl font-extrabold mt-6 tracking-tighter">
+                Why Choose <span class="text-emerald-400">Fast Junk</span> Removal?
+            </h1>
+            <p class="text-slate-400 mt-4 max-w-2xl mx-auto text-sm md:text-base leading-relaxed">
+                Dublin's trusted choice. <span class="text-white font-semibold">Mouse se drag karein, swipe karein, ya arrow keys use karein</span>. 3D circular ring khud-ba-khud rotate hogi aur front card real depth dikhayega.
+            </p>
+        </div>
+
+        <!-- 3D Stage Viewport -->
+        <div class="stage-3d w-full h-[480px] flex items-center justify-center overflow-visible my-4">
+            
+            <!-- Dynamic 3D Rotating Ring Container -->
+            <div id="ring3D" class="ring-3d">
+                
+                <!-- Card 1 -->
+                <div class="card-item-3d p-8 flex flex-col justify-between" data-index="0">
+                    <div>
+                        <div class="w-14 h-14 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-2xl flex items-center justify-center mb-8 shadow-lg layer-depth-2">
+                            <i class="fas fa-headset text-xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4 text-white layer-depth-1">24/7 Rubbish Support</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed layer-depth-1">Hum Dublin me 24/7 active hain. Aap kabhi bhi hume urgent collections ke liye contact kar sakte hain.</p>
+                    </div>
+                    <span class="text-emerald-400/10 font-heading font-black text-6xl text-right block select-none">01</span>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="card-item-3d p-8 flex flex-col justify-between" data-index="1">
+                    <div>
+                        <div class="w-14 h-14 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-2xl flex items-center justify-center mb-8 shadow-lg layer-depth-2">
+                            <i class="fas fa-map-marked-alt text-xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4 text-white layer-depth-1">Local Dublin Service</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed layer-depth-1">Poore Dublin me hamari local teams maujood hain, jo quick pickup ke liye ready rehti hain.</p>
+                    </div>
+                    <span class="text-emerald-400/10 font-heading font-black text-6xl text-right block select-none">02</span>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="card-item-3d p-8 flex flex-col justify-between" data-index="2">
+                    <div>
+                        <div class="w-14 h-14 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-2xl flex items-center justify-center mb-8 shadow-lg layer-depth-2">
+                            <i class="fas fa-shipping-fast text-xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4 text-white layer-depth-1">Fast Urgent Response</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed layer-depth-1">Urgent jobs ke liye fast response time. Time par aana aur jaldi kachra clear karna hamari specialty hai.</p>
+                    </div>
+                    <span class="text-emerald-400/10 font-heading font-black text-6xl text-right block select-none">03</span>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="card-item-3d p-8 flex flex-col justify-between" data-index="3">
+                    <div>
+                        <div class="w-14 h-14 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-2xl flex items-center justify-center mb-8 shadow-lg layer-depth-2">
+                            <i class="fas fa-smile-beam text-xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4 text-white layer-depth-1">Friendly & Helpful</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed layer-depth-1">Hamare crew members friendly, supportive, aur helpful hain jo customer ki har baat sunte hain.</p>
+                    </div>
+                    <span class="text-emerald-400/10 font-heading font-black text-6xl text-right block select-none">04</span>
+                </div>
+
+                <!-- Card 5 -->
+                <div class="card-item-3d p-8 flex flex-col justify-between" data-index="4">
+                    <div>
+                        <div class="w-14 h-14 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-2xl flex items-center justify-center mb-8 shadow-lg layer-depth-2">
+                            <i class="fas fa-dumbbell text-xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4 text-white layer-depth-1">Heavy Lifting Included</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed layer-depth-1">Aapko kachra bahar rakhne ya heavy items lift karne ki zarurat nahi. Pura loading hum khud karenge.</p>
+                    </div>
+                    <span class="text-emerald-400/10 font-heading font-black text-6xl text-right block select-none">05</span>
+                </div>
+
+                <!-- Card 6 -->
+                <div class="card-item-3d p-8 flex flex-col justify-between" data-index="5">
+                    <div>
+                        <div class="w-14 h-14 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-2xl flex items-center justify-center mb-8 shadow-lg layer-depth-2">
+                            <i class="fas fa-calendar-check text-xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4 text-white layer-depth-1">Flexible Bookings</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed layer-depth-1">Ghar ho ya office, hum flexible collections offer karte hain jo aapke free schedule ke mutabiq fit ho.</p>
+                    </div>
+                    <span class="text-emerald-400/10 font-heading font-black text-6xl text-right block select-none">06</span>
+                </div>
+
+                <!-- Card 7 -->
+                <div class="card-item-3d p-8 flex flex-col justify-between" data-index="6">
+                    <div>
+                        <div class="w-14 h-14 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-2xl flex items-center justify-center mb-8 shadow-lg layer-depth-2">
+                            <i class="fas fa-leaf text-xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4 text-white layer-depth-1">Eco-Friendly Disposal</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed layer-depth-1">We love our environment. Hum recycle hone layak kachre ko alag karke legal disposal points par bhejte hain.</p>
+                    </div>
+                    <span class="text-emerald-400/10 font-heading font-black text-6xl text-right block select-none">07</span>
+                </div>
+
+                <!-- Card 8 -->
+                <div class="card-item-3d p-8 flex flex-col justify-between" data-index="7">
+                    <div>
+                        <div class="w-14 h-14 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-2xl flex items-center justify-center mb-8 shadow-lg layer-depth-2">
+                            <i class="fas fa-broom text-xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4 text-white layer-depth-1">Clean & Careful Work</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed layer-depth-1">Kachra uthane ke baad hamari team poori jagah ko clear aur clean karti hai, takki koi kachra na bache.</p>
+                    </div>
+                    <span class="text-emerald-400/10 font-heading font-black text-6xl text-right block select-none">08</span>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Controls, Pagination Dots & Autoplay state Indicator -->
+        <div class="flex flex-col items-center gap-6 mt-10 relative z-20">
+            <div class="flex items-center gap-6">
+                <!-- Previous Button -->
+                <button id="prevBtn" class="w-14 h-14 bg-white/5 border border-white/10 rounded-full flex items-center justify-center hover:bg-emerald-500 hover:text-black transition-all duration-300 shadow-lg hover:shadow-emerald-500/20">
+                    <i class="fas fa-chevron-left text-lg"></i>
+                </button>
+                
+                <!-- Pagination Dots -->
+                <div id="paginationDots" class="flex gap-2.5">
+                    <!-- Dots will render here dynamically -->
+                </div>
+                
+                <!-- Next Button -->
+                <button id="nextBtn" class="w-14 h-14 bg-white/5 border border-white/10 rounded-full flex items-center justify-center hover:bg-emerald-500 hover:text-black transition-all duration-300 shadow-lg hover:shadow-emerald-500/20">
+                    <i class="fas fa-chevron-right text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Interactivity Help indicator -->
+            <p class="text-xs text-slate-500 font-bold uppercase tracking-widest flex items-center gap-2">
+                <span class="inline-block w-2.5 h-2.5 bg-emerald-500 rounded-full animate-ping"></span>
+                Hold click & drag mouse to spin manually
+            </p>
+        </div>
+
+    </div>
+
+    <!-- Script to manage Circular 3D Carousel, Swipe, Drag, Inertia, Particles & Autoplay -->
+    <script>
+        const ring = document.getElementById('ring3D');
+        const cards = document.querySelectorAll('.card-item-3d');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const dotsContainer = document.getElementById('paginationDots');
+        
+        let totalCards = cards.length;
+        let currentIndex = 0;
+
+        // Configuration
+        const angleUnit = 360 / totalCards; // 8 cards = 45 degree space per card
+        let targetRotation = 0;
+        let currentRotation = 0;
+        
+        // Physics and Drag variables
+        let isDragging = false;
+        let startX = 0;
+        let startRotation = 0;
+        let lastX = 0;
+        let velocity = 0;
+        let lastTime = 0;
+        let autoRotateActive = true;
+        let autoRotateSpeed = 0.05; // Base auto rotation angle addition per frame
+        let animationFrameId;
+
+        // Radius setting for 3D Circle
+        const getRadius = () => {
+            return window.innerWidth < 640 ? 250 : 390; // Mobile vs Desktop scale
+        };
+
+        // Render dynamic pagination dots
+        for (let i = 0; i < totalCards; i++) {
+            const dot = document.createElement('div');
+            dot.className = `w-2 h-2 rounded-full transition-all duration-300 ${i === 0 ? 'bg-emerald-400 w-6' : 'bg-white/10'}`;
+            dot.setAttribute('data-dot-index', i);
+            dot.classList.add('cursor-pointer');
+            dotsContainer.appendChild(dot);
+            
+            dot.addEventListener('click', () => {
+                goToCard(i);
+            });
+        }
+
+        const dots = document.querySelectorAll('[data-dot-index]');
+
+        // Update Position on the 3D space
+        function update3DCarousel() {
+            const radius = getRadius();
+            
+            // Apply current rotation to the parent ring
+            ring.style.transform = `rotateY(${currentRotation}deg)`;
+
+            cards.forEach((card, i) => {
+                const cardBaseAngle = i * angleUnit;
+                
+                // Set initial positioning of the cards on the cylinder
+                card.style.transform = `rotateY(${cardBaseAngle}deg) translateZ(${radius}px)`;
+
+                // Highlight/Focus logic for front facing card
+                // Calculate actual angle relative to front (0 degrees or 360 degrees)
+                const relativeAngle = (cardBaseAngle + currentRotation) % 360;
+                // Normalize angle between -180 and 180
+                let normalizedAngle = ((relativeAngle + 180) % 360) - 180;
+                if (normalizedAngle < -180) normalizedAngle += 360;
+
+                const absAngle = Math.abs(normalizedAngle);
+
+                // If card is facing front (roughly within 22.5 degrees range of 0)
+                if (absAngle < 22.5) {
+                    card.classList.add('active-card');
+                    card.style.opacity = '1';
+                    card.style.filter = 'none';
+                    card.style.pointerEvents = 'auto';
+                    card.style.zIndex = '30';
+                } else {
+                    card.classList.remove('active-card');
+                    // Back cards will blur, fade and scale down slightly
+                    card.style.opacity = '0.22';
+                    card.style.filter = 'blur(4px) scale(0.88)';
+                    card.style.pointerEvents = 'none';
+                    card.style.zIndex = '10';
+                }
+            });
+
+            // Calculate current index based on rotation
+            let calculatedIndex = Math.round(-currentRotation / angleUnit) % totalCards;
+            if (calculatedIndex < 0) calculatedIndex += totalCards;
+            
+            currentIndex = calculatedIndex;
+
+            // Highlight Dots
+            dots.forEach((dot, idx) => {
+                if (idx === currentIndex) {
+                    dot.className = "w-6 h-2 rounded-full bg-emerald-400 transition-all duration-300";
+                } else {
+                    dot.className = "w-2 h-2 rounded-full bg-white/20 transition-all duration-300";
+                }
+            });
+        }
+
+        // Snap to nearest card position smoothly
+        function snapToNearest() {
+            const targetSnapAngle = Math.round(targetRotation / angleUnit) * angleUnit;
+            targetRotation = targetSnapAngle;
+        }
+
+        function goToCard(index) {
+            // Find shortest rotation path to card index
+            let diff = index - currentIndex;
+            if (diff > totalCards / 2) diff -= totalCards;
+            if (diff < -totalCards / 2) diff += totalCards;
+
+            targetRotation -= diff * angleUnit;
+            snapToNearest();
+        }
+
+        // Physics Animation Loop
+        function animLoop() {
+            if (isDragging) {
+                // Dragging coordinates are directly set
+                currentRotation += (targetRotation - currentRotation) * 0.4;
+            } else {
+                if (autoRotateActive) {
+                    // Slow idle rotate if active
+                    targetRotation -= autoRotateSpeed;
+                }
+                
+                // Apply inertia momentum friction when decelerating
+                if (Math.abs(velocity) > 0.05) {
+                    targetRotation += velocity;
+                    velocity *= 0.94; // Friction damping factor
+                } else {
+                    if (!autoRotateActive && velocity !== 0) {
+                        velocity = 0;
+                        snapToNearest();
+                    }
+                }
+
+                // Smoothly slide to target rotation
+                currentRotation += (targetRotation - currentRotation) * 0.1;
+            }
+
+            // Normalise angle to avoid infinite overflow numbers
+            if (currentRotation > 3600) {
+                currentRotation -= 3600;
+                targetRotation -= 3600;
+            } else if (currentRotation < -3600) {
+                currentRotation += 3600;
+                targetRotation += 3600;
+            }
+
+            update3DCarousel();
+            animationFrameId = requestAnimationFrame(animLoop);
+        }
+
+        // Pointer/Mouse Drag Handlers
+        function onPointerDown(e) {
+            isDragging = true;
+            autoRotateActive = false;
+            startX = e.clientX || e.touches?.[0]?.clientX;
+            startRotation = targetRotation;
+            lastX = startX;
+            velocity = 0;
+            lastTime = performance.now();
+        }
+
+        function onPointerMove(e) {
+            if (!isDragging) return;
+            const x = e.clientX || e.touches?.[0]?.clientX;
+            const deltaX = x - startX;
+            
+            // Translate drag distance into rotation angle
+            const dragFactor = window.innerWidth < 640 ? 0.35 : 0.22;
+            targetRotation = startRotation + (deltaX * dragFactor);
+
+            // Calculate instantaneous drag velocity
+            const now = performance.now();
+            const timeDelta = now - lastTime;
+            if (timeDelta > 0) {
+                velocity = ((x - lastX) * dragFactor) / (timeDelta / 16);
+            }
+            lastX = x;
+            lastTime = now;
+        }
+
+        function onPointerUp() {
+            if (!isDragging) return;
+            isDragging = false;
+            // Snapping behavior triggered if velocity is low
+            if (Math.abs(velocity) < 0.15) {
+                snapToNearest();
+            }
+        }
+
+        // Event Listeners for drag rotation
+        const stage = document.querySelector('.stage-3d');
+        stage.addEventListener('mousedown', onPointerDown);
+        window.addEventListener('mousemove', onPointerMove);
+        window.addEventListener('mouseup', onPointerUp);
+
+        stage.addEventListener('touchstart', onPointerDown, { passive: true });
+        window.addEventListener('touchmove', onPointerMove, { passive: true });
+        window.addEventListener('touchend', onPointerUp);
+
+        // Pause idle auto-rotation on mouse hover inside the stage
+        stage.addEventListener('mouseenter', () => {
+            autoRotateActive = false;
+        });
+        stage.addEventListener('mouseleave', () => {
+            if (!isDragging) {
+                autoRotateActive = true;
+                velocity = 0;
+            }
+        });
+
+        // Basic Navigation Clicks
+        nextBtn.addEventListener('click', () => {
+            autoRotateActive = false;
+            targetRotation -= angleUnit;
+            snapToNearest();
+        });
+
+        prevBtn.addEventListener('click', () => {
+            autoRotateActive = false;
+            targetRotation += angleUnit;
+            snapToNearest();
+        });
+
+        // Keyboard Arrow Controls
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                autoRotateActive = false;
+                targetRotation += angleUnit;
+                snapToNearest();
+            } else if (e.key === 'ArrowRight') {
+                autoRotateActive = false;
+                targetRotation -= angleUnit;
+                snapToNearest();
+            }
+        });
+
+        // Background Particles Setup
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 0.5;
+                this.speedX = Math.random() * 0.3 - 0.15;
+                this.speedY = Math.random() * 0.2 + 0.1; // Slowly drift upwards
+                this.opacity = Math.random() * 0.5 + 0.1;
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y -= this.speedY;
+                if (this.y < 0) {
+                    this.y = canvas.height;
+                    this.x = Math.random() * canvas.width;
+                }
+            }
+
+            draw() {
+                ctx.fillStyle = `rgba(16, 185, 129, ${this.opacity})`;
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = '#10b981';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0; // Reset shadow for efficiency
+            }
+        }
+
+        // Initialize particles
+        for (let i = 0; i < 45; i++) {
+            particles.push(new Particle());
+        }
+
+        function drawParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(drawParticles);
+        }
+
+        // Window load trigger
+        window.onload = function() {
+            animLoop();
+            drawParticles();
+        };
+
+        // Keep responsive radius calculation safe on resize
+        window.addEventListener('resize', () => {
+            update3DCarousel();
+        });
+    </script>
+
+</body>
+</html>

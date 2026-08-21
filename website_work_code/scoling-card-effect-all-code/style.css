@@ -1,0 +1,83 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@700&display=swap');
+
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background-color: #020617; /* Dark Obsidian Space Theme */
+    color: #ffffff;
+    overflow-x: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.font-heading {
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+/* 3D Stage Setup */
+.stage-3d {
+    perspective: 2000px; 
+    perspective-origin: 50% 35%;
+}
+
+/* 3D Carousel Ring Container */
+.ring-3d {
+    position: relative;
+    width: 100%;
+    height: 480px;
+    transform-style: preserve-3d;
+    will-change: transform;
+}
+
+/* Premium 3D Card Base Styling */
+.card-item-3d {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 310px;
+    height: 410px;
+    margin-left: -155px; /* Perfect centering */
+    margin-top: -205px;
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+    transition: opacity 0.5s, filter 0.5s, border-color 0.3s, box-shadow 0.3s;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 2.5rem;
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+    cursor: grab;
+}
+
+.card-item-3d:active {
+    cursor: grabbing;
+}
+
+/* Highlight of Active Front Card */
+.card-item-3d.active-card {
+    border-color: rgba(16, 185, 129, 0.5);
+    box-shadow: 0 0 50px rgba(16, 185, 129, 0.25), 
+                0 25px 60px rgba(0, 0, 0, 0.8),
+                inset 0 0 20px rgba(16, 185, 129, 0.1);
+}
+
+/* Inner Elements depth mapping for parallax look */
+.layer-depth-1 { transform: translateZ(35px); }
+.layer-depth-2 { transform: translateZ(55px); }
+
+/* Background Soft Lighting */
+.ambient-glow {
+    filter: blur(140px);
+    background: radial-gradient(circle, rgba(16, 185, 129, 0.18) 0%, rgba(2, 6, 23, 0) 70%);
+}
+
+/* Particle Canvas overlay */
+#particleCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+}

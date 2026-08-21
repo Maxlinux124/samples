@@ -1,0 +1,111 @@
+/* 1. Reset & Base Setup */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    overflow: hidden;
+    background: #000;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* 2. WebGL Canvas Container */
+#scene-container {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+}
+
+/* 3. Hero Content Overlay */
+.hero {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: #ffffff;
+    z-index: 10;
+    pointer-events: none; /* Mouse movements canvas tak smoothly pass hone dene ke liye */
+    padding: 0 20px;
+}
+
+/* 4. Premium Typography & Text Glow */
+.hero h1 {
+    font-size: 72px;
+    font-weight: 800;
+    max-width: 950px;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    /* Clean white to slight silver gradient */
+    background: linear-gradient(180deg, #ffffff 0%, #e2e8f0 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    /* Subtle cinematic glow underneath text */
+    text-shadow: 0 0 40px rgba(0, 255, 204, 0.15);
+}
+
+.hero p {
+    margin-top: 24px;
+    font-size: 22px;
+    font-weight: 400;
+    max-width: 600px;
+    color: #94a3b8; /* Slate gray tone for premium contrast */
+    line-height: 1.5;
+}
+
+/* 5. Interactive Premium SaaS Button */
+.hero button {
+    margin-top: 40px;
+    padding: 16px 44px;
+    border: 1px solid rgba(0, 255, 204, 0.3);
+    border-radius: 50px;
+    background: linear-gradient(135deg, rgba(0, 255, 204, 0.15) 0%, rgba(37, 99, 235, 0.2) 100%);
+    backdrop-filter: blur(10px); /* Glassmorphism effect */
+    -webkit-backdrop-filter: blur(10px);
+    color: #fff;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    pointer-events: auto; /* Buttons par click work karega */
+    cursor: pointer;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Button Hover State (Neon Flare) */
+.hero button:hover {
+    background: #00ffcc;
+    color: #000;
+    border-color: #00ffcc;
+    box-shadow: 0 0 30px rgba(0, 255, 204, 0.6);
+    transform: translateY(-2px);
+}
+
+.hero button:active {
+    transform: translateY(0);
+}
+
+/* 6. Responsive Design (Mobile Support) */
+@media (max-width: 768px) {
+    .hero h1 {
+        font-size: 42px;
+        letter-spacing: -0.02em;
+    }
+    
+    .hero p {
+        font-size: 18px;
+        margin-top: 16px;
+    }
+    
+    .hero button {
+        margin-top: 32px;
+        padding: 14px 36px;
+        font-size: 16px;
+    }
+}

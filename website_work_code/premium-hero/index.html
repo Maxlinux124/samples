@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoltX | Next-Gen Electrical Solutions</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="pointer-glow" id="pointerGlow"></div>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#" class="logo">VOLT<span>X</span></a>
+            <div class="nav-links">
+                <a href="#services" class="active">Services</a>
+                <a href="#about">Technology</a>
+                <a href="#safety">Safety</a>
+                <a href="#contact">Contact</a>
+            </div>
+            <a href="tel:+123456789" class="nav-cta">Emergency 24/7</a>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <canvas id="electricCanvas"></canvas>
+        <div class="blue-aura"></div>
+
+        <div class="hero-container">
+            <div class="glass-box">
+                <div class="badge"><i class="fa-solid fa-bolt-lightning"></i> Future of Electrical Engineering</div>
+                <h1>Next-Gen <br><span class="gradient-text">Energy Systems</span></h1>
+                <p>Experience ultra-premium electrical craftsmanship. Blending Tesla-level automation with elite, military-grade safety standards for high-end estates and corporate grids.</p>
+                
+                <div class="cta-group">
+                    <button class="btn btn-primary">Book Elite Service <i class="fa-solid fa-arrow-right"></i></button>
+                    <button class="btn btn-secondary">Explore Tech Stack</button>
+                </div>
+            </div>
+
+            <div class="cards-grid">
+                <div class="service-card animate-float" style="--delay: 0s;">
+                    <div class="icon-box"><i class="fa-solid fa-house-chimney-crack"></i></div>
+                    <h3>Residential</h3>
+                    <p>Smart home automation & premium grid architecture.</p>
+                </div>
+                <div class="service-card animate-float" style="--delay: 1.5s;">
+                    <div class="icon-box orange-glow"><i class="fa-solid fa-building-shield"></i></div>
+                    <h3>Commercial</h3>
+                    <p>High-load distribution & industrial power safety.</p>
+                </div>
+                <div class="service-card animate-float" style="--delay: 0.7s;">
+                    <div class="icon-box orange-glow"><i class="fa-solid fa-car-battery"></i></div>
+                    <h3>EV Charger Installation</h3>
+                    <p>Tesla & universal level 3 hyper-charging docks.</p>
+                </div>
+                <div class="service-card animate-float" style="--delay: 2.2s;">
+                    <div class="icon-box urgent"><i class="fa-solid fa-radiation"></i></div>
+                    <h3>Emergency 24/7</h3>
+                    <p>Instant deployment for critical grid failures.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="scroll-down">
+            <span>Scroll to explore</span>
+            <div class="wheel"></div>
+        </div>
+    </section>
+
+    <script src="script.js"></script>
+</body>
+</html>

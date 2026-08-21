@@ -1,0 +1,28 @@
+.canvas-bg-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0; /* Isse background piche chala jayega */
+    overflow: hidden;
+    background-color: #0a0a0f; /* Apka Pygame wala dark color (10, 10, 15) */
+}
+
+#spiderWebCanvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+/* Oxygen Section Settings: Jis section me aapne code dala hai, 
+   usko 'position: relative' dena zaroori hai taaki background sahi se baithe */
+.ct-section { 
+    position: relative; 
+}
+
+/* Is baat ka dhyan rakhein ki aapke section ke baaki elements ka z-index 1 ya usse zyada ho */
+.ct-section > * {
+    position: relative;
+    z-index: 1;
+}
