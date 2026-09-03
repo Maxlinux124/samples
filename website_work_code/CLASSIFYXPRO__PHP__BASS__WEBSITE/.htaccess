@@ -1,0 +1,67 @@
+RewriteEngine On
+
+# -----------------------------
+# Prevent directory listing
+# -----------------------------
+Options -Indexes
+
+# -----------------------------
+# SEO Friendly Ad URL
+# https://classifyxpro.com/ad/slug
+# -----------------------------
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ad/(.+)$ view-ads.php?s=$1 [L,QSA]
+
+# -----------------------------
+# Force HTTPS
+# -----------------------------
+RewriteCond %{HTTPS} off
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# -----------------------------
+# Browser Caching (Speed)
+# -----------------------------
+<IfModule mod_expires.c>
+ExpiresActive On
+
+ExpiresByType image/jpg "access 1 year"
+ExpiresByType image/jpeg "access 1 year"
+ExpiresByType image/png "access 1 year"
+ExpiresByType image/gif "access 1 year"
+ExpiresByType image/webp "access 1 year"
+
+ExpiresByType text/css "access 1 month"
+ExpiresByType text/javascript "access 1 month"
+ExpiresByType application/javascript "access 1 month"
+
+ExpiresByType application/pdf "access 1 month"
+ExpiresByType text/html "access 1 hour"
+</IfModule>
+
+# -----------------------------
+# GZIP Compression (Speed)
+# -----------------------------
+<IfModule mod_deflate.c>
+AddOutputFilterByType DEFLATE text/plain
+AddOutputFilterByType DEFLATE text/html
+AddOutputFilterByType DEFLATE text/xml
+AddOutputFilterByType DEFLATE text/css
+AddOutputFilterByType DEFLATE application/xml
+AddOutputFilterByType DEFLATE application/javascript
+AddOutputFilterByType DEFLATE application/json
+</IfModule>
+
+# -----------------------------
+# Protect Sensitive Files
+# -----------------------------
+<FilesMatch "(^\.|config\.php|db\.php)">
+Order allow,deny
+Deny from all
+</FilesMatch>
+
+# -----------------------------
+# Block common bad bots
+# -----------------------------
+RewriteCond %{HTTP_USER_AGENT} (wget|curl|python|scrapy|libwww-perl) [NC]
+RewriteRule .* - [F,L] 

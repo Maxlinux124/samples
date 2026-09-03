@@ -1,0 +1,27 @@
+.icon-rotet {
+    width: 120px;
+    height: 120px;
+    display: inline-block;
+    animation: globeRotate 6s linear infinite;
+    transform-style: preserve-3d;
+    transform-origin: center;
+    will-change: transform;
+}
+
+@keyframes globeRotate {
+    from {
+        transform: perspective(800px) rotateX(15deg) rotateY(36deg);
+    }
+    to {
+        transform: perspective(800px) rotateX(15deg) rotateY(396deg);
+    }
+}
+
+@-webkit-keyframes globeRotate {
+    from {
+        -webkit-transform: perspective(800px) rotateX(15deg) rotateY(36deg);
+    }
+    to {
+        -webkit-transform: perspective(800px) rotateX(15deg) rotateY(396deg);
+    }
+}
