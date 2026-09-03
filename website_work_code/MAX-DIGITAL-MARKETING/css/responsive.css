@@ -1,0 +1,13 @@
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto;
+    }
+}
+
+@media (min-width: 48rem) {
+    :root {
+        --space-5: 3rem;
+    }
+}
