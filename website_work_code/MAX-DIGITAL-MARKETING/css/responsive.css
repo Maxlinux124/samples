@@ -10,4 +10,26 @@
     :root {
         --space-5: 3rem;
     }
+
+    .hero__inner {
+        padding-right: 42%;
+        padding-left: var(--space-5);
+    }
+
+    .hero__canvas-layer {
+        left: 79%;
+        width: min(44rem, 54vw);
+    }
+}
+
+@media (min-width: 75rem) {
+    .hero__inner {
+        padding-left: 0;
+    }
+}
+
+@media (hover: none) {
+    .button:hover {
+        transform: none;
+    }
 }
