@@ -211,27 +211,9 @@ locationInput.addEventListener("input",function(){
 
 </body>
 </html>
+<?php $conn->close(); ?>
+<?php __halt_compiler(); ?>
 
-<?php $conn->close(); ?> a code bhi raun  nhia ho rah he  
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Edit Ad - <?= htmlspecialchars($row['title']); ?></title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-body { font-family:'Inter',sans-serif; background:linear-gradient(135deg,#f0f4f8,#d9e2ec); margin:0; padding:0; }
-h1 { text-align:center; font-size:2.2rem; font-weight:600; margin:40px 0 20px; color:#1a73e8; }
-form { max-width:700px; margin:0 auto 50px; background:#fff; padding:40px; border-radius:20px; box-shadow:0 15px 35px rgba(0,0,0,0.1); transition: transform 0.3s ease; }
-form:hover { transform:translateY(-5px); }
-label { font-weight:500;color:#333; display:block; margin-bottom:8px; }
-input, textarea, select { width:100%; padding:14px 16px; margin-bottom:20px; border-radius:12px; border:1px solid #ccc; font-size:1rem; transition:all 0.3s ease; }
-input:focus, textarea:focus, select:focus { border-color:#1a73e8; box-shadow:0 0 12px rgba(26,115,232,0.3); outline:none; }
-button { width:100%; padding:14px; background:linear-gradient(90deg,#1a73e8,#4285f4); color:#fff; font-weight:600; font-size:1rem; border:none; border-radius:30px; cursor:pointer; transition:all 0.3s ease, box-shadow 0.2s ease; }
-button:hover { transform:scale(1.05); background:linear-gradient(90deg,#155ab6,#1a4fc1); box-shadow:0 8px 20px rgba(0,0,0,0.2); }
-button:active { transform:scale(0.98); box-shadow:0 4px 10px rgba(0,0,0,0.2); }
 .message { text-align:center; font-weight:600; margin-bottom:20px; font-size:1rem; color: <?= (isset($message) && strpos($message,"❌")!==false)?"red":"green"; ?>; }
 #drop-area { border:2px dashed #1a73e8; padding:30px; text-align:center; border-radius:15px; background:#f9fbfd; cursor:pointer; transition:0.3s; }
 #drop-area:hover { background:#e3f0ff; border-color:#1a73e8; }

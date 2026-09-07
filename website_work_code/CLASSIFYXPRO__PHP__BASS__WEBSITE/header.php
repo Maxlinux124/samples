@@ -1,9 +1,8 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-include_once "db.php";
-$conn = getDBConnection();
+require_once __DIR__ . '/app/Bootstrap.php';
+
+app_start_session();
+$conn = app_database_connection();
 
 $userImage = "";
 $username = "";
