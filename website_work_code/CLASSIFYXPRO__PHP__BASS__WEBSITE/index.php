@@ -12,14 +12,14 @@ $conn = getDBConnection();
 $base_url = "https://" . $_SERVER['HTTP_HOST'];
 $pageTitle = "ClassifyX – Free Classified Ads | Buy · Sell · Connect Instantly";
 $metaDescription = "Thousands trust ClassifyX daily for safe trading. Post free ads for jobs, vehicles, and services. Fast, Easy & Secure!";
-$metaKeywords = "classifieds, free ads, jobs, property, vehicles, electronics, services, online marketplace"; 
+$metaKeywords = "classifieds, free ads, jobs, property, vehicles, electronics, services, online marketplace";
 $canonical = $base_url . parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
 // --- 2. DYNAMIC SEO FOR CATEGORIES ---
 if(isset($_GET['cat']) && !empty($_GET['cat'])){
    $cat_raw = $_GET['cat'];
    $cat_clean = htmlspecialchars(ucfirst(str_replace('-', ' ', $cat_raw)));
-   
+
    $pageTitle = "$cat_clean - Verified Local Listings | ClassifyX";
    $metaDescription = "Looking for $cat_clean? Skip the middleman and chat directly with sellers. Every listing is verified for a safe trading experience on ClassifyX.";
    $metaKeywords = strtolower($cat_clean) . ", free ads, local marketplace, verified $cat_clean";
@@ -63,7 +63,7 @@ if(isset($_GET['q']) && !empty($_GET['q'])){
     <meta name="89ff60bd7ca41ed6c498edf53c7b19bd4b5c2b38" content="89ff60bd7ca41ed6c498edf53c7b19bd4b5c2b38" />
 
     <meta name="google-site-verification" content="suAMAqkrTPI65wo7K45nGRLBZZrYHtRCLE29ZO9ABZ8" />
-    
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="google-site-verification" content="BPU6mv-kEGKdvL3qTnPBPmK29CWpb2-RJxxaI1vy4_U" />
@@ -85,301 +85,39 @@ if(isset($_GET['q']) && !empty($_GET['q'])){
 <script src="https://cdn.tailwindcss.com"></script>
 
 <!-- --- CSS --- -->
-<style>
-body { font-family: 'Inter', sans-serif; background: #ffffffff; margin:0; padding:0; }
-
-/* Header */
-header { background: #fff; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; }
-header .logo { font-weight: bold; font-size: 1.5rem; color: #007bff; cursor: pointer; }
-header nav a { margin:0 0.5rem; text-decoration:none; color:#333; font-weight:500; transition: all 0.3s ease; }
-header nav a:hover { color:#007bff; transform:translateY(-2px); }
-header nav a.signup { color:white; font-weight:bold; padding:0.5rem 1rem; border-radius:0.5rem; border:2px solid transparent; transition: all 0.3s ease; }
-header nav a.signup:hover { background:#007bff; color:#fff; border-color:#007bff; }
-
-/* Hero Section */
-.hero-bg { background: linear-gradient(to right, #053b7c, #3c8efc); animation: moveGradient 15s linear infinite; color: white; text-align:center; padding:5rem 1rem; }
-@keyframes moveGradient { 0% {background-position:0%} 50% {background-position:100%} 100% {background-position:0%} }
-.hero-bg h1 { font-size:2rem; font-weight:bold; }
-.hero-bg p { margin-top:0.5rem; font-size:1rem; }
-.hero-bg .btn-post:hover { transform:translateY(-2px); box-shadow:0 4px 12px rgba(0,0,0,0.2); }
-
-/* Search Form */
-form input, form select, form button { padding:0.75rem; border-radius:1rem; border:1px solid #ccc; font-size:0.875rem; }
-form button { background:#2563eb; color:white; cursor:pointer; transition: all 0.3s ease; }
-form button:hover { background:#1e40af; }
-
-/* Cards */
-.card { transition: all 0.3s ease; border-radius:1rem; overflow:hidden; }
-.card:hover { transform:translateY(-5px); box-shadow:0 10px 20px rgba(0,0,0,0.1); }
-.card h3 { font-size:0.9rem; margin-bottom:0.25rem; }
-.card img { height:200px; width:100%; object-fit:cover; }
-@media (min-width: 768px) {
-  .hero-bg h1 { font-size:3rem; }
-  .hero-bg p { font-size:1.25rem; }
-  .card h3 { font-size:1rem; }
-  .card img { height:12rem; }
-}
-
-/* Footer */
-footer { background:#111827; color:#d1d5db; padding:3rem 1rem; text-align:center; }
-
-/* Mobile Nav Toggle */
-#menu-btn { display:none; }
-@media (max-width: 768px) {
-  #menu-btn { display:block; }
-  #menu { display:none; flex-direction:column; width:100%; text-align:center; }
-  #menu a { margin:0.5rem 0; display:block; }
-}
-
-</style>
+<link rel="stylesheet" href="assets/css/index.css">
 </head>
 <body class="overflow-x-hidden">
   <?php include_once "header.php"; ?>
 
   <!-- Mobile Menu Script -->
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-  const menuBtn = document.getElementById("menu-btn");
-  const menu = document.getElementById("menu");
 
-  if (menuBtn && menu) {
-    menuBtn.addEventListener("click", function () {
-      menu.classList.toggle("hidden");
-    });
-  }
-});
-</script>
-<style>
-  /* GLOBAL SMOOTH ANIMATIONS */
-* {
-  transition: all 0.35s ease-in-out;
-}
 
-/* Hero Section */
-.hero-bg {
-  animation: gradientMove 15s linear infinite, heroFadeIn 1s ease forwards;
-}
-@keyframes heroFadeIn {
-  0% { opacity:0; transform:translateY(20px); }
-  100% { opacity:1; transform:translateY(0); }
-}
-@keyframes gradientMove {
-  0% { background-position:0% 50%; }
-  50% { background-position:100% 50%; }
-  100% { background-position:0% 50%; }
-}
-
-/* Buttons */
-.btn-post, .btn-outline, .card a, .card button, #chatButton {
-  transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
-}
-.btn-post:hover, .btn-outline:hover, .card a:hover, .card button:hover, #chatButton:hover {
-  transform: translateY(-3px) scale(1.05);
-  box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-}
-
-/* Cards */
-.card {
-  opacity: 0;
-  transform: translateY(20px);
-  animation: cardFadeIn 0.6s ease forwards;
-}
-.card:nth-child(1){ animation-delay:0.1s; }
-.card:nth-child(2){ animation-delay:0.2s; }
-.card:nth-child(3){ animation-delay:0.3s; }
-.card:nth-child(4){ animation-delay:0.4s; }
-@keyframes cardFadeIn {
-  to { opacity:1; transform:translateY(0); }
-}
-
-/* Popups */
-.popup, .no-result {
-  animation: fadeSlide 0.5s ease forwards;
-}
-@keyframes fadeSlide {
-  0% { opacity:0; transform:translateY(20px); }
-  100% { opacity:1; transform:translateY(0); }
-}
-
-/* Chat Box & Messages */
-#chatPopupBox {
-  animation: slideUpFade 0.5s ease forwards;
-}
-@keyframes slideUpFade {
-  0% { opacity:0; transform: translateY(100%); }
-  100% { opacity:1; transform: translateY(0); }
-}
-#chatMessages p {
-  animation: msgFade 0.3s ease forwards;
-}
-@keyframes msgFade {
-  0% { opacity:0; transform:translateY(10px); }
-  100% { opacity:1; transform:translateY(0); }
-}
-
-/* Categories Grid */
-.grid a {
-  opacity:0; transform:translateY(20px);
-  animation: fadeUp 0.6s ease forwards;
-}
-.grid a:nth-child(1){ animation-delay:0.1s; }
-.grid a:nth-child(2){ animation-delay:0.2s; }
-.grid a:nth-child(3){ animation-delay:0.3s; }
-.grid a:nth-child(4){ animation-delay:0.4s; }
-.grid a:nth-child(5){ animation-delay:0.5s; }
-.grid a:nth-child(6){ animation-delay:0.6s; }
-@keyframes fadeUp {
-  to { opacity:1; transform:translateY(0); }
-}
-</style>
 
 <!-- --- HERO SECTION --- -->
 <section class="hero-bg">
-  <style>
-    body {
-      margin:0;
-      font-family:'Poppins',sans-serif;
-      background:#ffffff; /* stable background */
-    }
 
-    .hero-bg {
-      text-align:center;
-      padding:6rem 1rem 7rem;
-      background: linear-gradient(120deg, #030304, #2563eb);
-      color:#fff;
-      position:relative;
-      overflow:hidden;
-      border-bottom-left-radius:500px;
-      border-bottom-right-radius:500px;
-      box-shadow:0 12px 30px rgba(0,0,0,0.25);
-    }
-    .hero-bg h1 { font-size:2.5rem; font-weight:600; margin-bottom:12px; }
-    .hero-bg p { font-size:1.2rem; font-weight:300; margin-bottom:34px; color:#f3f4f6; }
-
-    .btn-post, .btn-outline {
-      display:inline-block; padding:14px 32px; border-radius:999px;
-      font-weight:500; font-size:16px; text-decoration:none; cursor:pointer;
-      transition:all 0.3s ease; margin:10px;
-    }
-    .btn-post { background:#fff; color:#2563eb; box-shadow:0 6px 18px rgba(255,255,255,0.25); }
-    .btn-post:hover { transform:translateY(-3px) scale(1.04); box-shadow:0 10px 25px rgba(255,255,255,0.35); }
-    .btn-outline { border:2px solid #fff; color:#fff; box-shadow:0 6px 18px rgba(0,0,0,0.25); }
-    .btn-outline:hover { background:#fff; color:#2563eb; transform:translateY(-3px) scale(1.04); box-shadow:0 10px 25px rgba(0,0,0,0.3); }
-
-    /* Search box */
-    .search-box { margin-top:40px; display:flex; justify-content:center; flex-wrap:wrap; }
-    .search-wrapper { position:relative; width:340px; }
-    .search-input {
-      padding:14px 50px 14px 45px;
-      border-radius:999px; border:2px solid #fff;
-      background:rgba(255,255,255,0.15); color:#fff; width:100%;
-      font-size:16px; outline:none; transition:border .3s, background .3s;
-    }
-    .search-input:focus { border-color:#93c5fd; background:rgba(255,255,255,0.25); }
-    .voice-btn, .search-icon {
-      position:absolute; top:50%; transform:translateY(-50%);
-      border:none; background:transparent; color:#fff; font-size:20px;
-      cursor:pointer; transition:color 0.3s;
-    }
-    .search-icon { left:14px; cursor:pointer; }
-    .voice-btn { right:14px; }
-    .voice-btn:hover, .search-icon:hover { color:#93c5fd; }
-
-    /* Results container */
-    .results {
-      max-width:900px;
-      margin:50px auto;
-      padding:0 15px;
-      text-align:left;
-    }
-
-    .ad-box {
-      background:#fff;
-      padding:20px;
-      margin:20px auto;
-      border-radius:16px;
-      box-shadow:0 6px 18px rgba(0,0,0,0.12);
-      display:flex;
-      align-items:flex-start;
-      gap:15px;
-      text-decoration:none;
-      color:inherit;
-      transition:transform 0.2s, box-shadow 0.3s;
-    }
-    .ad-box:hover {
-      transform:translateY(-4px);
-      box-shadow:0 8px 22px rgba(0,0,0,0.2);
-    }
-    .ad-img {
-      width:65px; height:65px;
-      border-radius:50%;
-      object-fit:cover;
-      box-shadow:0 4px 10px rgba(0,0,0,0.15);
-      pointer-events:none; /* disable click on image only */
-    }
-    .ad-content { flex:1; }
-    .ad-box h3 { margin:0 0 6px; color:#2563eb; font-size:18px; }
-    .ad-box p { margin:0; color:#444; font-size:15px; }
-
-    /* No Result Popup */
-    .popup {
-      display:none; position:fixed; top:0; left:0;
-      width:100%; height:100%; background:rgba(0,0,0,0.65);
-      backdrop-filter:blur(6px); justify-content:center; align-items:center;
-      z-index:9999;
-    }
-    .popup-content {
-      background:#1e293b;
-      border:1px solid #38bdf8;
-      color:#fff;
-      padding:30px; border-radius:20px; text-align:center;
-      width:90%; max-width:400px;
-      box-shadow:0 0 25px rgba(56,189,248,0.8);
-    }
-
-    /* Mobile Responsive */
-@media (max-width: 640px) {
-    .hero-card { padding: 40px 20px; }
-    .main-title { font-size: 36px; }
-}
-
-    /* Listening animation */
-    .listening {
-      margin-top:15px; width:50px; height:50px;
-      border-radius:50%; background:rgba(0,255,255,0.15);
-      border:2px solid cyan;
-      animation:pulse 1.2s infinite ease-in-out;
-      margin-left:auto; margin-right:auto;
-    }
-    @keyframes pulse {
-      0% { transform:scale(1); opacity:1; }
-      50% { transform:scale(1.3); opacity:0.6; }
-      100% { transform:scale(1); opacity:1; }
-    }
-
-    
-  </style>
 <section style=" padding: 20px 20px; display: flex; justify-content: center; font-family: 'Inter', -apple-system, sans-serif; text-align: center;">
-    
+
     <div style="max-width: 800px; width: 100%;">
-        
+
         <div style="font-size: 11px; font-weight: 800; letter-spacing: 0.4em; color: rgba(255, 255, 255, 0.35); text-transform: uppercase; margin-bottom: 24px;">
             #1 Classified Marketplace
         </div>
-        
+
         <h1 style="font-size: clamp(44px, 10vw, 76px); font-weight: 900; color: #ffffff; letter-spacing: -0.05em; line-height: 1.2; margin: 0 0 28px 0;">
-            Looking to <span style="color: #ffffff; text-shadow: 0 0 20px rgba(255,255,255,0.2);">Buy</span> 
-            <span style="color: rgba(255, 255, 255, 0.2); font-weight: 300; font-style: italic; margin: 0 10px; letter-spacing: 0;">or</span> 
+            Looking to <span style="color: #ffffff; text-shadow: 0 0 20px rgba(255,255,255,0.2);">Buy</span>
+            <span style="color: rgba(255, 255, 255, 0.2); font-weight: 300; font-style: italic; margin: 0 10px; letter-spacing: 0;">or</span>
             <span style="color: #ffffff; text-shadow: 0 0 20px rgba(255,255,255,0.2);">Sell</span>?
         </h1>
-        
+
         <p style="font-size: clamp(17px, 4vw, 21px); color: rgba(255, 255, 255, 0.55); line-height: 1.6; font-weight: 400; letter-spacing: -0.01em; max-width: 580px; margin: 0 auto 35px auto;">
-            Connect with people in your area and find 
+            Connect with people in your area and find
             <span style="color: #ffffff; font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 2px;">amazing deals!</span>
         </p>
-        
+
         <div style="height: 1px; width: 50px; background: rgba(255, 255, 255, 0.2); margin: 0 auto; border-radius: 2px;"></div>
-        
+
     </div>
 </section>
  <div>
@@ -390,7 +128,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 
-  
+
 
   <!-- ✅ Search Form -->
   <div class="search-box">
@@ -419,99 +157,9 @@ document.addEventListener("DOMContentLoaded", function () {
     </div>
   </div>
 
-<script>
-    const voiceBtn = document.getElementById("voiceBtn");
-    const searchInput = document.getElementById("searchInput");
-    const form = document.getElementById("searchForm");
-    const listenPopup = document.getElementById("listenPopup");
-    const searchIcon = document.getElementById("searchIcon");
-
-    // ✅ Search icon click submit
-    searchIcon.addEventListener("click", ()=>{
-      if(searchInput.value.trim() !== ""){
-        form.submit();
-      }
-    });
-
-    if('webkitSpeechRecognition' in window){
-      const recognition = new webkitSpeechRecognition();
-      recognition.lang = "en-IN";
-      recognition.continuous = false;
-
-      voiceBtn.addEventListener("click", ()=>{
-        listenPopup.style.display="flex";
-        recognition.start();
-      });
-
-      recognition.onresult = function(event){
-        const transcript = event.results[0][0].transcript;
-        searchInput.value = transcript;
-        listenPopup.style.display="none";
-        form.submit(); 
-      };
-
-      recognition.onend = ()=>{ listenPopup.style.display="none"; };
-    } else { voiceBtn.style.display = "none"; }
 
 
 
-    // Add class for search focus animation
-searchInput.addEventListener("focus", ()=>{
-  searchInput.style.transform="scale(1.02)";
-});
-searchInput.addEventListener("blur", ()=>{
-  searchInput.style.transform="scale(1)";
-});
-
-// Chat messages animation on send
-function sendMessage() {
-  let msg = chatInput.value.trim();
-  if(msg!==""){
-    let p = document.createElement("p");
-    p.className = "text-sm bg-green-100 text-gray-800 px-3 py-2 rounded-lg mb-2 ml-auto max-w-[75%]";
-    p.style.opacity = 0;
-    p.textContent = msg;
-    chatMessages.appendChild(p);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-    
-    // Animate
-    setTimeout(()=>{ p.style.opacity = 1; p.style.transform="translateY(0)"; }, 50);
-
-    chatInput.value = "";
-
-    // Fake reply animation
-    setTimeout(()=>{
-      let reply = document.createElement("p");
-      reply.className = "text-sm bg-gray-200 text-gray-800 px-3 py-2 rounded-lg mb-2 mr-auto max-w-[75%]";
-      reply.style.opacity = 0;
-      reply.textContent = "Thanks for your message!";
-      chatMessages.appendChild(reply);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-      setTimeout(()=>{ reply.style.opacity=1; reply.style.transform="translateY(0)"; }, 50);
-    }, 800);
-  }
-}
-
- </script>
-
-  <script>
-  // ✅ Share button function (with fallback)
-  function shareAd(id, title){
-    const url = "view-ads.php?id=" + id;
-    if (navigator.share) {
-      navigator.share({
-        title: title,
-        text: "Check out this ad: " + title,
-        url: url
-      }).catch(err => console.log("Share cancelled:", err));
-    } else {
-      // Fallback → Copy link to clipboard
-      navigator.clipboard.writeText(window.location.origin + "/" + url).then(() => {
-        alert("Ad link copied to clipboard ✅");
-      });
-    }
-  }
-</script>
 
   <!-- ✅ PHP Search Results -->
 <div class="results">
@@ -558,64 +206,7 @@ if(isset($_GET['q'])){
             </div>
         </div>
 
-        <style>
-            .no-result {
-                display:flex;
-                justify-content:center;
-                align-items:center;
-                height:300px;
-                margin-top:20px;
-            }
-            .popup-content {
-                background: rgba(255,255,255,0.08);
-                backdrop-filter: blur(12px);
-                padding: 35px;
-                border-radius: 18px;
-                text-align: center;
-                color: #fff;
-                box-shadow: 0 8px 30px rgba(0,0,0,0.3);
-                animation: fadeIn 0.6s ease-in-out;
-            }
-            .popup-content i {
-                font-size: 42px;
-                margin-bottom: 15px;
-                color: #ff4d4d;
-                animation: pulse 1.5s infinite;
-            }
-            .popup-content h2 {
-                margin: 0;
-                font-size: 24px;
-                color: #f87171;
-            }
-            .popup-content p {
-                margin-top: 8px;
-                font-size: 16px;
-                color: #f3f4f6;
-            }
-            .retry-btn {
-                display:inline-block;
-                margin-top:15px;
-                padding:10px 20px;
-                background:#2563eb;
-                color:#fff;
-                text-decoration:none;
-                border-radius:50px;
-                transition:0.3s;
-            }
-            .retry-btn:hover {
-                background:#1e40af;
-                transform:scale(1.05);
-            }
-            @keyframes fadeIn {
-                from {opacity:0; transform:scale(0.9);}
-                to {opacity:1; transform:scale(1);}
-            }
-            @keyframes pulse {
-                0% { transform: scale(1); opacity:1; }
-                50% { transform: scale(1.2); opacity:0.7; }
-                100% { transform: scale(1); opacity:1; }
-            }
-        </style>
+
         ";
     }
 }
@@ -623,14 +214,14 @@ if(isset($_GET['q'])){
 </div>
 
 
-   
+
 </section>
 
 
 <!-- --- CATEGORIES --- -->
 <section class="py-16 bg-white text-center">
 <div style="text-align: center; max-width: 900px; margin: 20px auto 40px auto; padding: 0 20px; font-family: 'Poppins', sans-serif;">
-    
+
     <h2 style="font-size: clamp(32px, 8vw, 52px); font-weight: 800; color: #111827; letter-spacing: -0.05em; line-height: 1.1; margin: 0;">
         Browse by <span style="color: #2563eb;">Category</span>
     </h2>
@@ -644,7 +235,7 @@ if(isset($_GET['q'])){
 </div>
 
 
-  
+
   <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6 px-4 max-w-7xl mx-auto">
 
     <?php
@@ -675,23 +266,13 @@ if(isset($_GET['q'])){
 
 
 <!-- Optional CSS for smooth hover effect -->
-<style>
-.card {
-    transition: all 0.3s ease;
-    text-decoration: none; /* remove underline */
-    color: inherit; /* keep text color */
-}
-.card:hover {
-    transform: translateY(-6px) scale(1.05);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-}
-</style>
+
 
 
 <!-- --- LATEST ADS --- -->
 <section class="py-16 bg-gradient-to-br from-gray-50 to-gray-100 px-4 relative">
   <div style="text-align: center; max-width: 900px; margin: 20px auto 40px auto; padding: 0 20px; font-family: 'Poppins', sans-serif;">
-    
+
     <h2 style="font-size: clamp(32px, 8vw, 52px); font-weight: 800; color: #111827; letter-spacing: -0.05em; line-height: 1.1; margin: 0 0 16px 0;">
         Discover Latest <span style="color: #2563eb; position: relative; display: inline-block;">
             Ads
@@ -796,61 +377,15 @@ echo '</div>';
 
 
 
-<style>
-    /* Desktop default behavior */
-    .story-container {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 80px;
-        max-width: 1200px;
-        margin: 0 auto;
-    }
 
-    /* Mobile (768px and below) */
-    @media (max-width: 768px) {
-        #story-section {
-            padding: 40px 20px !important;
-        }
-        
-        .story-container {
-            flex-direction: column !important;
-            gap: 40px !important;
-            text-align: center !important; /* Center text on mobile */
-        }
-
-        .story-reveal.left {
-            width: 100% !important;
-            order: 2; /* Image niche chali jayegi text ke (optional) */
-        }
-
-        .story-content {
-            width: 100% !important;
-            order: 1; /* Text upar dikhega mobile par */
-        }
-
-        .check-item {
-            justify-content: center !important; /* Checkmarks center align */
-        }
-
-        .stats-badge {
-            right: 20px !important;
-            bottom: 20px !important;
-        }
-
-        h2 {
-            line-height: 1.2 !important;
-        }
-    }
-</style>
 
 <section id="story-section" style="padding: 80px 10px; background: #ffffff; font-family: 'Poppins', sans-serif; overflow: hidden;">
     <div class="story-container">
-        
+
         <div class="story-reveal left" style="flex: 1; min-width: 320px; position: relative;">
             <div style="width: 100%; height: 400px; background: #f1f5f9; border-radius: 60px 20px 60px 20px; overflow: hidden; position: relative; box-shadow: 0 40px 80px rgba(0,0,0,0.1);">
                 <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Our Team" style="width: 100%; height: 100%; object-fit: cover;">
-                
+
                 <div class="stats-badge" style="position: absolute; bottom: 40px; right: -20px; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); padding: 25px; border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.3);">
                     <div style="color: #2563eb; font-weight: 900; font-size: 28px; line-height: 1;">50k+</div>
                     <div style="color: #64748b; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-top: 5px;">Active Deals</div>
@@ -861,7 +396,7 @@ echo '</div>';
         <div class="story-content" style="flex: 1.2; min-width: 320px;">
             <div class="story-reveal right">
                 <span style="color: #2563eb; font-weight: 800; font-size: 13px; text-transform: uppercase; letter-spacing: 4px; display: block; margin-bottom: 20px;">The Journey</span>
-                
+
                 <h2 style="font-size: clamp(34px, 5vw, 54px); font-weight: 900; color: #0f172a; letter-spacing: 0px; line-height: 1.1; margin-bottom: 30px;">
                     Crafting a Better <br> <span style="color: #2563eb;">Marketplace.</span>
                 </h2>
@@ -890,8 +425,8 @@ echo '</div>';
                 </div>
 
                 <div class="story-reveal right">
-                    <a href="#" style="text-decoration: none; padding: 18px 40px; background: #0f172a; color: white; border-radius: 20px; font-weight: 700; font-size: 16px; transition: all 0.4s ease; display: inline-block; box-shadow: 0 15px 30px rgba(15, 23, 42, 0.2);" 
-                       onmouseover="this.style.background='#2563eb'; this.style.transform='translateY(-5px)';" 
+                    <a href="#" style="text-decoration: none; padding: 18px 40px; background: #0f172a; color: white; border-radius: 20px; font-weight: 700; font-size: 16px; transition: all 0.4s ease; display: inline-block; box-shadow: 0 15px 30px rgba(15, 23, 42, 0.2);"
+                       onmouseover="this.style.background='#2563eb'; this.style.transform='translateY(-5px)';"
                        onmouseout="this.style.background='#0f172a'; this.style.transform='translateY(0)';" >
                         Get Started Now
                     </a>
@@ -901,95 +436,13 @@ echo '</div>';
     </div>
 </section>
 
-<style>
-    /* Custom Scroll Animation CSS */
-    .story-reveal {
-        opacity: 0;
-        transition: all 1.2s cubic-bezier(0.22, 1, 0.36, 1);
-    }
-
-    /* Slides from left */
-    .story-reveal.left {
-        transform: translateX(-100px);
-    }
-
-    /* Slides from right */
-    .story-reveal.right {
-        transform: translateX(100px);
-    }
-
-    /* Trigger State */
-    .story-reveal.active {
-        opacity: 1 !important;
-        transform: translateX(0) !important;
-    }
 
 
-   
-      
-    
-</style>
 
-<script>
-    // Intersection Observer for the Story Section
-    const storyObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('active');
-            }
-        });
-    }, { threshold: 0.2 });
 
-    // Target all reveal elements
-    document.querySelectorAll('.story-reveal').forEach(el => {
-        storyObserver.observe(el);
-    });
-</script>
-<style>
-    /* Desktop & General Styles */
-    .about-box {
-        opacity: 1 !important; /* Force visibility agar JS nahi hai */
-        transform: translateY(0) !important;
-        transition: all 0.4s ease;
-    }
-
-    .about-box:hover {
-        transform: translateY(-10px) !important;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-    }
-
-    /* Mobile (768px and below) */
-    @media (max-width: 768px) {
-        #premium-about {
-            padding: 40px 15px !important;
-        }
-
-        .reveal-up {
-            margin-bottom: 40px !important;
-        }
-
-        /* Grid ko 1 column mein convert karna */
-        .stats-grid {
-            grid-template-columns: 1fr !important;
-            gap: 20px !important;
-        }
-
-        .about-box {
-            padding: 40px 25px !important;
-            text-align: center !important; /* Mobile par text center */
-            display: flex !important;
-            flex-direction: column !important;
-            align-items: center !important;
-        }
-        
-        h2 {
-            font-size: 32px !important; /* Mobile friendly heading size */
-        }
-    }
-</style>
 
 <section id="premium-about" style="padding: 80px 20px; background: #ffffff; font-family: 'Poppins', sans-serif; overflow: hidden;">
-    
+
     <div class="reveal-up" style="text-align: center; max-width: 800px; margin: 0 auto 60px auto;">
         <span style="color: #2563eb; font-weight: 800; font-size: 13px; text-transform: uppercase; display: block; margin-bottom: 15px; letter-spacing: 2px;">Why Choose Us</span>
         <h2 style="font-size: clamp(28px, 7vw, 52px); font-weight: 900; color: #0f172a; letter-spacing: -1px; line-height: 1.2;">
@@ -998,7 +451,7 @@ echo '</div>';
     </div>
 
     <div class="stats-grid" style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
-        
+
         <div class="about-box" style="background: #ffffff; padding: 50px 40px; border-radius: 40px; border: 1px solid #f1f5f9;">
             <div style="width: 60px; height: 60px; background: #eff6ff; border-radius: 20px; display: flex; align-items: center; justify-content: center; margin-bottom: 25px;">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
@@ -1029,69 +482,20 @@ echo '</div>';
     </div>
 </section>
 
-<style>
-    /* Hover Effects */
-    .about-box:hover {
-        transform: translateY(-15px) scale(1.02) !important;
-        box-shadow: 0 40px 80px rgba(0,0,0,0.08);
-        border-color: #2563eb !important;
-    }
-    /* Class for JS Animation */
-    .about-box.active {
-        opacity: 1 !important;
-        transform: translateY(0) !important;
-    }
-</style>
 
-<script>
-    const aboutObserver = new IntersectionObserver((entries) => {
-        entries.forEach((entry, index) => {
-            if (entry.isIntersecting) {
-                // Staggered delay (ek ke baad ek box aayega)
-                setTimeout(() => {
-                    entry.target.classList.add('active');
-                    // Start counter in this box
-                    const counter = entry.target.querySelector('.count-me');
-                    if(counter) runCounter(counter);
-                }, index * 200); 
-                aboutObserver.unobserve(entry.target);
-            }
-        });
-    }, { threshold: 0.2 });
 
-    document.querySelectorAll('.about-box').forEach(box => {
-        aboutObserver.observe(box);
-    });
 
-    function runCounter(el) {
-        const target = +el.getAttribute('data-target');
-        let current = 0;
-        const duration = 2000; // 2 seconds
-        const step = target / (duration / 16); 
-
-        const update = () => {
-            current += step;
-            if (current < target) {
-                el.innerText = Math.ceil(current);
-                requestAnimationFrame(update);
-            } else {
-                el.innerText = target;
-            }
-        };
-        update();
-    }
-</script>
 
 <section style="padding: 10px 20px; background: #ffffff; font-family: 'Poppins', sans-serif;">
     <div style="max-width: 1200px; margin: 0 auto;">
-        
+
         <div style="text-align: center; margin-bottom: 60px;">
             <h2 style="font-size: clamp(32px, 5vw, 48px); font-weight: 900; color: #0f172a; ">How It <span style="color: #2563eb;">Works For You</span></h2>
             <p style="color: #64748b; margin-top: 10px;">Your journey from struggle to success, with us.</p>
         </div>
 
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; align-items: stretch;">
-            
+
             <div style="display: flex; flex-direction: column; gap: 30px;">
                 <div class="step-card" style="background: #f8fafc; padding: 40px; border-radius: 30px; border: 1px solid #f1f5f9; flex: 1;">
                     <span style="font-size: 12px; font-weight: 800; color: #2563eb; background: #eff6ff; padding: 5px 12px; border-radius: 50px;">STEP 01</span>
@@ -1136,201 +540,26 @@ echo '</div>';
     </div>
 </section>
 
-<style>
-    .step-card { transition: all 0.4s ease; }
-    .step-card:hover { 
-        transform: translateY(-10px); 
-        box-shadow: 0 20px 40px rgba(0,0,0,0.05);
-        border-color: #2563eb;
-    }
-</style> -->
+ -->
 
 
-<style>
-    /* Trigger for active state */
-    .faq-tag.open { border-color: #2563eb; background: #ffffff; box-shadow: 0 15px 30px rgba(0,0,0,0.05); }
-    .faq-tag.open .plus-icon { transform: rotate(45deg); color: #0f172a; }
-    .faq-tag.visible { opacity: 1 !important; transform: translateY(0) !important; }
-</style>
 
-<script>
-    // 1. Toggle Functionality (Fixed)
-    document.querySelectorAll('.faq-head').forEach(header => {
-        header.addEventListener('click', () => {
-            const parent = header.parentElement;
-            const body = header.nextElementSibling;
-            
-            // Close others
-            document.querySelectorAll('.faq-tag').forEach(item => {
-                if(item !== parent) {
-                    item.classList.remove('open');
-                    item.querySelector('.faq-body').style.height = "0";
-                }
-            });
 
-            // Toggle current
-            parent.classList.toggle('open');
-            if(parent.classList.contains('open')) {
-                body.style.height = body.scrollHeight + "px";
-            } else {
-                body.style.height = "0";
-            }
-        });
-    });
 
-    // 2. Scroll Animation (Smooth Reveal)
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry, index) => {
-            if (entry.isIntersecting) {
-                setTimeout(() => {
-                    entry.target.classList.add('visible');
-                }, index * 150);
-            }
-        });
-    }, { threshold: 0.2 });
-
-    document.querySelectorAll('.faq-tag, .faq-reveal').forEach(el => observer.observe(el));
-</script>
 
 
 <!-- 🌐 Floating WhatsApp Button (Global) -->
-<a href="https://wa.me/917001711745?text=Hi, I’m interested in your ads" 
+<a href="https://wa.me/917001711745?text=Hi, I’m interested in your ads"
    target="_blank" aria-label="Chat on WhatsApp"
-   id="chatButton" 
+   id="chatButton"
    class="fixed bottom-6 right-6 bg-green-500 hover:bg-green-600 text-white p-4 rounded-full shadow-xl cursor-pointer animate-bounce z-50">
   <i class="fab fa-whatsapp text-2xl"></i>
 </a>
 
-<script>
-  const chatPopupBox = document.getElementById("chatPopupBox");
-  const chatMessages = document.getElementById("chatMessages");
-  const chatAdTitle = document.getElementById("chatAdTitle");
-  const chatInput = document.getElementById("chatInput");
 
-  function openChat(adId, title) {
-    chatAdTitle.innerHTML = '<i class="fas fa-comments text-xl"></i> ' + title;
-    chatPopupBox.classList.remove("hidden");
-    chatPopupBox.classList.add("animate-slideUp");
-    document.body.classList.add("blurred");
-  }
 
-  function toggleChatBox() {
-    chatPopupBox.classList.add("hidden");
-    document.body.classList.remove("blurred");
-  }
 
-  function sendMessage() {
-    let msg = chatInput.value.trim();
-    if(msg !== "") {
-      // User message
-      let p = document.createElement("p");
-      p.className = "text-sm bg-green-100 text-gray-800 px-3 py-2 rounded-lg mb-2 ml-auto max-w-[75%]";
-      p.textContent = msg;
-      chatMessages.appendChild(p);
 
-      chatInput.value = "";
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-
-      // Fake reply (demo)
-      setTimeout(() => {
-        let reply = document.createElement("p");
-        reply.className = "text-sm bg-gray-200 text-gray-800 px-3 py-2 rounded-lg mb-2 mr-auto max-w-[75%]";
-        reply.textContent = "Thanks for your message!";
-        chatMessages.appendChild(reply);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-      }, 800);
-    }
-  }
-</script>
-
-<style>
-  @keyframes slideUp {
-    from { transform: translateY(100%); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-  }
-  .animate-slideUp { animation: slideUp 0.4s ease-out; }
-
-  .blurred::before {
-    content: "";
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    backdrop-filter: blur(6px);
-    background: rgba(0,0,0,0.25);
-    z-index: 40;
-  }
-  /* Container grid responsive tweaks */
-.container {
-  display: grid;
-  gap: 1.5rem;
-  grid-template-columns: repeat(1, 1fr);
-}
-
-@media(min-width: 640px) {
-  .container {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media(min-width: 1024px) {
-  .container {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-
-/* Card image responsive height */
-.card img {
-  width: 100%;
-  height: auto; /* automatic height for better scaling */
-  max-height: 220px;
-  object-fit: cover;
-  transition: transform 0.7s ease-out;
-}
-
-/* Card padding & spacing on small screens */
-.card .p-6 {
-  padding: 1rem;
-}
-
-@media(max-width: 640px) {
-  .card .p-6 {
-    padding: 0.75rem;
-  }
-  .card h3 {
-    font-size: 1.1rem;
-  }
-  .card p {
-    font-size: 0.875rem;
-  }
-  .card a {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.875rem;
-  }
-  .card button {
-    padding: 0.5rem;
-    bottom: 0.5rem;
-    right: 0.5rem;
-  }
-  .card img {
-    max-height: 180px;
-  }
-}
-
-/* Chat popup & WhatsApp button scaling */
-#chatPopupBox {
-  width: 90%;
-  max-width: 20rem; /* smaller width for mobile */
-  bottom: 9rem;
-}
-
-#chatButton {
-  bottom: 4rem;
-  right: 1rem;
-  padding: 0.75rem;
-}
-
-</style>
-   
 
 
 
@@ -1345,9 +574,7 @@ echo '</div>';
 
 
 
-<script>
-
-
+<script src="assets/js/index.js"></script>
 <?php $conn->close(); ?>
 </body>
 </html>
