@@ -78,22 +78,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Forgot Password</title>
 <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
-body{background:linear-gradient(135deg,#c9d6ff,#e2e2e2);display:flex;justify-content:center;align-items:center;min-height:100vh;}
-.container{background:#fff;padding:40px 30px;border-radius:20px;box-shadow:0 10px 25px rgba(0,0,0,0.2);width:350px;text-align:center;}
-.container h2{margin-bottom:25px;color:#333;}
-.input-box{position:relative;margin-bottom:25px;}
-.input-box input{width:100%;padding:12px 45px 12px 20px;border-radius:8px;border:1px solid #ccc;outline:none;font-size:16px;transition:0.3s;}
-.input-box input:focus{border-color:#7494ec;box-shadow:0 0 5px rgba(116,148,236,0.5);}
-.input-box i{position:absolute;right:15px;top:50%;transform:translateY(-50%);color:#888;font-size:20px;}
-.btn{width:100%;padding:12px;background:#7494ec;border:none;border-radius:8px;color:#fff;font-size:16px;font-weight:600;cursor:pointer;transition:0.3s;}
-.btn:hover{background:#5b7ae7;transform:scale(1.03);}
-.message{margin-bottom:15px;font-size:14px;color:red;}
-.success{color:green;}
-@media screen and (max-width:400px){.container{width:90%;padding:30px 20px;}}
-</style>
+<link rel="stylesheet" href="assets/css/forgot-password.css">
 </head>
 <body>
 <div class="container">
