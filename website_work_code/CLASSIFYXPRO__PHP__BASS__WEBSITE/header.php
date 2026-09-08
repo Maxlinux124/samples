@@ -4,24 +4,9 @@ require_once __DIR__ . '/app/Bootstrap.php';
 app_start_session();
 $conn = app_database_connection();
 
-$userImage = "";
-$username = "";
-
-// Agar user login hai to profile image aur username fetch karo
-if (isset($_SESSION['user_id'])) {
-    $userId = $_SESSION['user_id'];
-    $stmt = $conn->prepare("SELECT username, image FROM users WHERE id = ?");
-    $stmt->bind_param("i", $userId);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if ($row = $result->fetch_assoc()) {
-        $username = $row['username'];
-        if (!empty($row['image']) && file_exists(__DIR__ . "/uploads/" . $row['image'])) {
-            $userImage = "uploads/" . $row['image'];
-        }
-    }
-    $stmt->close();
-}
+$navigation = app_navigation_context($conn);
+$userImage = $navigation['userImage'];
+$username = $navigation['username'];
 
 // ✅ Active page detect karne ke liye
 $current_page = basename($_SERVER['PHP_SELF']);

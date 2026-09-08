@@ -12,5 +12,5 @@ if (!defined('APP_ROOT')) {
 
 require_once __DIR__ . '/Support/Database.php';
 require_once __DIR__ . '/Support/Html.php';
+require_once __DIR__ . '/Support/Navigation.php';
 require_once __DIR__ . '/Support/Session.php';
-
