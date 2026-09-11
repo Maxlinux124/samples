@@ -1,0 +1,149 @@
+@supports (animation-timeline: scroll()) {
+	@keyframes header-scroll-state {
+		from {
+			background: linear-gradient(180deg, rgb(3 10 22 / 48%), rgb(5 14 29 / 22%));
+			-webkit-backdrop-filter: blur(0.65rem) saturate(115%);
+			backdrop-filter: blur(0.65rem) saturate(115%);
+		}
+
+		to {
+			background: linear-gradient(180deg, rgb(3 10 22 / 88%), var(--color-header-surface-scrolled));
+			-webkit-backdrop-filter: blur(1.25rem) saturate(135%);
+			backdrop-filter: blur(1.25rem) saturate(135%);
+		}
+	}
+
+	.site-header {
+		animation: header-scroll-state linear both;
+		animation-timeline: scroll(root);
+		animation-range: 0 18rem;
+	}
+}
+
+@keyframes hero-text-float {
+	0%,
+	100% {
+		translate: 0 0;
+	}
+
+	50% {
+		translate: 0 -0.35rem;
+	}
+}
+
+@keyframes hero-eyebrow-drift {
+	0%,
+	100% {
+		translate: 0 0;
+	}
+
+	50% {
+		translate: 0 -0.12rem;
+	}
+}
+
+@keyframes hero-title-drift {
+	0%,
+	100% {
+		translate: 0 0;
+	}
+
+	50% {
+		translate: 0 -0.18rem;
+	}
+}
+
+@keyframes hero-service-drift {
+	0%,
+	100% {
+		translate: 0 0;
+	}
+
+	50% {
+		translate: 0 -0.24rem;
+	}
+}
+
+@keyframes hero-description-drift {
+	0%,
+	100% {
+		translate: 0 0;
+	}
+
+	50% {
+		translate: 0 -0.1rem;
+	}
+}
+
+@keyframes service-panel-cursor {
+	0%,
+	48% {
+		opacity: 1;
+	}
+
+	49%,
+	100% {
+		opacity: 0;
+	}
+}
+
+@keyframes visual-card-scan {
+	0%,
+	48% {
+		transform: translateX(-120%);
+	}
+
+	72%,
+	100% {
+		transform: translateX(120%);
+	}
+}
+
+@supports (animation-timeline: scroll()) {
+	@keyframes hero-text-scroll {
+		from {
+			transform: translateY(0) scale(1);
+			opacity: 1;
+		}
+
+		to {
+			transform: translateY(-3.5rem) scale(0.975);
+			opacity: 0.72;
+		}
+	}
+
+	.hero-text {
+		animation: hero-text-float 9s ease-in-out infinite, hero-text-scroll linear both;
+		animation-timeline: auto, scroll(root);
+		animation-range: normal, 0 70vh;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.hero-text,
+	.hero-text__eyebrow,
+	.hero-text__title,
+	.hero-text__service,
+	.hero-text__description {
+		animation: none;
+		translate: none;
+	}
+
+	.hero-service-visual__item {
+		animation: none;
+	}
+
+	.hero-service-visual__item:first-child {
+		visibility: visible;
+		opacity: 1;
+		transform: translate(-50%, 0);
+	}
+
+	.hero-visual-card__image-wrap::after {
+		animation: none;
+	}
+
+	.site-header {
+		animation: none;
+	}
+}

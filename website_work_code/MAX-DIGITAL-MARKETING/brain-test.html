@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Digital Brain Canvas Test</title>
+    <style>
+        :root {
+            color-scheme: dark;
+            background: #030812;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: 100%;
+            min-height: 100%;
+            margin: 0;
+            overflow: hidden;
+            background: #030812;
+        }
+
+        body {
+            min-height: 100svh;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100svh;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="brainCanvas" aria-label="Animated digital brain neural network"></canvas>
+    <script src="js/brain.js"></script>
+</body>
+</html>

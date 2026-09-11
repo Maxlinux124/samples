@@ -12,18 +12,114 @@
     }
 
     .hero__inner {
-        padding-right: 42%;
+        padding-right: var(--space-5);
         padding-left: var(--space-5);
     }
 
-    .hero__canvas-layer {
-        left: 79%;
-        width: min(44rem, 54vw);
+    .hero-text {
+        width: min(100%, 34rem);
+        margin-right: auto;
+    }
+
+}
+
+@media (max-width: 47.99rem) {
+    .site-nav {
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 0.35rem var(--space-3);
+        min-height: 6.5rem;
+        padding: 0.85rem 0;
+    }
+
+    .site-nav__brand {
+        padding-top: 0.3rem;
+    }
+
+    .site-nav__list {
+        flex: 1 0 100%;
+        justify-content: space-between;
+        gap: 0.65rem;
+    }
+
+    .site-nav__list a {
+        font-size: 0.76rem;
+    }
+
+    .hero__inner {
+        flex-direction: column;
+        min-height: 100svh;
+        padding-top: 8.5rem;
+    }
+
+    .hero-text {
+        width: min(100%, 32rem);
+        text-align: center;
+    }
+
+    .hero-text__title {
+        max-width: 15ch;
+        font-size: clamp(2.25rem, 10vw, 3.5rem);
+        letter-spacing: -0.04em;
+        margin-inline: auto;
+    }
+
+    .hero-text__description {
+        max-width: 30rem;
+        margin-inline: auto;
+        font-size: 0.98rem;
+    }
+
+    .hero__actions {
+        justify-content: center;
+    }
+
+    .hero-service-visual {
+        position: relative;
+        top: auto;
+        left: auto;
+        right: auto;
+        width: min(100%, 20rem);
+        margin: 1.5rem auto 0;
+        transform: none;
+    }
+
+    .hero-visual-card {
+        position: relative;
+        top: auto;
+        right: auto;
+        width: min(100%, 15rem);
+        margin: 1.75rem auto 0;
+        transform: none;
+    }
+
+    .hero-visual-card__line,
+    .hero-visual-card__node {
+        display: none;
+    }
+
+    .hero-service-visual__item {
+        max-width: calc(100% - 1.1rem);
+        font-size: 0.76rem;
+    }
+}
+
+@media (min-width: 48rem) and (max-width: 74.99rem) {
+    .hero-service-visual {
+        top: 12%;
+        right: 3%;
+        width: min(19rem, 34vw);
+    }
+
+    .hero-visual-card {
+        right: 2.5%;
+        width: min(14rem, 24vw);
     }
 }
 
 @media (min-width: 75rem) {
     .hero__inner {
+        padding-right: 0;
         padding-left: 0;
     }
 }

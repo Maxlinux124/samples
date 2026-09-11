@@ -12,6 +12,9 @@
     --color-hero-muted: #aeb8d2;
     --color-hero-accent: #83a5ff;
     --color-hero-glow: rgb(68 102 255 / 24%);
+    --color-header-border: rgb(176 218 255 / 16%);
+    --color-header-surface: rgb(5 14 29 / 48%);
+    --color-header-surface-scrolled: rgb(4 11 24 / 82%);
     --font-family-base: Arial, Helvetica, sans-serif;
     --font-family-display: Arial, Helvetica, sans-serif;
     --font-size-base: 1rem;

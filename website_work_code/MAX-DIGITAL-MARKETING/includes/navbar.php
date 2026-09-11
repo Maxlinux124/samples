@@ -1,7 +1,7 @@
 <header class="site-header">
     <nav class="site-nav" aria-label="Primary navigation">
         <a class="site-nav__brand" href="index.php" aria-label="Max Digital Marketing home">
-            Max Digital Marketing
+            <img src="asset/logo.png" alt="Max Digital Marketing">
         </a>
         <ul class="site-nav__list">
             <li><a href="about.php">About</a></li>
