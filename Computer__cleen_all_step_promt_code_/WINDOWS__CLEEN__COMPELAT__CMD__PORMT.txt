@@ -1,0 +1,37 @@
+:WINDOWS__CLEEN__COMMAND_PROMPT:
+
+1. Automatic Disk Cleanup Tool (Storage Sense)This command opens the built-in Windows Disk Cleanup utility and runs a comprehensive background scan to safely wipe away obsolete files:
+
+- ( cleanmgr /sageset:1 & cleanmgr /sagerun:1)
+
+2. Delete All Temporary FilesApps and Windows processes generate huge amounts of temporary files over time. Paste this exact command into CMD and hit Enter to clear them all instantly:
+
+-  ( del /q /f /s %temp%\* && del /q /f /s C:\Windows\Temp\* )
+
+3. Clear Prefetch and System Log FilesOld application launch data (Prefetch) and system crash/event history logs can clutter your drive. Use this command to wipe them out:
+
+- ( del /q /f /s C:\Windows\Prefetch\* && del /q /f /s C:\Windows\Logs\* )
+
+4. Clean Windows Update CacheFailed or old Windows updates can trap gigabytes of useless cache memory on your drive. This command pauses the update services, safely empties the system's download folder, and restarts the services:
+
+- ( net stop wuauserv && net stop bits && del /f /q /s %windir%\SoftwareDistribution\* && net start wuauserv && net start bits)
+
+5. Repair Corrupted System Files (SFC Scan)If your computer feels laggy or is glitching, this built-in System File Checker will scan, verify, and automatically repair broken operating system files:
+
+- ( sfc /scannow )
+
+
+6. Clean Component Store (DISM Engine)This command thoroughly checks the core Windows system health image and purges old, outdated system backups to recover heavy blocks of storage space:
+
+- ( DISM /Online /Cleanup-Image /StartComponentCleanup )
+
+
+
+
+
+
+
+
+
+
+

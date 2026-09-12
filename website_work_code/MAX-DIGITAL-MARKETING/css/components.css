@@ -374,68 +374,126 @@
     box-shadow: 0 0 0.45rem rgb(73 190 255 / 55%);
 }
 
+/* ==========================================================================
+   ADVANCED HERO CARD CSS - ULTRA-TIGHT INSIDE BODY GLOW & NO BOX FIELDS
+   ========================================================================== */
+
 .hero-visual-card {
     position: absolute;
     z-index: 2;
     top: 47%;
     right: -4.5%;
-    width: min(17rem, 24vw);
-    padding: 0.55rem;
-    border: 1px solid rgb(136 220 255 / 28%);
-    border-radius: 1.35rem 0.65rem 1.35rem 0.65rem;
-    background: linear-gradient(145deg, rgb(7 26 52 / 52%), rgb(7 44 72 / 28%));
-    box-shadow: inset 0 1px 0 rgb(255 255 255 / 13%), 0 1.5rem 3.5rem rgb(0 8 24 / 34%);
-    pointer-events: auto;
+    width: 180px !important;    /* Framework architecture locked at 180px */
+    padding: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
     transform: translateY(-50%) perspective(45rem) rotateY(-7deg) rotateX(2deg);
-    transition: transform 420ms ease, border-color 420ms ease;
+    pointer-events: auto;
     will-change: transform;
+    overflow: visible;
 }
 
-.hero-visual-card:hover {
-    border-color: rgb(137 232 255 / 48%);
-    transform: translateY(-50%) perspective(45rem) rotateY(-3deg) rotateX(1deg) translateZ(0.3rem);
-}
-
+/* 1. Frameless Isolated Asset Wrapper */
 .hero-visual-card__image-wrap {
     position: relative;
+    width: 400px !important;    /* Div width configured precisely at 180px */
+    margin: 0 auto;
     aspect-ratio: 0.78;
-    overflow: hidden;
-    border: 1px solid rgb(158 226 255 / 24%);
-    border-radius: 1rem 0.45rem 1rem 0.45rem;
-    background: rgb(2 11 25 / 50%);
+    overflow: visible;
+    border: none !important;
+    background: transparent !important;
+    z-index: 2;
+    box-shadow: none !important;
+    
+    /* Smooth Linear Gradient Mask - Blends image bottom smoothly into the site background mesh */
+    -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 55%, rgba(0,0,0,0) 100%);
+    mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 55%, rgba(0,0,0,0) 100%);
 }
 
 .hero-visual-card__image-wrap::after {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(120deg, transparent 38%, rgb(130 226 255 / 13%) 50%, transparent 62%);
-    content: "";
-    pointer-events: none;
-    transform: translateX(-120%);
-    animation: visual-card-scan 6s ease-in-out infinite;
+    display: none !important;   /* Mutes old linear scanner overlays */
 }
 
+/* 2. Tight Body Outline Drop-Shadow (No Spread Out Box Glow) */
 .hero-visual-card__image {
     display: block;
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
     object-position: center top;
-    filter: saturate(0.82) contrast(1.04);
+    background: transparent !important;
+    
+    /* FIX: Glow radius reduced to 5px so it hugs closely inside/around the profile body edge data */
+    filter: saturate(1.02) contrast(1.02) drop-shadow(0 0 5px rgba(110, 219, 255, 0.45));
 }
 
+/* 3. Static High-Contrast Utility Skills Pinned Perfectly Around Avatar */
+.floating-skill-pointer {
+    position: absolute;
+    padding: 0.35rem 0.7rem;
+    background: #010711;
+    border: 1px solid rgba(110, 219, 255, 0.4);
+    color: #ffffff;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    border-radius: 4px;
+    z-index: 5;
+    box-shadow: 0 0 12px rgba(110, 219, 255, 0.1);
+    white-space: nowrap;
+    font-family: sans-serif;
+}
+.floating-skill-pointer::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 0.42rem;
+    color: #6edbff;
+    font-family: monospace;
+    opacity: 0.8;
+    margin-bottom: 2px;
+}
+/* Coords mapped relative to the clean 180px visual layout scale */
+.skill-pointer-1 { top: 8%;   left: -130px; border-left: 3px solid #6edbff; }
+.skill-pointer-2 { top: 35%;  right: -125px; border-right: 3px solid #6edbff; }
+.skill-pointer-3 { top: 62%;  left: -135px; border-left: 3px solid #6edbff; }
+.skill-pointer-4 { top: 15%;  right: -120px; border-right: 3px solid #6edbff; }
+
+/* 4. Tactical HUD Target Indicators */
+.cyber-target-arrow {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border: 2px solid #6edbff;
+    z-index: 10;
+    opacity: 0.8;
+    pointer-events: none;
+}
+.arrow-top-left     { top: -10px; left: -10px; border-right: none; border-bottom: none; }
+.arrow-top-right    { top: -10px; right: -10px; border-left: none; border-bottom: none; }
+.arrow-bottom-left  { bottom: -10px; left: -10px; border-right: none; border-top: none; }
+.arrow-bottom-right { bottom: -10px; right: -10px; border-left: none; border-top: none; }
+
+/* 5. Terminal Console Utility Log Log Box Below */
 .hero-visual-card__terminal {
     display: flex;
     align-items: center;
     gap: 0.25rem;
-    min-height: 1.35rem;
-    padding: 0.35rem 0.25rem 0.05rem;
+    min-height: 1.6rem;
+    padding: 0.45rem 0.35rem;
     overflow: hidden;
     color: #9ceaff;
     font-family: "Courier New", monospace;
-    font-size: 0.53rem;
+    font-size: 0.65rem;
     letter-spacing: 0.06em;
     white-space: nowrap;
+    background: rgba(1, 7, 17, 0.95);
+    border: 1px solid rgba(136, 220, 255, 0.25);
+    border-radius: 4px;
+    margin-top: 25px; 
+    width: 100%;
+    z-index: 3;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
 }
 
 .hero-visual-card__prompt {
@@ -453,34 +511,14 @@
     animation: service-panel-cursor 900ms steps(1, end) infinite;
 }
 
-.hero-visual-card__line {
-    position: absolute;
-    left: -3.5rem;
-    width: 3.5rem;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgb(105 222 255 / 54%));
-    content: "";
-}
+/* System Grid Interface Guidelines Anchors */
+.hero-visual-card__line { position: absolute; left: -3.5rem; width: 3.5rem; height: 1px; background: linear-gradient(90deg, transparent, rgba(105, 222, 255, 0.12)); z-index: -1; }
+.hero-visual-card__line--top { top: 30%; } .hero-visual-card__line--bottom { top: 70%; opacity: 0.25; }
+.hero-visual-card__node { position: absolute; left: -3.65rem; top: calc(30% - 0.16rem); width: 0.32rem; height: 0.32rem; border-radius: 50%; background: #9ceeff; box-shadow: 0 0 0.4rem rgba(91, 223, 255, 0.2); z-index: -1; }
 
-.hero-visual-card__line--top {
-    top: 30%;
-}
 
-.hero-visual-card__line--bottom {
-    top: 70%;
-    opacity: 0.45;
-}
 
-.hero-visual-card__node {
-    position: absolute;
-    left: -3.65rem;
-    top: calc(30% - 0.16rem);
-    width: 0.32rem;
-    height: 0.32rem;
-    border-radius: 50%;
-    background: #9ceeff;
-    box-shadow: 0 0 0.8rem rgb(91 223 255 / 85%);
-}
+ 
 
 .button {
     display: inline-flex;
@@ -523,5 +561,4 @@
     background: rgb(255 255 255 / 12%);
     color: var(--color-hero-text);
 }
-
 

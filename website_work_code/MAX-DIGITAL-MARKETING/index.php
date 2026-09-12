@@ -81,7 +81,7 @@ require_once __DIR__ . '/includes/navbar.php';
                 <span class="hero-visual-card__line hero-visual-card__line--top" aria-hidden="true"></span>
                 <span class="hero-visual-card__line hero-visual-card__line--bottom" aria-hidden="true"></span>
                 <div class="hero-visual-card__image-wrap">
-                    <img src="asset/hero.png" alt="Max Digital Marketing strategist" class="hero-visual-card__image">
+                    <img src="asset/max.png" alt="Max Digital Marketing strategist" class="hero-visual-card__image">
                 </div>
                 <div class="hero-visual-card__terminal" aria-live="polite">
                     <span class="hero-visual-card__prompt">&gt;</span>
