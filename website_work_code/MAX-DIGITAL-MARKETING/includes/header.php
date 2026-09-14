@@ -31,6 +31,7 @@ function escapeHtml(string $value): string
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/animations.css">
     <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/floating-cards.css">
 </head>
 <body class="<?= escapeHtml($pageBodyClass) ?>">
     <a class="skip-link" href="#main-content">Skip to main content</a>

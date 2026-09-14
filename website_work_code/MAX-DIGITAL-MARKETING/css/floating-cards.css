@@ -1,0 +1,181 @@
+/* ==========================================================================
+   SUPER ULTRA-GLASS & CYBER NETWORK DESIGN (RIGHT SIDE FOCUS)
+   ========================================================================== */
+
+.hero-visual-card__image-wrap {
+    position: relative;
+    display: inline-block;
+    background: transparent !important;
+    overflow: visible !important;
+}
+
+.hero-visual-card__image {
+    display: block;
+    width: 100%;
+    height: auto;
+    position: relative;
+    z-index: 2;
+}
+
+/* --- SVG Cyber Arc Curved Lines (Reference Image Feeling) --- */
+.network-arcs-svg {
+    position: absolute;
+    inset: 0;
+    width: 130%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+    overflow: visible;
+}
+
+.arc-line {
+    fill: none;
+    stroke-dasharray: 6 6;
+    animation: dashMotion 20s linear infinite;
+}
+
+.arc-1 { stroke: rgba(56, 189, 248, 0.45); stroke-width: 1.8px; }
+.arc-2 { stroke: rgba(168, 85, 247, 0.4); stroke-width: 1.5px; }
+.arc-3 { stroke: rgba(236, 72, 153, 0.35); stroke-width: 1.2px; }
+
+@keyframes dashMotion {
+    to { stroke-dashoffset: -1000; }
+}
+
+/* --- Glassmorphism Base Cards --- */
+.sm-glass-card {
+    position: absolute;
+    z-index: 5;
+    background: rgba(18, 24, 38, 0.45);
+    backdrop-filter: blur(18px) saturate(180%);
+    -webkit-backdrop-filter: blur(18px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 16px;
+    box-shadow: 
+        0 15px 35px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    animation: floatMotion 4s ease-in-out infinite alternate;
+}
+
+/* Hover Glowing Aura */
+.sm-glass-card:hover {
+    transform: scale(1.15) translate(4px, -6px) !important;
+    border-color: rgba(56, 189, 248, 0.8);
+    background: rgba(18, 24, 38, 0.75);
+    box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.6),
+        0 0 25px rgba(56, 189, 248, 0.5),
+        inset 0 1px 1px rgba(255, 255, 255, 0.5);
+    z-index: 20;
+}
+
+/* Icon Sizing & Inner Glass Glow */
+.card-small {
+    width: 50px;
+    height: 50px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.svg-icon {
+    width: 26px;
+    height: 26px;
+    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.4));
+}
+
+.card-large {
+    padding: 0.6rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-radius: 18px;
+    min-width: 175px;
+}
+
+.card-icon-badge {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.card-info strong {
+    display: block;
+    font-size: 0.8rem;
+    color: #ffffff;
+    font-weight: 700;
+}
+
+.card-info small {
+    display: block;
+    font-size: 0.65rem;
+    color: #38bdf8;
+    margin-top: 2px;
+}
+
+/* ==========================================================================
+   EXACT RIGHT SIDE MESH PLACEMENT (As per requested image feel)
+   ========================================================================== */
+
+/* Inner Arc Right */
+.pos-html      { top: 5%;   right: 18%; animation-delay: 0s; }
+.pos-wp        { top: 20%;  right: 10%; animation-delay: 0.5s; }
+.pos-php       { top: 35%;  right: 15%; animation-delay: 1.0s; }
+
+/* Mid Arc Right */
+.pos-python    { top: 52%;  right: 12%; animation-delay: 1.5s; }
+.pos-java      { top: 68%;  right: 18%; animation-delay: 2.0s; }
+
+/* Outer Right Curved Cards */
+.pos-logo      { top: 10%;  right: -8%; animation-delay: 0.3s; }
+.pos-fbads     { top: 25%;  right: -22%; animation-delay: 0.8s; border-color: rgba(24, 119, 242, 0.5); }
+.pos-googleads { top: 48%;  right: -25%; animation-delay: 1.3s; border-color: rgba(234, 67, 53, 0.5); }
+.pos-pr        { top: 72%;  right: -12%; animation-delay: 1.8s; }
+.pos-canva     { top: 88%;  right: 5%;  animation-delay: 2.3s; }
+
+/* Analytics Board Right Center Overlay */
+.pos-board-right {
+    top: 58%;
+    right: -5%;
+    width: 220px;
+    padding: 0.8rem;
+    border-color: rgba(56, 189, 248, 0.4);
+    z-index: 12;
+}
+
+.board-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.35rem;
+    font-size: 0.62rem;
+    font-weight: 800;
+    color: #94a3b8;
+    letter-spacing: 0.5px;
+}
+
+.board-header small {
+    color: #38bdf8;
+    font-size: 0.7rem;
+    font-weight: bold;
+}
+
+#heroAnalyticsCanvas {
+    display: block;
+    width: 100%;
+    height: 70px;
+}
+
+/* Dynamic Smooth Floating Keyframes */
+@keyframes floatMotion {
+    0% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-7px) rotate(1deg); }
+    100% { transform: translateY(5px) rotate(-1deg); }
+}
