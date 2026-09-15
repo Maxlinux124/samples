@@ -1,181 +1,796 @@
 /* ==========================================================================
-   SUPER ULTRA-GLASS & CYBER NETWORK DESIGN (RIGHT SIDE FOCUS)
+   PREMIUM CYBER NETWORK / NEON GLASS SYSTEM
    ========================================================================== */
 
-.hero-visual-card__image-wrap {
-    position: relative;
-    display: inline-block;
-    background: transparent !important;
-    overflow: visible !important;
+:root {
+    --cyber-primary: #00f0ff;
+    --cyber-secondary: #7000ff;
+    --cyber-accent: #00ff66;
+    --cyber-pink: #ff2bd6;
+
+    --cyber-bg: rgba(4, 10, 24, 0.68);
+    --cyber-bg-hover: rgba(8, 18, 38, 0.88);
+
+    --cyber-border: rgba(0, 240, 255, 0.28);
+    --cyber-border-hover: rgba(0, 240, 255, 0.85);
+
+    --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.hero-visual-card__image {
-    display: block;
-    width: 100%;
-    height: auto;
+/* ==========================================================================
+   HERO
+   ========================================================================== */
+
+.hero {
     position: relative;
-    z-index: 2;
+    isolation: isolate;
+    min-height: 100svh;
+    overflow: hidden;
+
+    background:
+        radial-gradient(
+            circle at 72% 24%,
+            rgba(112, 0, 255, 0.22),
+            transparent 38%
+        ),
+        radial-gradient(
+            circle at 18% 72%,
+            rgba(0, 240, 255, 0.14),
+            transparent 42%
+        ),
+        radial-gradient(
+            circle at 50% 50%,
+            rgba(0, 240, 255, 0.035),
+            transparent 55%
+        ),
+        linear-gradient(
+            135deg,
+            #010309 0%,
+            #060c1b 50%,
+            #02050d 100%
+        );
+
+    color: var(--color-hero-text, #fff);
 }
 
-/* --- SVG Cyber Arc Curved Lines (Reference Image Feeling) --- */
-.network-arcs-svg {
+/* ==========================================================================
+   GRID
+   ========================================================================== */
+
+.hero::before {
     position: absolute;
     inset: 0;
-    width: 130%;
-    height: 100%;
-    z-index: 1;
+    z-index: -3;
+
+    content: "";
+
+    background-image:
+        linear-gradient(
+            rgba(0, 240, 255, 0.045) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(0, 240, 255, 0.045) 1px,
+            transparent 1px
+        );
+
+    background-size: 48px 48px;
+
+    -webkit-mask-image:
+        radial-gradient(
+            ellipse at center,
+            #000 15%,
+            rgba(0, 0, 0, .8) 48%,
+            transparent 88%
+        );
+
+    mask-image:
+        radial-gradient(
+            ellipse at center,
+            #000 15%,
+            rgba(0, 0, 0, .8) 48%,
+            transparent 88%
+        );
+
     pointer-events: none;
+}
+
+/* ==========================================================================
+   AMBIENT LIGHT
+   ========================================================================== */
+
+.hero::after {
+    position: absolute;
+    inset: -25%;
+    z-index: -4;
+
+    content: "";
+
+    background:
+        radial-gradient(
+            circle at 50% 50%,
+            rgba(0, 240, 255, .05),
+            transparent 28%
+        );
+
+    filter: blur(80px);
+
+    pointer-events: none;
+}
+
+/* ==========================================================================
+   GLASS CARD
+   ========================================================================== */
+
+.sm-glass-card {
+    position: absolute;
+    z-index: 10;
+
+    padding: .78rem 1.1rem;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255,255,255,.065),
+            rgba(255,255,255,.012)
+        ),
+        var(--cyber-bg);
+
+    border: 1px solid var(--cyber-border);
+    border-radius: 14px;
+
+    backdrop-filter: blur(20px) saturate(170%);
+    -webkit-backdrop-filter: blur(20px) saturate(170%);
+
+    color: #fff;
+
+    box-shadow:
+        0 18px 45px rgba(0,0,0,.5),
+        0 0 20px rgba(0,240,255,.08),
+        inset 0 1px 1px rgba(255,255,255,.12);
+
+    will-change: transform;
+
+    transition:
+        transform .55s var(--spring),
+        border-color .35s ease,
+        box-shadow .45s var(--ease),
+        background .35s ease;
+
+    cursor: grab;
+    user-select: none;
+    touch-action: none;
+
+    animation:
+        cyber-float 6s ease-in-out infinite;
+}
+
+/* Different floating timing */
+
+.pos-html {
+    animation-delay: -1s;
+}
+
+.pos-wp {
+    animation-delay: -3s;
+}
+
+.pos-php {
+    animation-delay: -2s;
+}
+
+.pos-python {
+    animation-delay: -4s;
+}
+
+.pos-fbads {
+    animation-delay: -1.5s;
+}
+
+.pos-googleads {
+    animation-delay: -3.5s;
+}
+
+.pos-board {
+    animation-delay: -2.5s;
+}
+
+@keyframes cyber-float {
+    0%,
+    100% {
+        margin-top: 0;
+    }
+
+    50% {
+        margin-top: -8px;
+    }
+}
+
+/* ==========================================================================
+   TOP LIGHT
+   ========================================================================== */
+
+.sm-glass-card::before {
+    position: absolute;
+    top: 0;
+    left: 10%;
+    right: 10%;
+
+    height: 1px;
+
+    content: "";
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            var(--cyber-primary),
+            transparent
+        );
+
+    opacity: .5;
+
+    transition:
+        left .4s ease,
+        right .4s ease,
+        opacity .4s ease;
+}
+
+/* ==========================================================================
+   GLASS REFLECTION
+   ========================================================================== */
+
+.sm-glass-card::after {
+    position: absolute;
+    inset: 1px;
+
+    content: "";
+
+    border-radius: inherit;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(255,255,255,.07),
+            transparent 32%
+        );
+
+    pointer-events: none;
+}
+
+/* ==========================================================================
+   HOVER
+   ========================================================================== */
+
+.sm-glass-card:hover {
+    z-index: 30;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255,255,255,.085),
+            rgba(255,255,255,.02)
+        ),
+        var(--cyber-bg-hover);
+
+    border-color: var(--cyber-border-hover);
+
+    transform:
+        translateY(-9px)
+        scale(1.045);
+
+    box-shadow:
+        0 28px 60px rgba(0,0,0,.72),
+        0 0 38px rgba(0,240,255,.25),
+        inset 0 1px 2px rgba(255,255,255,.2);
+}
+
+.sm-glass-card:hover::before {
+    left: 5%;
+    right: 5%;
+    opacity: 1;
+}
+
+/* ==========================================================================
+   ACTIVE / DRAGGING
+   ========================================================================== */
+
+.sm-glass-card:active {
+    z-index: 100 !important;
+
+    cursor: grabbing;
+
+    transform:
+        scale(1.07)
+        rotate(1deg);
+
+    border-color: var(--cyber-accent);
+
+    box-shadow:
+        0 30px 70px rgba(0,0,0,.85),
+        0 0 42px rgba(0,255,102,.35),
+        inset 0 0 20px rgba(0,255,102,.08);
+}
+
+/* ==========================================================================
+   SMALL CARD
+   ========================================================================== */
+
+.card-small {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    width: 52px;
+    height: 52px;
+
+    padding: 0;
+
+    border-radius: 50%;
+}
+
+/* ==========================================================================
+   LARGE CARD
+   ========================================================================== */
+
+.card-large {
+    display: flex;
+
+    align-items: center;
+
+    gap: .85rem;
+
+    min-width: 150px;
+}
+
+/* ==========================================================================
+   ICON
+   ========================================================================== */
+
+.card-icon-badge {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    flex: 0 0 auto;
+
+    width: 2.45rem;
+    height: 2.45rem;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(0,240,255,.12),
+            rgba(112,0,255,.08)
+        );
+
+    border: 1px solid rgba(0,240,255,.25);
+    border-radius: 9px;
+
+    box-shadow:
+        inset 0 0 15px rgba(0,240,255,.06);
+}
+
+.svg-icon {
+    width: 22px;
+    height: 22px;
+
+    filter:
+        drop-shadow(
+            0 0 6px rgba(0,240,255,.6)
+        );
+
+    transition:
+        transform .4s var(--spring),
+        filter .4s ease;
+}
+
+.sm-glass-card:hover .svg-icon {
+    transform: scale(1.16);
+
+    filter:
+        drop-shadow(
+            0 0 11px rgba(0,240,255,.9)
+        );
+}
+
+/* ==========================================================================
+   CARD TEXT
+   ========================================================================== */
+
+.card-info {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 3px;
+
+    min-width: 0;
+}
+
+.card-info strong {
+    color: #f4faff;
+
+    font-size: .82rem;
+    font-weight: 700;
+
+    line-height: 1.2;
+
+    letter-spacing: .03em;
+
+    text-shadow:
+        0 0 8px rgba(255,255,255,.2);
+}
+
+.card-info small {
+    color: var(--cyber-primary);
+
+    font-family: monospace;
+
+    font-size: .67rem;
+
+    line-height: 1.2;
+
+    letter-spacing: .05em;
+
+    opacity: .9;
+}
+
+/* ==========================================================================
+   ANALYTICS BOARD
+   ========================================================================== */
+
+.card-analytics-board {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: .55rem;
+
+    min-width: 210px;
+}
+
+.board-header {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    width: 100%;
+
+    color: #8da5c4;
+
+    font-family: monospace;
+
+    font-size: .65rem;
+}
+
+.board-header small {
+    color: var(--cyber-accent);
+
+    font-size: .74rem;
+    font-weight: 700;
+
+    text-shadow:
+        0 0 8px rgba(0,255,102,.7);
+}
+
+/* ==========================================================================
+   NETWORK SVG
+   ========================================================================== */
+
+.network-arcs-svg {
+    position: absolute;
+
+    inset: 0;
+
+    z-index: 2;
+
+    width: 100%;
+    height: 100%;
+
+    pointer-events: none;
+
     overflow: visible;
 }
 
 .arc-line {
     fill: none;
-    stroke-dasharray: 6 6;
-    animation: dashMotion 20s linear infinite;
+
+    stroke: url(#cyber-line-gradient);
+
+    stroke-width: 1.8;
+
+    stroke-linecap: round;
+
+    stroke-dasharray: 8 7;
+
+    animation:
+        cyber-dash-flow 16s linear infinite;
+
+    filter:
+        drop-shadow(
+            0 0 8px rgba(0,240,255,.7)
+        );
+
+    opacity: .8;
 }
 
-.arc-1 { stroke: rgba(56, 189, 248, 0.45); stroke-width: 1.8px; }
-.arc-2 { stroke: rgba(168, 85, 247, 0.4); stroke-width: 1.5px; }
-.arc-3 { stroke: rgba(236, 72, 153, 0.35); stroke-width: 1.2px; }
+@keyframes cyber-dash-flow {
+    from {
+        stroke-dashoffset: 120;
+    }
 
-@keyframes dashMotion {
-    to { stroke-dashoffset: -1000; }
-}
-
-/* --- Glassmorphism Base Cards --- */
-.sm-glass-card {
-    position: absolute;
-    z-index: 5;
-    background: rgba(18, 24, 38, 0.45);
-    backdrop-filter: blur(18px) saturate(180%);
-    -webkit-backdrop-filter: blur(18px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    border-radius: 16px;
-    box-shadow: 
-        0 15px 35px rgba(0, 0, 0, 0.4),
-        inset 0 1px 0 rgba(255, 255, 255, 0.3);
-    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    animation: floatMotion 4s ease-in-out infinite alternate;
-}
-
-/* Hover Glowing Aura */
-.sm-glass-card:hover {
-    transform: scale(1.15) translate(4px, -6px) !important;
-    border-color: rgba(56, 189, 248, 0.8);
-    background: rgba(18, 24, 38, 0.75);
-    box-shadow: 
-        0 20px 40px rgba(0, 0, 0, 0.6),
-        0 0 25px rgba(56, 189, 248, 0.5),
-        inset 0 1px 1px rgba(255, 255, 255, 0.5);
-    z-index: 20;
-}
-
-/* Icon Sizing & Inner Glass Glow */
-.card-small {
-    width: 50px;
-    height: 50px;
-    border-radius: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.svg-icon {
-    width: 26px;
-    height: 26px;
-    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.4));
-}
-
-.card-large {
-    padding: 0.6rem 1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    border-radius: 18px;
-    min-width: 175px;
-}
-
-.card-icon-badge {
-    width: 34px;
-    height: 34px;
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.1);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-}
-
-.card-info strong {
-    display: block;
-    font-size: 0.8rem;
-    color: #ffffff;
-    font-weight: 700;
-}
-
-.card-info small {
-    display: block;
-    font-size: 0.65rem;
-    color: #38bdf8;
-    margin-top: 2px;
+    to {
+        stroke-dashoffset: 0;
+    }
 }
 
 /* ==========================================================================
-   EXACT RIGHT SIDE MESH PLACEMENT (As per requested image feel)
+   FLOATING POSITIONS
    ========================================================================== */
 
-/* Inner Arc Right */
-.pos-html      { top: 5%;   right: 18%; animation-delay: 0s; }
-.pos-wp        { top: 20%;  right: 10%; animation-delay: 0.5s; }
-.pos-php       { top: 35%;  right: 15%; animation-delay: 1.0s; }
-
-/* Mid Arc Right */
-.pos-python    { top: 52%;  right: 12%; animation-delay: 1.5s; }
-.pos-java      { top: 68%;  right: 18%; animation-delay: 2.0s; }
-
-/* Outer Right Curved Cards */
-.pos-logo      { top: 10%;  right: -8%; animation-delay: 0.3s; }
-.pos-fbads     { top: 25%;  right: -22%; animation-delay: 0.8s; border-color: rgba(24, 119, 242, 0.5); }
-.pos-googleads { top: 48%;  right: -25%; animation-delay: 1.3s; border-color: rgba(234, 67, 53, 0.5); }
-.pos-pr        { top: 72%;  right: -12%; animation-delay: 1.8s; }
-.pos-canva     { top: 88%;  right: 5%;  animation-delay: 2.3s; }
-
-/* Analytics Board Right Center Overlay */
-.pos-board-right {
-    top: 58%;
-    right: -5%;
-    width: 220px;
-    padding: 0.8rem;
-    border-color: rgba(56, 189, 248, 0.4);
-    z-index: 12;
+.pos-html {
+    top: 18%;
+    right: 42%;
 }
 
-.board-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.35rem;
-    font-size: 0.62rem;
-    font-weight: 800;
-    color: #94a3b8;
-    letter-spacing: 0.5px;
+.pos-wp {
+    top: 22%;
+    right: 6%;
 }
 
-.board-header small {
-    color: #38bdf8;
-    font-size: 0.7rem;
-    font-weight: bold;
+.pos-php {
+    bottom: 18%;
+    left: 8%;
 }
 
-#heroAnalyticsCanvas {
-    display: block;
-    width: 100%;
-    height: 70px;
+.pos-python {
+    bottom: 22%;
+    right: 38%;
 }
 
-/* Dynamic Smooth Floating Keyframes */
-@keyframes floatMotion {
-    0% { transform: translateY(0px) rotate(0deg); }
-    50% { transform: translateY(-7px) rotate(1deg); }
-    100% { transform: translateY(5px) rotate(-1deg); }
+.pos-fbads {
+    top: 12%;
+    right: 22%;
+}
+
+.pos-googleads {
+    top: 52%;
+    right: 3%;
+}
+
+.pos-board {
+    bottom: 12%;
+    right: 14%;
+}
+
+/* ==========================================================================
+   TABLET
+   ========================================================================== */
+
+@media (max-width: 992px) {
+
+    .sm-glass-card {
+        padding: .65rem .9rem;
+    }
+
+    .card-analytics-board {
+        min-width: 185px;
+    }
+
+    .pos-html {
+        right: 36%;
+    }
+
+    .pos-wp {
+        right: 3%;
+    }
+
+    .pos-fbads {
+        right: 16%;
+    }
+
+    .pos-board {
+        right: 7%;
+    }
+}
+
+/* ==========================================================================
+   MOBILE
+   ========================================================================== */
+
+@media (max-width: 768px) {
+
+    .hero::before {
+        background-size: 36px 36px;
+        opacity: .65;
+    }
+
+    .network-arcs-svg {
+        opacity: .45;
+    }
+
+    .sm-glass-card {
+        padding: .58rem .72rem;
+        border-radius: 11px;
+
+        transform: scale(.84);
+    }
+
+    .sm-glass-card:hover {
+        transform:
+            translateY(-5px)
+            scale(.89);
+    }
+
+    .card-large {
+        min-width: 128px;
+        gap: .6rem;
+    }
+
+    .card-icon-badge {
+        width: 2.1rem;
+        height: 2.1rem;
+    }
+
+    .svg-icon {
+        width: 19px;
+        height: 19px;
+    }
+
+    .card-info strong {
+        font-size: .74rem;
+    }
+
+    .card-info small {
+        font-size: .6rem;
+    }
+
+    .card-analytics-board {
+        min-width: 165px;
+    }
+
+    .pos-html {
+        top: 9%;
+        right: 8%;
+    }
+
+    .pos-wp {
+        top: 24%;
+        right: 2%;
+    }
+
+    .pos-fbads {
+        top: 40%;
+        right: 2%;
+    }
+
+    .pos-googleads {
+        top: 56%;
+        right: 1%;
+    }
+
+    .pos-php {
+        bottom: 18%;
+        left: 2%;
+    }
+
+    .pos-python {
+        bottom: 27%;
+        right: 30%;
+    }
+
+    .pos-board {
+        bottom: 6%;
+        right: 3%;
+    }
+}
+
+/* ==========================================================================
+   SMALL MOBILE
+   ========================================================================== */
+
+@media (max-width: 480px) {
+
+    .sm-glass-card {
+        transform: scale(.76);
+    }
+
+    .sm-glass-card:hover {
+        transform:
+            translateY(-4px)
+            scale(.81);
+    }
+
+    .card-large {
+        min-width: 112px;
+    }
+
+    .card-analytics-board {
+        min-width: 148px;
+    }
+
+    .pos-html {
+        top: 8%;
+        right: 0;
+    }
+
+    .pos-wp {
+        top: 22%;
+        right: -4%;
+    }
+
+    .pos-fbads {
+        top: 38%;
+        right: -4%;
+    }
+
+    .pos-googleads {
+        top: 54%;
+        right: -4%;
+    }
+
+    .pos-php {
+        bottom: 19%;
+        left: -4%;
+    }
+
+    .pos-python {
+        bottom: 29%;
+        right: 22%;
+    }
+
+    .pos-board {
+        bottom: 4%;
+        right: -2%;
+    }
+}
+
+/* ==========================================================================
+   ACCESSIBILITY
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .sm-glass-card,
+    .svg-icon,
+    .arc-line {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+.hero {
+    --cursor-x: 50%;
+    --cursor-y: 50%;
+}
+
+.hero {
+    background:
+        radial-gradient(
+            circle at var(--cursor-x) var(--cursor-y),
+            rgba(0, 240, 255, 0.07),
+            transparent 22%
+        ),
+        radial-gradient(
+            circle at 72% 24%,
+            rgba(112, 0, 255, 0.22),
+            transparent 38%
+        ),
+        radial-gradient(
+            circle at 18% 72%,
+            rgba(0, 240, 255, 0.14),
+            transparent 42%
+        ),
+        linear-gradient(
+            135deg,
+            #010309 0%,
+            #060c1b 50%,
+            #02050d 100%
+        );
 }
