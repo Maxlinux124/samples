@@ -56,6 +56,23 @@ body {
     text-rendering: optimizeLegibility;
 }
 
+/*
+ * Homepage dark atmosphere.
+ * The Brain canvas is now a TRANSPARENT overlay, so the dark digital
+ * backdrop that used to be painted by the canvas is provided here at
+ * the page-background layer instead. This keeps the cinematic dark
+ * theme while letting the Brain travel over it without covering the
+ * page with an opaque rectangle.
+ */
+.page--home {
+    background:
+        radial-gradient(circle at 83% 26%, var(--color-hero-glow), transparent 26rem),
+        radial-gradient(circle at 12% 78%, rgb(30 90 200 / 14%), transparent 30rem),
+        linear-gradient(180deg, #090b13 0%, #0a1020 45%, #090b13 100%);
+    background-attachment: fixed;
+    color: var(--color-hero-text);
+}
+
 img,
 picture,
 svg {
@@ -100,4 +117,105 @@ select:focus-visible {
 
 .skip-link:focus {
     transform: translateY(0);
+}
+
+/* =========================================================
+   GLOBAL BRAIN VISUAL LAYER (single persistent canvas)
+   ---------------------------------------------------------
+   Correct stacking architecture (bottom -> top):
+
+     page background
+     section backgrounds + decorations
+     BRAIN VISUAL LAYER        (z-index: 1)
+     section content / UI      (z-index: 2+)
+     navbar / overlays         (z-index: 20+)
+
+   The Brain must sit ABOVE every section background but BELOW
+   all content. This is only possible when the sections do NOT
+   create their own stacking context (no z-index, no isolation).
+   ========================================================= */
+
+.brain-visual-layer {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1;
+    pointer-events: none;
+    overflow: hidden;
+    /* Transparent: the canvas draws only the Brain + glow, never a
+       full dark rectangle, so light section backgrounds stay visible. */
+    background: transparent;
+}
+
+#brainCanvas,
+.brain-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    pointer-events: none;
+    background: transparent;
+}
+
+/*
+ * Structural fix:
+ * Sections previously used `z-index: 2` + `isolation: isolate`, which
+ * composited every opaque section background as a single unit ON TOP of
+ * the fixed Brain canvas and hid it in sections 02-07. Keeping sections
+ * at `z-index: auto` (no isolation) lets their backgrounds paint BELOW
+ * the Brain, while their content (z-index >= 2) paints ABOVE it.
+ */
+.home-section,
+.home-section--strategy,
+.home-section--website,
+.home-section--performance,
+.home-section--technology,
+.home-section--cta,
+.home-section--creative,
+.hero {
+    isolation: auto !important;
+    z-index: auto !important;
+}
+
+/*
+ * Section decorations originally used negative z-index values, which
+ * would fall behind the section background once isolation is removed.
+ * Keep them visible: above the section background, below the Brain.
+ */
+.hero::before,
+.hero::after,
+.home-section--technology::before,
+.home-section--technology::after,
+.home-section--cta::before,
+.home-section--cta::after,
+.home-section--creative::before,
+.home-section--creative::after {
+    z-index: 0 !important;
+}
+
+/*
+ * Website content stays above the Brain.
+ *
+ * `.hero__inner` is the only hero layer that must be raised: it is the
+ * stacking context containing the hero text, the visual card and the
+ * floating tech cards. Sections 02-07 already lift their content with
+ * z-index 3+ in their own files, which now applies in the root context.
+ *
+ * NOTE: `position` and inner z-indices are NOT touched here, so the
+ * floating cards keep their hover / drag layering (z-index 10/30/100).
+ */
+body .hero__inner,
+body .home-section__inner,
+body .home-section__content {
+    z-index: 2;
+}
+
+/*
+ * The fixed header must stay above the hero floating cards
+ * (which use z-index up to 10) now that the hero no longer isolates them.
+ */
+body .site-header {
+    z-index: 20;
 }

@@ -27,7 +27,25 @@
     let head = null;
     let scrollTarget = 0;
     let scrollProgress = 0;
+    let sectionTarget = 0;
+    let sectionProgress = 0;
     let animationFrame = 0;
+
+    /*
+     * World states = WHERE the Brain sits for each of the 7 sections.
+     * These are movement targets only; the Brain artwork itself is
+     * unchanged. x is a fraction of viewport width, y of viewport
+     * height, and scale/rotation/depth drive the cinematic travel.
+     */
+    const worldSections = [
+        { x: 0, y: 0, scale: 1.00, rotation: 0, depth: 0.00 },
+        { x: 0.31, y: -0.015, scale: 0.88, rotation: 0.035, depth: 0.18 },
+        { x: -0.31, y: 0.015, scale: 0.84, rotation: -0.045, depth: 0.30 },
+        { x: 0.30, y: -0.02, scale: 0.82, rotation: 0.055, depth: 0.42 },
+        { x: -0.30, y: 0.02, scale: 0.79, rotation: -0.06, depth: 0.55 },
+        { x: 0, y: -0.01, scale: 0.74, rotation: 0, depth: 0.72 },
+        { x: 0, y: -0.02, scale: 0.68, rotation: 0, depth: 0.90 }
+    ];
     let lastTime = performance.now();
     let pageVisible = !document.hidden;
     const entranceStart = performance.now();
@@ -54,6 +72,39 @@
         return () => {
             value = (value * 16807) % 2147483647;
             return (value - 1) / 2147483646;
+        };
+    }
+
+    function lerp(start, end, amount) {
+        return start + (end - start) * amount;
+    }
+
+    function smoothstep(amount) {
+        const clamped = clamp(amount, 0, 1);
+        return clamped * clamped * (3 - clamped * 2);
+    }
+
+    /*
+     * Continuous world interpolation: takes the fractional section index
+     * (0..6) and blends the two neighbouring world states. Because the
+     * index itself is continuous, the Brain NEVER snaps, resets or
+     * teleports when crossing between sections.
+     */
+    function interpolateWorldState(index) {
+        const last = worldSections.length - 1;
+        const clamped = clamp(index, 0, last);
+        const lower = Math.floor(clamped);
+        const upper = Math.min(lower + 1, last);
+        const amount = smoothstep(clamped - lower);
+        const from = worldSections[lower];
+        const to = worldSections[upper];
+
+        return {
+            x: lerp(from.x, to.x, amount),
+            y: lerp(from.y, to.y, amount),
+            scale: lerp(from.scale, to.scale, amount),
+            rotation: lerp(from.rotation, to.rotation, amount),
+            depth: lerp(from.depth, to.depth, amount)
         };
     }
 
@@ -244,42 +295,108 @@
         const yaw = Math.sin(time * 0.00032) * 0.065 * motionScale + pointerX * 0.035 * activity;
         const pitch = Math.cos(time * 0.00027) * 0.032 * motionScale + pointerY * 0.026 * activity;
 
+        /*
+         * Continuous world travel derived from the fractional section
+         * index. The existing breathing / orbit / pointer / depth motion
+         * is preserved and simply layered on top.
+         *
+         * On mobile the horizontal travel is reduced to ~40% so the Brain
+         * never collides with the full-width stacked content.
+         */
+        const world = interpolateWorldState(sectionProgress);
+        const travelFactor = width < 600 ? 0.4 : 1;
+        const travelX = world.x * width * 0.42 * travelFactor;
+        const travelY = world.y * height;
+        const depthDrift = world.depth * 8;
+
         return {
-            zoom: (0.5 + entrance * 0.5) * (1 + scrollProgress * 0.085 + breathing + depthWave),
+            zoom: (0.5 + entrance * 0.5) * world.scale * (1 + scrollProgress * 0.05 + breathing + depthWave),
             scaleX: Math.cos(yaw) * (1 + breathing * 0.4),
             scaleY: Math.cos(pitch) * (1 - breathing * 0.3),
-            rotation: Math.sin(time * 0.00016) * 0.018 * motionScale + scrollProgress * 0.012,
-            offsetX: Math.sin(orbit) * 3.5 * motionScale + pointerX * 4 * activity - scrollProgress * 7,
-            offsetY: Math.cos(orbit * 0.82) * 2.5 * motionScale + pointerY * 3 * activity + scrollProgress * 4,
+            rotation: Math.sin(time * 0.00016) * 0.018 * motionScale + world.rotation,
+            offsetX: Math.sin(orbit) * 3.5 * motionScale + pointerX * 4 * activity + travelX,
+            offsetY: Math.cos(orbit * 0.82) * 2.5 * motionScale + pointerY * 3 * activity + travelY + depthDrift,
             yaw,
             pitch
         };
     }
 
     function updateScrollTarget() {
-        const hero = canvas.closest('.hero');
-        const heroHeight = hero ? hero.getBoundingClientRect().height : window.innerHeight;
-        scrollTarget = clamp(window.scrollY / Math.max(heroHeight * 0.85, 1), 0, 1);
+        const sections = document.querySelectorAll('[data-brain-section]');
+
+        if (sections.length < 2) {
+            sectionTarget = 0;
+            scrollTarget = 0;
+            return;
+        }
+
+        /*
+         * CONTINUOUS PAGE PROGRESS.
+         * Map the viewport center (in document coordinates) onto the
+         * document-space centers of all seven sections, producing a
+         * fractional index such as 2.5 (half-way between 02 and 03).
+         * This is what removes all snapping between sections.
+         */
+        const viewportCenter = window.scrollY + window.innerHeight * 0.5;
+        const centers = [];
+
+        sections.forEach((section) => {
+            const rect = section.getBoundingClientRect();
+            centers.push(rect.top + window.scrollY + rect.height * 0.5);
+        });
+
+        const firstCenter = centers[0];
+        const lastCenter = centers[centers.length - 1];
+        const position = clamp(viewportCenter, firstCenter, lastCenter);
+        let index = centers.length - 1;
+
+        for (let step = 0; step < centers.length - 1; step += 1) {
+            const start = centers[step];
+            const end = centers[step + 1];
+
+            if (position <= start) {
+                index = step;
+                break;
+            }
+
+            if (position <= end) {
+                const span = Math.max(end - start, 1);
+                index = step + (position - start) / span;
+                break;
+            }
+        }
+
+        sectionTarget = index;
+        scrollTarget = clamp(index / (centers.length - 1), 0, 1);
 
         if (reducedMotionQuery.matches) {
+            sectionProgress = sectionTarget;
             scrollProgress = scrollTarget;
             render(performance.now());
         }
     }
 
     function drawBackground(time) {
+        /*
+         * Transparent cinematic overlay: the canvas is CLEARED and never
+         * filled with an opaque rectangle, so each section's own
+         * background stays visible underneath the Brain. Only soft,
+         * semi-transparent atmosphere / glow / stars are painted.
+         */
+        context.clearRect(0, 0, width, height);
+
         const atmosphere = context.createRadialGradient(
-            width * (0.58 + scrollProgress * 0.08),
+            width * (0.56 + scrollProgress * 0.08),
             height * 0.46,
             0,
-            width * 0.58,
+            width * 0.56,
             height * 0.46,
             Math.max(width, height) * 0.82
         );
 
-        atmosphere.addColorStop(0, '#0b2341');
-        atmosphere.addColorStop(0.42, '#061327');
-        atmosphere.addColorStop(1, '#02050d');
+        atmosphere.addColorStop(0, 'rgba(20, 96, 190, 0.16)');
+        atmosphere.addColorStop(0.45, 'rgba(11, 52, 112, 0.06)');
+        atmosphere.addColorStop(1, 'rgba(4, 16, 40, 0)');
         context.fillStyle = atmosphere;
         context.fillRect(0, 0, width, height);
 
@@ -292,8 +409,8 @@
             Math.min(width, height) * 0.56
         );
 
-        glow.addColorStop(0, 'rgba(22, 145, 255, 0.13)');
-        glow.addColorStop(0.48, 'rgba(15, 88, 187, 0.045)');
+        glow.addColorStop(0, 'rgba(22, 145, 255, 0.14)');
+        glow.addColorStop(0.48, 'rgba(15, 88, 187, 0.05)');
         glow.addColorStop(1, 'rgba(15, 88, 187, 0)');
         context.fillStyle = glow;
         context.fillRect(0, 0, width, height);
@@ -698,7 +815,9 @@
 
         const delta = Math.min(40, Math.max(0, time - lastTime));
         lastTime = time;
-        scrollProgress += (scrollTarget - scrollProgress) * (reducedMotionQuery.matches ? 1 : 0.055);
+        const smoothing = reducedMotionQuery.matches ? 1 : 0.06;
+        scrollProgress += (scrollTarget - scrollProgress) * smoothing;
+        sectionProgress += (sectionTarget - sectionProgress) * smoothing;
         const motion = getSceneMotion(time);
 
         drawBackground(time);

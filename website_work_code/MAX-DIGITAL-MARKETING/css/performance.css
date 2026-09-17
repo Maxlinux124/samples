@@ -1,0 +1,366 @@
+/* =========================================================
+   MAX DIGITAL MARKETING
+   SECTION 04 — PERFORMANCE MARKETING
+   ========================================================= */
+
+.home-section--performance {
+    position: relative;
+    min-height: 100svh;
+    width: 100%;
+    overflow: hidden;
+    isolation: isolate;
+
+    display: flex;
+    align-items: center;
+
+    padding: 120px 0;
+}
+
+/* =========================================================
+   INNER
+   ========================================================= */
+
+.home-section--performance .home-section__inner {
+    position: relative;
+    z-index: 3;
+
+    width: min(1400px, 100%);
+    min-height: 70vh;
+
+    margin: 0 auto;
+    padding: 80px 6vw;
+
+    display: flex;
+    align-items: center;
+}
+
+/* =========================================================
+   CONTENT — LEFT
+   Brain moves RIGHT
+   ========================================================= */
+
+.home-section--performance .home-section__content {
+    position: relative;
+    z-index: 5;
+
+    width: min(590px, 100%);
+
+    margin-right: auto;
+
+    text-align: left;
+}
+
+/* =========================================================
+   NUMBER
+   ========================================================= */
+
+.home-section--performance .home-section__number {
+    display: block;
+
+    margin-bottom: 20px;
+
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+
+    opacity: 0.45;
+}
+
+/* =========================================================
+   EYEBROW
+   ========================================================= */
+
+.home-section--performance .home-section__eyebrow {
+    margin: 0 0 18px;
+
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.4;
+
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+
+    opacity: 0.75;
+}
+
+/* =========================================================
+   TITLE
+   ========================================================= */
+
+.home-section--performance .home-section__title {
+    max-width: 650px;
+
+    margin: 0;
+
+    font-size: clamp(42px, 5vw, 72px);
+    font-weight: 700;
+    line-height: 1.04;
+
+    letter-spacing: -0.045em;
+}
+
+/* =========================================================
+   DESCRIPTION
+   ========================================================= */
+
+.home-section--performance .home-section__description {
+    max-width: 550px;
+
+    margin: 26px 0 0;
+
+    font-size: clamp(16px, 1.2vw, 18px);
+    line-height: 1.75;
+
+    opacity: 0.72;
+}
+
+/* =========================================================
+   META
+   ========================================================= */
+
+.home-section--performance .home-section__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+
+    margin-top: 28px;
+}
+
+.home-section--performance .home-section__meta span {
+    display: inline-flex;
+    align-items: center;
+
+    min-height: 34px;
+
+    padding: 7px 13px;
+
+    border-radius: 999px;
+
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+/* =========================================================
+   BUTTON
+   ========================================================= */
+
+.home-section--performance .button {
+    margin-top: 32px;
+}
+
+/* =========================================================
+   PERFORMANCE DATA GLOW
+   ========================================================= */
+
+.home-section--performance::before {
+    content: "";
+
+    position: absolute;
+
+    top: 50%;
+    right: 5%;
+
+    width: 520px;
+    height: 520px;
+
+    transform: translateY(-50%);
+
+    border-radius: 50%;
+
+    pointer-events: none;
+
+    opacity: 0.42;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(24, 64, 150, 0.16) 0%,
+            rgba(24, 64, 150, 0.05) 38%,
+            transparent 72%
+        );
+}
+
+/* =========================================================
+   DATA GRID
+   ========================================================= */
+
+.home-section--performance::after {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+
+    pointer-events: none;
+
+    opacity: 0.12;
+
+    background-image:
+        linear-gradient(
+            rgba(255, 255, 255, 0.04) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0.04) 1px,
+            transparent 1px
+        );
+
+    background-size: 70px 70px;
+
+    mask-image: linear-gradient(
+        to right,
+        black,
+        transparent 82%
+    );
+
+    -webkit-mask-image: linear-gradient(
+        to right,
+        black,
+        transparent 82%
+    );
+}
+
+/* =========================================================
+   DESKTOP
+   ========================================================= */
+
+@media (min-width: 1101px) {
+
+    .home-section--performance .home-section__content {
+        padding-right: 90px;
+    }
+}
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+    .home-section--performance {
+        min-height: 100svh;
+        padding: 100px 0;
+    }
+
+    .home-section--performance .home-section__inner {
+        min-height: auto;
+        padding: 70px 5vw;
+    }
+
+    .home-section--performance .home-section__content {
+        width: min(650px, 100%);
+    }
+
+    .home-section--performance .home-section__title {
+        font-size: clamp(40px, 7vw, 60px);
+    }
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+    .home-section--performance {
+        min-height: 100svh;
+        padding: 80px 0;
+    }
+
+    .home-section--performance .home-section__inner {
+        padding: 60px 20px;
+    }
+
+    .home-section--performance .home-section__number {
+        margin-bottom: 15px;
+        font-size: 10px;
+    }
+
+    .home-section--performance .home-section__eyebrow {
+        margin-bottom: 14px;
+
+        font-size: 10px;
+        letter-spacing: 0.16em;
+    }
+
+    .home-section--performance .home-section__title {
+        font-size: clamp(38px, 11vw, 52px);
+        line-height: 1.06;
+    }
+
+    .home-section--performance .home-section__description {
+        margin-top: 20px;
+
+        font-size: 15px;
+        line-height: 1.7;
+    }
+
+    .home-section--performance .home-section__meta {
+        margin-top: 22px;
+        gap: 8px;
+    }
+
+    .home-section--performance .home-section__meta span {
+        min-height: 31px;
+
+        padding: 6px 10px;
+
+        font-size: 10px;
+    }
+
+    .home-section--performance .button {
+        margin-top: 27px;
+    }
+
+    .home-section--performance::before {
+        width: 320px;
+        height: 320px;
+
+        right: -120px;
+    }
+
+    .home-section--performance::after {
+        background-size: 55px 55px;
+    }
+}
+
+/* =========================================================
+   SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 400px) {
+
+    .home-section--performance .home-section__inner {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .home-section--performance .home-section__title {
+        font-size: 36px;
+    }
+
+    .home-section--performance .home-section__description {
+        font-size: 14px;
+    }
+}
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .home-section--performance *,
+    .home-section--performance::before,
+    .home-section--performance::after {
+        animation: none !important;
+        transition: none !important;
+    }
+}

@@ -1,0 +1,490 @@
+/* =========================================================
+   SECTION 05 — CREATIVE & CONTENT
+   Max Digital Marketing
+   ========================================================= */
+
+.home-section--creative {
+    position: relative;
+    min-height: 100svh;
+
+    display: flex;
+    align-items: center;
+
+    overflow: hidden;
+    isolation: isolate;
+
+    background:
+        radial-gradient(
+            circle at 70% 50%,
+            rgba(24, 64, 150, 0.10),
+            transparent 38%
+        ),
+        linear-gradient(
+            180deg,
+            #ffffff 0%,
+            #f8faff 100%
+        );
+}
+
+
+/* =========================================================
+   BACKGROUND ATMOSPHERE
+   ========================================================= */
+
+.home-section--creative::before {
+    content: "";
+    position: absolute;
+    inset: -15%;
+
+    z-index: -2;
+
+    background:
+        radial-gradient(
+            circle at 75% 45%,
+            rgba(45, 100, 220, 0.10),
+            transparent 30%
+        ),
+        radial-gradient(
+            circle at 25% 70%,
+            rgba(24, 64, 150, 0.055),
+            transparent 25%
+        );
+
+    pointer-events: none;
+}
+
+
+/* Subtle grid */
+.home-section--creative::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+
+    z-index: -1;
+
+    background-image:
+        linear-gradient(
+            rgba(20, 40, 80, 0.025) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(20, 40, 80, 0.025) 1px,
+            transparent 1px
+        );
+
+    background-size: 70px 70px;
+
+    mask-image: radial-gradient(
+        circle at 70% 50%,
+        black 0%,
+        transparent 65%
+    );
+
+    -webkit-mask-image: radial-gradient(
+        circle at 70% 50%,
+        black 0%,
+        transparent 65%
+    );
+
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   INNER
+   ========================================================= */
+
+.home-section--creative .home-section__inner {
+    position: relative;
+    z-index: 2;
+
+    width: min(100% - 40px, 1200px);
+    min-height: 100svh;
+
+    margin: 0 auto;
+
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    padding: 120px 20px;
+}
+
+
+/* =========================================================
+   CONTENT — RIGHT SIDE
+   ========================================================= */
+
+.home-section--creative .home-section__content {
+    width: min(100%, 560px);
+
+    position: relative;
+    z-index: 3;
+
+    text-align: left;
+}
+
+
+/* =========================================================
+   NUMBER
+   ========================================================= */
+
+.home-section--creative .home-section__number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 46px;
+    height: 46px;
+
+    margin-bottom: 24px;
+
+    border: 1px solid rgba(20, 40, 80, 0.10);
+    border-radius: 50%;
+
+    background: rgba(255, 255, 255, 0.72);
+
+    color: rgba(20, 35, 65, 0.55);
+
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+
+    box-shadow:
+        0 10px 30px rgba(20, 40, 80, 0.06);
+
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+
+/* =========================================================
+   EYEBROW
+   ========================================================= */
+
+.home-section--creative .home-section__eyebrow {
+    margin: 0 0 18px;
+
+    color: #526078;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+}
+
+
+/* =========================================================
+   TITLE
+   ========================================================= */
+
+.home-section--creative .home-section__title {
+    max-width: 580px;
+
+    margin: 0 0 26px;
+
+    color: #111b2d;
+
+    font-size: clamp(44px, 5.5vw, 76px);
+
+    line-height: 0.98;
+
+    font-weight: 700;
+
+    letter-spacing: -0.05em;
+
+    text-wrap: balance;
+}
+
+
+/* =========================================================
+   DESCRIPTION
+   ========================================================= */
+
+.home-section--creative .home-section__description {
+    max-width: 520px;
+
+    margin: 0 0 30px;
+
+    color: #68758a;
+
+    font-size: 16px;
+
+    line-height: 1.75;
+
+    text-wrap: balance;
+}
+
+
+/* =========================================================
+   META TAGS
+   ========================================================= */
+
+.home-section--creative .home-section__meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+
+    gap: 9px;
+
+    margin-bottom: 34px;
+}
+
+.home-section--creative .home-section__meta span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 36px;
+
+    padding: 0 15px;
+
+    border: 1px solid rgba(20, 40, 80, 0.09);
+    border-radius: 999px;
+
+    background: rgba(255, 255, 255, 0.78);
+
+    color: #4f5d73;
+
+    font-size: 11px;
+    font-weight: 600;
+
+    letter-spacing: 0.03em;
+
+    box-shadow:
+        0 8px 24px rgba(20, 40, 80, 0.05);
+
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
+    transition:
+        transform 0.3s ease,
+        box-shadow 0.3s ease,
+        border-color 0.3s ease;
+}
+
+.home-section--creative .home-section__meta span:hover {
+    transform: translateY(-3px);
+
+    border-color: rgba(30, 90, 220, 0.20);
+
+    box-shadow:
+        0 12px 28px rgba(20, 60, 140, 0.10);
+}
+
+
+/* =========================================================
+   CREATIVE VISUAL AREA
+   Left-side visual atmosphere
+   ========================================================= */
+
+.home-section--creative .home-section__inner::before {
+    content: "";
+
+    position: absolute;
+
+    left: 2%;
+    top: 50%;
+
+    width: 430px;
+    height: 430px;
+
+    transform: translateY(-50%);
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(50, 105, 230, 0.10) 0%,
+            rgba(50, 105, 230, 0.035) 35%,
+            transparent 70%
+        );
+
+    filter: blur(2px);
+
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   CREATIVE ORBIT
+   ========================================================= */
+
+.home-section--creative .home-section__inner::after {
+    content: "";
+
+    position: absolute;
+
+    left: 7%;
+    top: 50%;
+
+    width: 330px;
+    height: 330px;
+
+    transform: translateY(-50%);
+
+    border: 1px solid rgba(30, 90, 200, 0.08);
+
+    border-radius: 50%;
+
+    box-shadow:
+        0 0 0 45px rgba(30, 90, 200, 0.025),
+        0 0 0 90px rgba(30, 90, 200, 0.018);
+
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   BUTTON
+   ========================================================= */
+
+.home-section--creative .button {
+    position: relative;
+    z-index: 5;
+}
+
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+    .home-section--creative .home-section__inner {
+        width: min(100% - 30px, 850px);
+
+        padding: 110px 15px;
+    }
+
+    .home-section--creative .home-section__content {
+        width: min(100%, 520px);
+    }
+
+    .home-section--creative .home-section__title {
+        font-size: clamp(42px, 8vw, 66px);
+    }
+
+    .home-section--creative .home-section__description {
+        font-size: 15px;
+    }
+
+    .home-section--creative .home-section__inner::before {
+        left: -10%;
+
+        width: 350px;
+        height: 350px;
+    }
+
+    .home-section--creative .home-section__inner::after {
+        left: -3%;
+
+        width: 270px;
+        height: 270px;
+    }
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+    .home-section--creative {
+        min-height: 100svh;
+    }
+
+    .home-section--creative .home-section__inner {
+        width: 100%;
+        min-height: 100svh;
+
+        justify-content: center;
+
+        padding: 100px 20px 80px;
+    }
+
+    .home-section--creative .home-section__content {
+        width: 100%;
+
+        text-align: left;
+    }
+
+    .home-section--creative .home-section__number {
+        width: 40px;
+        height: 40px;
+
+        margin-bottom: 20px;
+
+        font-size: 11px;
+    }
+
+    .home-section--creative .home-section__eyebrow {
+        margin-bottom: 14px;
+
+        font-size: 10px;
+
+        letter-spacing: 0.17em;
+    }
+
+    .home-section--creative .home-section__title {
+        font-size: clamp(38px, 11vw, 54px);
+
+        line-height: 1.02;
+    }
+
+    .home-section--creative .home-section__description {
+        font-size: 15px;
+
+        line-height: 1.65;
+    }
+
+    .home-section--creative .home-section__meta {
+        gap: 7px;
+
+        margin-bottom: 28px;
+    }
+
+    .home-section--creative .home-section__meta span {
+        min-height: 33px;
+
+        padding: 0 12px;
+
+        font-size: 10px;
+    }
+
+    .home-section--creative .home-section__inner::before {
+        left: 50%;
+        top: 50%;
+
+        width: 330px;
+        height: 330px;
+
+        transform: translate(-50%, -50%);
+    }
+
+    .home-section--creative .home-section__inner::after {
+        left: 50%;
+        top: 50%;
+
+        width: 250px;
+        height: 250px;
+
+        transform: translate(-50%, -50%);
+    }
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .home-section--creative .home-section__meta span {
+        transition: none;
+    }
+}

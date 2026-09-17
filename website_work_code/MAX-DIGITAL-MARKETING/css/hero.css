@@ -1,0 +1,494 @@
+/* =========================================================
+   MAX DIGITAL MARKETING
+   HERO / SECTION 01
+   ========================================================= */
+
+.hero {
+    position: relative;
+    min-height: 100svh;
+    width: 100%;
+    overflow: hidden;
+    isolation: isolate;
+    display: flex;
+    align-items: center;
+}
+
+/* =========================================================
+   BRAIN CANVAS
+   ========================================================= */
+
+.brain-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* =========================================================
+   HERO INNER
+   ========================================================= */
+
+.hero__inner {
+    position: relative;
+    z-index: 2;
+    width: min(1400px, 100%);
+    min-height: 100svh;
+    margin: 0 auto;
+    padding: 120px 6vw 80px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 70px;
+}
+
+/* =========================================================
+   HERO TEXT
+   ========================================================= */
+
+.hero-text {
+    position: relative;
+    z-index: 5;
+    width: min(620px, 100%);
+}
+
+.hero-text__eyebrow {
+    margin: 0 0 18px;
+
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.4;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+
+    opacity: 0.78;
+}
+
+.hero-text__title {
+    max-width: 650px;
+    margin: 0;
+
+    font-size: clamp(42px, 5vw, 76px);
+    font-weight: 700;
+    line-height: 1.02;
+    letter-spacing: -0.045em;
+}
+
+.hero-text__description {
+    max-width: 580px;
+    margin: 26px 0 0;
+
+    font-size: clamp(16px, 1.25vw, 19px);
+    line-height: 1.75;
+    opacity: 0.76;
+}
+
+/* =========================================================
+   HERO ACTIONS
+   ========================================================= */
+
+.hero__actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 34px;
+}
+
+.hero__actions .button {
+    min-height: 50px;
+    padding: 13px 23px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+}
+
+/* =========================================================
+   HERO VISUAL CARD
+   ========================================================= */
+
+.hero-visual-card {
+    position: relative;
+    z-index: 3;
+
+    width: min(500px, 42vw);
+    aspect-ratio: 1 / 1;
+
+    flex: 0 0 auto;
+
+    border-radius: 34px;
+    overflow: hidden;
+
+    isolation: isolate;
+}
+
+.hero-visual-card__image-wrap {
+    position: absolute;
+    inset: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    overflow: hidden;
+    border-radius: inherit;
+}
+
+.hero-visual-card__image {
+    position: relative;
+    z-index: 1;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+    object-position: center;
+
+    display: block;
+}
+
+/* =========================================================
+   VISUAL CARD LINES
+   ========================================================= */
+
+.hero-visual-card__line {
+    position: absolute;
+    z-index: 5;
+
+    width: 70px;
+    height: 1px;
+
+    opacity: 0.65;
+}
+
+.hero-visual-card__line--top {
+    top: 28px;
+    left: 28px;
+}
+
+.hero-visual-card__line--bottom {
+    right: 28px;
+    bottom: 28px;
+}
+
+/* =========================================================
+   NETWORK ARCS
+   ========================================================= */
+
+.network-arcs-svg {
+    position: absolute;
+    inset: 0;
+
+    z-index: 3;
+
+    width: 100%;
+    height: 100%;
+
+    pointer-events: none;
+    overflow: visible;
+}
+
+.arc-line {
+    fill: none;
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+
+    opacity: 0.5;
+
+    stroke-dasharray: 7 12;
+
+    animation: heroArcMove 8s linear infinite;
+}
+
+.arc-2 {
+    animation-duration: 11s;
+    animation-direction: reverse;
+}
+
+@keyframes heroArcMove {
+    from {
+        stroke-dashoffset: 0;
+    }
+
+    to {
+        stroke-dashoffset: -180;
+    }
+}
+
+/* =========================================================
+   TERMINAL
+   ========================================================= */
+
+.hero-visual-card__terminal {
+    position: absolute;
+    z-index: 8;
+
+    left: 24px;
+    right: 24px;
+    bottom: 22px;
+
+    min-height: 38px;
+    padding: 9px 13px;
+
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    border-radius: 10px;
+
+    font-family: monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.hero-visual-card__prompt {
+    font-weight: 700;
+}
+
+/* =========================================================
+   TERMINAL NODE
+   ========================================================= */
+
+.hero-visual-card__node {
+    position: absolute;
+    z-index: 9;
+
+    top: 50%;
+    left: 50%;
+
+    width: 7px;
+    height: 7px;
+
+    border-radius: 50%;
+
+    transform: translate(-50%, -50%);
+
+    animation: heroNodePulse 2s ease-in-out infinite;
+}
+
+@keyframes heroNodePulse {
+    0%,
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.65;
+    }
+
+    50% {
+        transform: translate(-50%, -50%) scale(1.8);
+        opacity: 1;
+    }
+}
+
+/* =========================================================
+   FLOATING CARD LAYER
+   ========================================================= */
+
+.hero .sm-glass-card {
+    z-index: 7;
+}
+
+.hero .card-small,
+.hero .card-large,
+.hero .card-analytics-board {
+    pointer-events: auto;
+}
+
+/* =========================================================
+   ANALYTICS BOARD
+   ========================================================= */
+
+.hero .card-analytics-board {
+    overflow: hidden;
+}
+
+.hero .board-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.hero .board-header span {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+}
+
+.hero .board-header small {
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.hero #heroAnalyticsCanvas {
+    display: block;
+    width: 100%;
+    max-width: 220px;
+    height: auto;
+    margin-top: 8px;
+}
+
+/* =========================================================
+   ACCESSIBILITY
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+    .arc-line,
+    .hero-visual-card__node {
+        animation: none;
+    }
+}
+
+/* =========================================================
+   LARGE TABLET
+   ========================================================= */
+
+@media (max-width: 1100px) {
+
+    .hero__inner {
+        gap: 45px;
+        padding-left: 5vw;
+        padding-right: 5vw;
+    }
+
+    .hero-visual-card {
+        width: min(430px, 42vw);
+    }
+
+    .hero-text__title {
+        font-size: clamp(40px, 5vw, 62px);
+    }
+}
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+    .hero {
+        min-height: auto;
+    }
+
+    .hero__inner {
+        min-height: 100svh;
+        padding-top: 130px;
+        padding-bottom: 80px;
+
+        flex-direction: column;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .hero-text {
+        width: min(700px, 100%);
+    }
+
+    .hero-text__description {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .hero__actions {
+        justify-content: center;
+    }
+
+    .hero-visual-card {
+        width: min(500px, 82vw);
+    }
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+    .hero__inner {
+        padding: 115px 20px 65px;
+        gap: 42px;
+    }
+
+    .hero-text__eyebrow {
+        margin-bottom: 14px;
+        font-size: 10px;
+        letter-spacing: 0.17em;
+    }
+
+    .hero-text__title {
+        font-size: clamp(38px, 12vw, 52px);
+        line-height: 1.04;
+    }
+
+    .hero-text__description {
+        margin-top: 20px;
+        font-size: 15px;
+        line-height: 1.65;
+    }
+
+    .hero__actions {
+        flex-direction: column;
+        width: 100%;
+        margin-top: 27px;
+    }
+
+    .hero__actions .button {
+        width: 100%;
+    }
+
+    .hero-visual-card {
+        width: min(390px, 88vw);
+        border-radius: 25px;
+    }
+
+    .hero-visual-card__terminal {
+        left: 15px;
+        right: 15px;
+        bottom: 15px;
+
+        min-height: 34px;
+        padding: 8px 10px;
+
+        font-size: 9px;
+    }
+
+    .hero-visual-card__line--top {
+        top: 18px;
+        left: 18px;
+    }
+
+    .hero-visual-card__line--bottom {
+        right: 18px;
+        bottom: 18px;
+    }
+}
+
+/* =========================================================
+   SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 400px) {
+
+    .hero__inner {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .hero-text__title {
+        font-size: 36px;
+    }
+
+    .hero-text__description {
+        font-size: 14px;
+    }
+
+    .hero-visual-card {
+        width: 92vw;
+    }
+}

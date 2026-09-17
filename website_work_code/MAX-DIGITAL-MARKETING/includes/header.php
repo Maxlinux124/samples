@@ -28,10 +28,17 @@ function escapeHtml(string $value): string
     <meta property="og:image" content="<?= escapeHtml(SITE_URL) ?>assets/images/og-placeholder.jpg">
     <title><?= escapeHtml($pageTitle) ?></title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/hero.css">
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/animations.css">
     <link rel="stylesheet" href="css/responsive.css">
     <link rel="stylesheet" href="css/floating-cards.css">
+    <link rel="stylesheet" href="css/strategy.css">
+    <link rel="stylesheet" href="css/website.css">
+    <link rel="stylesheet" href="css/performance.css">
+    <link rel="stylesheet" href="css/technology.css">
+    <link rel="stylesheet" href="css/cta.css">
+    <link rel="stylesheet" href="css/creative.css">
 </head>
 <body class="<?= escapeHtml($pageBodyClass) ?>">
     <a class="skip-link" href="#main-content">Skip to main content</a>
