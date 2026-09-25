@@ -258,9 +258,96 @@ require_once __DIR__ . '/includes/navbar.php';
 
 
     <!-- =========================================================
-         SECTION 02 — DIGITAL STRATEGY
+         SECTION 02 — SERVICES / DIGITAL STRATEGY
          Brain Position: RIGHT
+         Neural 3D sliding service carousel
     ========================================================== -->
+    <?php
+    /*
+     * Section 02 service data.
+     * data/services.json is an empty placeholder in this project, so the
+     * list lives here, scoped to Section 02 only.
+     */
+    $services = [
+        [
+            'number' => '01',
+            'title' => 'Website Design',
+            'summary' => 'Clear, modern interfaces shaped around your brand, your audience, and the action you want visitors to take.',
+            'icon' => 'design'
+        ],
+        [
+            'number' => '02',
+            'title' => 'Website Development',
+            'summary' => 'Fast, responsive, scalable builds — custom code or WordPress, engineered for stability and easy growth.',
+            'icon' => 'development'
+        ],
+        [
+            'number' => '03',
+            'title' => 'SEO Optimization',
+            'summary' => 'Technical, on-page, and content SEO that helps the right people find you first and keeps you visible.',
+            'icon' => 'seo'
+        ],
+        [
+            'number' => '04',
+            'title' => 'Digital Marketing',
+            'summary' => 'Full-funnel campaigns that connect strategy, creative, and media into one measurable growth system.',
+            'icon' => 'marketing'
+        ],
+        [
+            'number' => '05',
+            'title' => 'Social Media Marketing',
+            'summary' => 'Platform-native content and community management that builds attention, engagement, and demand.',
+            'icon' => 'social'
+        ],
+        [
+            'number' => '06',
+            'title' => 'Video Editing',
+            'summary' => 'Short-form and brand films edited for retention — built for reels, paid ads, and every screen.',
+            'icon' => 'video'
+        ],
+        [
+            'number' => '07',
+            'title' => 'Graphic Design',
+            'summary' => 'Campaign visuals, layouts, and design systems kept consistent across every digital touchpoint.',
+            'icon' => 'graphic'
+        ],
+        [
+            'number' => '08',
+            'title' => 'Branding & Identity',
+            'summary' => 'Positioning, voice, and visual identity that make your business instantly recognisable and trusted.',
+            'icon' => 'branding'
+        ],
+        [
+            'number' => '09',
+            'title' => 'E-Commerce Solutions',
+            'summary' => 'Product-led storefronts and optimisation that turn browsing into checkout without friction.',
+            'icon' => 'ecommerce'
+        ],
+        [
+            'number' => '10',
+            'title' => 'Analytics & Reporting',
+            'summary' => 'Tracking, dashboards, and clear reporting so every growth decision is backed by real data.',
+            'icon' => 'analytics'
+        ]
+    ];
+
+    /*
+     * Minimal inline stroke icons (24x24) matching the existing
+     * .svg-icon language used by the hero floating cards.
+     */
+    $serviceIcons = [
+        'design' => '<rect x="3" y="4.5" width="18" height="13" rx="2.2"/><path d="M3 9h18M8.5 21h7M12 17.5V21"/>',
+        'development' => '<path d="M9.2 7.6 4 12l5.2 4.4M14.8 7.6 20 12l-5.2 4.4"/>',
+        'seo' => '<circle cx="10.8" cy="10.8" r="6.2"/><path d="M15.4 15.4 20.5 20.5M8 12.4l2-2.1 1.6 1.6 2.6-2.8"/>',
+        'marketing' => '<path d="M4 10.2v3.6a1 1 0 0 0 1 1h2.1l4.4 3.1V6.1L7.1 9.2H5a1 1 0 0 0-1 1z"/><path d="M15.2 9.4a4 4 0 0 1 0 5.2M18.2 6.8a7.6 7.6 0 0 1 0 10.4"/>',
+        'social' => '<circle cx="6.2" cy="12" r="2.6"/><circle cx="17.4" cy="6.2" r="2.6"/><circle cx="17.4" cy="17.8" r="2.6"/><path d="M8.5 10.7l6.6-3.2M8.5 13.3l6.6 3.2"/>',
+        'video' => '<rect x="3" y="5.2" width="18" height="13.6" rx="2.4"/><path d="M10.6 9.4l4.6 2.6-4.6 2.6z"/>',
+        'graphic' => '<path d="M12 3.2a8.8 8.8 0 1 0 0 17.6h1.5a2 2 0 0 0 1.4-3.4 2 2 0 0 1 1.4-3.4h1.4a3 3 0 0 0 3-3A8.6 8.6 0 0 0 12 3.2z"/><circle cx="8.2" cy="10.4" r="1.05"/><circle cx="12" cy="7.6" r="1.05"/><circle cx="15.6" cy="10.4" r="1.05"/>',
+        'branding' => '<path d="M12 3.4l2.5 5.1 5.6.8-4.1 4 1 5.6-5-2.7-5 2.7 1-5.6-4.1-4 5.6-.8z"/>',
+        'ecommerce' => '<path d="M3.2 4.8h1.8l2.2 9.3a1 1 0 0 0 1 .77h8.4a1 1 0 0 0 1-.78l1.6-6.5H6"/><circle cx="9.6" cy="19" r="1.3"/><circle cx="17.2" cy="19" r="1.3"/>',
+        'analytics' => '<path d="M4.2 20V11.2M9.6 20V4.8M15 20v-6.4M20.4 20H3.4"/>'
+    ];
+    ?>
     <section
         id="strategy"
         class="home-section home-section--strategy"
@@ -269,24 +356,24 @@ require_once __DIR__ . '/includes/navbar.php';
         aria-labelledby="strategy-title"
     >
 
-        <div class="home-section__inner">
+        <div class="home-section__inner services-carousel" data-service-carousel>
 
-            <div class="home-section__content">
+            <div class="services-carousel__head home-section__content">
 
                 <span class="home-section__number">01</span>
 
                 <p class="home-section__eyebrow">
-                    DIGITAL STRATEGY
+                    WHAT WE DO
                 </p>
 
                 <h2 id="strategy-title" class="home-section__title">
-                    Strategy Before Everything
+                    Our Services
                 </h2>
 
                 <p class="home-section__description">
-                    Every strong digital result starts with a clear direction.
-                    We understand your business, audience, competition, and goals
-                    before building the growth system.
+                    Ten connected capabilities, one growth system.
+                    From strategy and design to performance and analytics,
+                    every service is built to move your business forward.
                 </p>
 
                 <div class="home-section__meta">
@@ -295,9 +382,96 @@ require_once __DIR__ . '/includes/navbar.php';
                     <span>Growth Planning</span>
                 </div>
 
-                <a class="button button--primary" href="services.php">
-                    Explore Strategy
-                </a>
+            </div>
+
+            <div
+                class="services-carousel__stage"
+                data-carousel-stage
+                role="group"
+                aria-roledescription="carousel"
+                aria-label="Max Digital Marketing services"
+                tabindex="0"
+            >
+
+                <div class="services-carousel__ring" data-carousel-track>
+
+                    <?php foreach ($services as $index => $service): ?>
+
+                        <article
+                            class="services-carousel__card"
+                            data-carousel-card
+                            data-index="<?= (int) $index ?>"
+                            role="group"
+                            aria-roledescription="slide"
+                            aria-label="<?= escapeHtml($service['number'] . ' — ' . $service['title']) ?>"
+                        >
+
+                            <span class="services-carousel__beam" aria-hidden="true"></span>
+
+                            <div class="services-carousel__card-top">
+
+                                <span class="services-carousel__count"><?= escapeHtml($service['number']) ?></span>
+
+                                <span class="services-carousel__corner" aria-hidden="true">&nearr;</span>
+
+                            </div>
+
+                            <span class="services-carousel__icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><?= $serviceIcons[$service['icon']] ?></svg>
+                            </span>
+
+                            <h3 class="services-carousel__card-title">
+                                <?= escapeHtml($service['title']) ?>
+                            </h3>
+
+                            <p class="services-carousel__card-text">
+                                <?= escapeHtml($service['summary']) ?>
+                            </p>
+
+                            <span class="services-carousel__rule" aria-hidden="true"></span>
+
+                            <a
+                                class="services-carousel__cta"
+                                href="services.php"
+                                data-carousel-link
+                            >
+                                Explore Service
+                                <span aria-hidden="true">&rarr;</span>
+                            </a>
+
+                        </article>
+
+                    <?php endforeach; ?>
+
+                </div>
+
+            </div>
+
+            <div class="services-carousel__controls">
+
+                <button
+                    type="button"
+                    class="services-carousel__button"
+                    data-carousel-prev
+                    aria-label="Previous service"
+                >
+                    <span aria-hidden="true">&larr;</span>
+                </button>
+
+                <p class="services-carousel__status" aria-live="polite">
+                    <span data-carousel-current>01</span>
+                    <span class="services-carousel__status-sep" aria-hidden="true">/</span>
+                    <span><?= str_pad((string) count($services), 2, '0', STR_PAD_LEFT) ?></span>
+                </p>
+
+                <button
+                    type="button"
+                    class="services-carousel__button"
+                    data-carousel-next
+                    aria-label="Next service"
+                >
+                    <span aria-hidden="true">&rarr;</span>
+                </button>
 
             </div>
 
@@ -554,6 +728,7 @@ require_once __DIR__ . '/includes/navbar.php';
 
 <script src="js/brain.js" defer></script>
 <script src="js/service-panel.js" defer></script>
+<script src="js/service-carousel.js" defer></script>
 <script src="js/drag-cards.js" defer></script>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

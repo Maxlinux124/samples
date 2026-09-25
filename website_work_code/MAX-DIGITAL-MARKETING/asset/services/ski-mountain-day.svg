@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Skier carving down a bright mountain slope">
+  <defs>
+    <linearGradient id="daySky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#cfe2fb"/>
+      <stop offset="0.6" stop-color="#eaf2fd"/>
+      <stop offset="1" stop-color="#ffffff"/>
+    </linearGradient>
+    <linearGradient id="dayPeakFar" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#b9cbe2"/>
+      <stop offset="1" stop-color="#e4ecf6"/>
+    </linearGradient>
+    <linearGradient id="dayPeakNear" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8fa5c2"/>
+      <stop offset="1" stop-color="#c9d8ea"/>
+    </linearGradient>
+    <linearGradient id="daySnow" x1="0" y1="0" x2="0.3" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#e8f0fa"/>
+    </linearGradient>
+    <radialGradient id="daySun" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.95"/>
+      <stop offset="0.55" stop-color="#dbeafe" stop-opacity="0.6"/>
+      <stop offset="1" stop-color="#dbeafe" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="800" fill="url(#daySky)"/>
+  <circle cx="912" cy="196" r="200" fill="url(#daySun)"/>
+  <circle cx="912" cy="196" r="54" fill="#ffffff" opacity="0.85"/>
+
+  <path d="M0 486 L168 268 L300 452 L418 350 L548 486 Z" fill="url(#dayPeakFar)"/>
+  <path d="M452 486 L636 214 L788 440 L884 340 L1024 486 Z" fill="url(#dayPeakFar)" opacity="0.92"/>
+  <path d="M900 486 L1054 292 L1200 486 Z" fill="url(#dayPeakFar)" opacity="0.78"/>
+  <path d="M168 268 L228 340 L196 348 L242 408 L118 408 L138 356 L114 338 Z" fill="#ffffff" opacity="0.92"/>
+  <path d="M636 214 L702 294 L668 302 L712 364 L566 364 L596 306 L570 300 Z" fill="#ffffff" opacity="0.9"/>
+  <path d="M1054 292 L1106 358 L1078 366 L1116 410 L994 410 L1016 362 L996 354 Z" fill="#ffffff" opacity="0.8"/>
+
+  <path d="M0 534 L144 442 L292 534 L416 466 L556 552 L700 480 L856 560 L1000 500 L1200 566 L1200 800 L0 800 Z" fill="url(#dayPeakNear)" opacity="0.5"/>
+  <path d="M0 556 C 300 512, 640 566, 1200 508 L1200 800 L0 800 Z" fill="url(#daySnow)"/>
+  <path d="M0 654 C 320 612, 700 672, 1200 608 L1200 800 L0 800 Z" fill="#e7eff9" opacity="0.8"/>
+
+  <g fill="none" stroke="#cddaea" stroke-width="7" stroke-linecap="round" opacity="0.9">
+    <path d="M-20 726 C 260 664, 600 706, 980 622"/>
+    <path d="M-40 782 C 250 724, 620 762, 1020 674"/>
+  </g>
+
+  <ellipse cx="636" cy="640" rx="200" ry="22" fill="#1e293b" opacity="0.1"/>
+
+  <g transform="rotate(-15 640 604)">
+    <rect x="498" y="592" width="248" height="15" rx="7.5" fill="#0f172a"/>
+    <rect x="486" y="614" width="238" height="15" rx="7.5" fill="#243143"/>
+  </g>
+
+  <g stroke="#0f172a" stroke-width="27" stroke-linecap="round" fill="none">
+    <path d="M634 522 L604 556 L586 594"/>
+    <path d="M648 526 L676 558 L666 596"/>
+  </g>
+
+  <path d="M616 458 C 624 488, 636 508, 645 524" stroke="#0f172a" stroke-width="42" stroke-linecap="round" fill="none"/>
+  <path d="M622 474 C 634 492, 640 506, 644 520" stroke="#2563eb" stroke-width="13" stroke-linecap="round" fill="none" opacity="0.85"/>
+
+  <g stroke="#0f172a" stroke-width="15" stroke-linecap="round" fill="none">
+    <path d="M612 470 L564 498 L548 536"/>
+    <path d="M626 464 L686 492 L706 532"/>
+  </g>
+
+  <g stroke="#334155" stroke-width="7" stroke-linecap="round" fill="none">
+    <path d="M548 540 L520 606"/>
+    <path d="M706 536 L744 604"/>
+  </g>
+
+  <circle cx="606" cy="428" r="30" fill="#0f172a"/>
+  <path d="M576 420 a30 30 0 0 1 60 0 z" fill="#1e293b"/>
+  <rect x="606" y="420" width="30" height="14" rx="7" fill="#38bdf8"/>
+
+  <g fill="#ffffff" opacity="0.92">
+    <circle cx="772" cy="588" r="17"/>
+    <circle cx="800" cy="608" r="12"/>
+    <circle cx="754" cy="616" r="10"/>
+    <circle cx="824" cy="632" r="7"/>
+    <circle cx="700" cy="646" r="6"/>
+  </g>
+</svg>

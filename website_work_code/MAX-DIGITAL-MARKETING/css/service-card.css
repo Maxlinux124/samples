@@ -1,0 +1,600 @@
+/* =========================================================
+   MAX DIGITAL MARKETING
+   COMPONENT — SERVICE CARD
+   ---------------------------------------------------------
+   Standalone white service card for the carousel and grid
+   containers. Self-contained: no @import, no CDN, no external
+   font — the stack falls back to system UI fonts.
+
+   Markup contract (see includes/service-card.php):
+     .service-card
+       .service-card__badge        floating "1/8 Services" tag
+       .service-card__media        fixed-height image banner
+         .service-card__image
+       .service-card__body
+         .service-card__title  > a.service-card__title-link
+         .service-card__subtitle
+         .service-card__description
+       .service-card__meta         footer meta row
+         .service-card__facts > .service-card__fact
+         .service-card__status
+   ========================================================= */
+
+/* ---------------------------------------------------------
+   TOKENS — defined once per container, inherited by cards
+   --------------------------------------------------------- */
+
+.service-card-slider,
+.service-card-grid,
+.service-card {
+    --sc-bg: #ffffff;
+    --sc-text: #0f172a;
+    --sc-muted: #64748b;
+    --sc-divider: #f1f5f9;
+    --sc-tag-bg: #f8fafc;
+    --sc-tag-border: #e2e8f0;
+
+    --sc-radius: 24px;
+    --sc-gap: 20px;
+
+    --sc-shadow: 0 10px 30px rgb(15 23 42 / 8%);
+    --sc-shadow-hover: 0 30px 60px rgb(0 0 0 / 15%);
+
+    --sc-ease: cubic-bezier(0.16, 1, 0.3, 1);
+    --sc-duration: 380ms;
+
+    --sc-image-height: 200px;
+    --sc-font: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* ---------------------------------------------------------
+   CONTAINERS
+   --------------------------------------------------------- */
+
+.service-card-slider {
+    position: relative;
+
+    display: flex;
+    gap: var(--sc-gap);
+
+    width: 100%;
+
+    /*
+     * Generous vertical padding on purpose: a horizontal scroll
+     * container clips its own vertical overflow too, and the hover
+     * lift (-8px + 3% scale) plus its 60px-blur shadow needs room.
+     */
+    padding: 26px 6px 34px;
+    margin: 0;
+
+    overflow-x: auto;
+    overflow-y: visible;
+
+    scroll-behavior: smooth;
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
+
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+
+.service-card-slider::-webkit-scrollbar {
+    display: none;
+}
+
+/* ---------------------------------------------------------
+   SLIDER CONTROLS (optional — wired by js/service-card-slider.js)
+   --------------------------------------------------------- */
+
+.service-card-slider__nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+
+    margin-top: 4px;
+}
+
+.service-card-slider__control {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 42px;
+    height: 42px;
+
+    padding: 0;
+
+    border: 1px solid var(--sc-tag-border);
+    border-radius: 50%;
+
+    background: var(--sc-tag-bg);
+
+    color: var(--sc-text);
+    font-size: 16px;
+    line-height: 1;
+
+    cursor: pointer;
+
+    transition:
+        background-color 220ms ease,
+        border-color 220ms ease,
+        color 220ms ease,
+        transform 220ms ease;
+}
+
+.service-card-slider__control:is(:hover, :focus-visible) {
+    border-color: #2563eb;
+    background: #2563eb;
+    color: #ffffff;
+
+    transform: translateY(-2px);
+
+    outline: none;
+}
+
+.service-card-slider__dots {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.service-card-slider__dot {
+    width: 8px;
+    height: 8px;
+
+    padding: 0;
+
+    border: 0;
+    border-radius: 999px;
+
+    background: #cbd5e1;
+
+    cursor: pointer;
+
+    transition:
+        width 260ms var(--sc-ease),
+        background-color 260ms ease;
+}
+
+.service-card-slider__dot[aria-current="true"] {
+    width: 26px;
+
+    background: #2563eb;
+}
+
+.service-card-slider__dot:focus-visible {
+    outline: 2px solid #2563eb;
+    outline-offset: 3px;
+}
+
+.service-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+    gap: var(--sc-gap);
+
+    width: 100%;
+    padding: 12px 4px 28px;
+    margin: 0;
+
+    list-style: none;
+}
+
+/* ---------------------------------------------------------
+   CARD SHELL
+   --------------------------------------------------------- */
+
+.service-card {
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
+    flex: 0 0 auto;
+
+    width: min(340px, 100%);
+
+    overflow: hidden;
+
+    border: 1px solid var(--sc-divider);
+    border-radius: var(--sc-radius);
+
+    background: var(--sc-bg);
+
+    box-shadow: var(--sc-shadow);
+
+    color: var(--sc-text);
+    font-family: var(--sc-font);
+    font-size: 15px;
+    line-height: 1.55;
+
+    text-align: left;
+
+    transform: translateY(0) scale(1);
+
+    transition:
+        transform var(--sc-duration) var(--sc-ease),
+        box-shadow var(--sc-duration) var(--sc-ease),
+        border-color var(--sc-duration) var(--sc-ease);
+
+    /*
+     * layout + style containment (no paint): isolates the card for
+     * the browser without clipping the card's own hover shadow.
+     */
+    contain: layout style;
+}
+
+/* Grid cells fill the track; slider cards keep a stable width. */
+.service-card-grid .service-card {
+    width: 100%;
+}
+
+.service-card-slider .service-card {
+    width: min(340px, 82vw);
+
+    scroll-snap-align: center;
+}
+
+/* ---------------------------------------------------------
+   FLOATING BADGE — frosted glass top-right tag
+   --------------------------------------------------------- */
+
+.service-card__badge {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    z-index: 2;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    padding: 6px 12px;
+
+    border: 1px solid rgb(255 255 255 / 60%);
+    border-radius: 999px;
+
+    background: rgb(255 255 255 / 72%);
+
+    -webkit-backdrop-filter: blur(8px) saturate(160%);
+    backdrop-filter: blur(8px) saturate(160%);
+
+    color: var(--sc-text);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+
+    white-space: nowrap;
+
+    box-shadow: 0 6px 18px rgb(15 23 42 / 12%);
+
+    pointer-events: none;
+}
+
+/* Solid fallback for browsers without backdrop-filter support. */
+@supports not ((-webkit-backdrop-filter: blur(8px)) or (backdrop-filter: blur(8px))) {
+    .service-card__badge {
+        background: var(--sc-tag-bg);
+        border-color: var(--sc-tag-border);
+    }
+}
+
+/* ---------------------------------------------------------
+   IMAGE BANNER — fixed height, clipped zoom on hover
+   --------------------------------------------------------- */
+
+.service-card__media {
+    position: relative;
+    flex: 0 0 auto;
+
+    width: 100%;
+    height: var(--sc-image-height);
+
+    overflow: hidden;
+
+    background: var(--sc-tag-bg);
+}
+
+.service-card__image {
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+    object-position: center;
+
+    transform: scale(1);
+
+    transition: transform 620ms var(--sc-ease);
+}
+
+/* ---------------------------------------------------------
+   BODY
+   --------------------------------------------------------- */
+
+.service-card__body {
+    display: flex;
+    flex-direction: column;
+
+    /* Bottom padding = the rhythm gap above the meta divider; the
+       divider itself is then pinned down by margin-top: auto. */
+    padding: 20px 22px 18px;
+}
+
+.service-card__title {
+    margin: 0;
+
+    color: var(--sc-text);
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    line-height: 1.25;
+}
+
+.service-card__title-link {
+    color: inherit;
+    text-decoration: none;
+
+    transition: color 220ms ease;
+}
+
+.service-card__title-link:hover {
+    color: #2563eb;
+}
+
+.service-card__subtitle {
+    margin: 6px 0 0;
+
+    color: var(--sc-muted);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    line-height: 1.4;
+}
+
+.service-card__description {
+    margin: 12px 0 0;
+
+    color: var(--sc-muted);
+    font-size: 14px;
+    line-height: 1.65;
+
+    /* Two-line clamp keeps every card in a row the same height. */
+    display: -webkit-box;
+    overflow: hidden;
+
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+
+    text-wrap: pretty;
+}
+
+/* ---------------------------------------------------------
+   FOOTER META ROW
+   --------------------------------------------------------- */
+
+.service-card__meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px 14px;
+
+    /* Auto margin pins the divider to the bottom of the card
+       even when descriptions differ in length. */
+    margin-top: auto;
+
+    padding: 14px 22px 18px;
+    border-top: 1px solid var(--sc-divider);
+}
+
+.service-card__facts {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+
+    margin: 0;
+    padding: 0;
+
+    list-style: none;
+}
+
+.service-card__fact {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    color: var(--sc-muted);
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1;
+
+    white-space: nowrap;
+}
+
+.service-card__icon {
+    flex: 0 0 auto;
+
+    width: 16px;
+    height: 16px;
+
+    color: currentcolor;
+}
+
+/* -------- Rating -------- */
+/* Icon-only cell: no text label, so no icon/text gap is needed. */
+.service-card__fact--rating {
+    flex: 0 0 auto;
+
+    gap: 0;
+}
+
+.service-card__stars {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.service-card__star {
+    width: 14px;
+    height: 14px;
+}
+
+.service-card__star--on {
+    color: #f59e0b;
+}
+
+.service-card__star--off {
+    color: #cbd5e1;
+}
+
+/* -------- Status badge -------- */
+
+.service-card__status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    padding: 5px 10px;
+
+    border: 1px solid var(--sc-tag-border);
+    border-radius: 999px;
+
+    background: var(--sc-tag-bg);
+
+    color: #15803d;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.2;
+
+    white-space: nowrap;
+}
+
+.service-card__status .service-card__icon {
+    width: 14px;
+    height: 14px;
+}
+
+/* -------- Accessibility helper -------- */
+
+.service-card__sr-only {
+    position: absolute;
+
+    width: 1px;
+    height: 1px;
+
+    margin: -1px;
+    padding: 0;
+
+    overflow: hidden;
+    clip-path: inset(50%);
+
+    white-space: nowrap;
+
+    border: 0;
+}
+
+/* ---------------------------------------------------------
+   INTERACTIVE STATES
+   Hover, keyboard focus-within and the JS-set
+   .is-active/.is-current (slider centre card) share one lift.
+   --------------------------------------------------------- */
+
+.service-card:is(:hover, :focus-within, .is-active, .is-current) {
+    transform: translateY(-8px) scale(1.03);
+
+    border-color: var(--sc-tag-border);
+
+    box-shadow: var(--sc-shadow-hover);
+}
+
+.service-card:is(:hover, :focus-within, .is-active, .is-current) .service-card__image {
+    transform: scale(1.06);
+}
+
+.service-card__title-link:focus-visible {
+    outline: 2px solid #2563eb;
+    outline-offset: 3px;
+    border-radius: 4px;
+}
+
+/* ---------------------------------------------------------
+   RESPONSIVE
+   --------------------------------------------------------- */
+
+@media (max-width: 900px) {
+    .service-card {
+        --sc-radius: 22px;
+        --sc-image-height: 180px;
+    }
+}
+
+@media (max-width: 600px) {
+    /*
+     * `.service-card-slider .service-card` is repeated on purpose:
+     * the slider rule that sets the desktop width is more specific
+     * than a bare `.service-card`, so it has to be matched here to
+     * let the mobile width win.
+     */
+    .service-card-slider .service-card,
+    .service-card {
+        --sc-radius: 20px;
+        --sc-image-height: 170px;
+
+        width: min(300px, 84vw);
+    }
+
+    .service-card__body {
+        padding: 18px 18px 16px;
+    }
+
+    .service-card__meta {
+        padding: 12px 18px 16px;
+    }
+
+    .service-card__title {
+        font-size: 18px;
+    }
+
+    .service-card__description {
+        /* Tighter clamp prevents an over-tall card on small screens. */
+        -webkit-line-clamp: 3;
+        line-clamp: 3;
+    }
+}
+
+/* ---------------------------------------------------------
+   MOTION & PRINT
+   --------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+    .service-card,
+    .service-card__image,
+    .service-card__title-link {
+        transition-duration: 1ms;
+    }
+
+    .service-card:is(:hover, :focus-within, .is-active, .is-current) {
+        transform: none;
+    }
+
+    .service-card:is(:hover, :focus-within, .is-active, .is-current) .service-card__image {
+        transform: none;
+    }
+
+    .service-card-slider {
+        scroll-behavior: auto;
+    }
+}
+
+@media print {
+    .service-card {
+        break-inside: avoid;
+
+        box-shadow: none;
+    }
+}
+

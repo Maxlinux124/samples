@@ -8,6 +8,13 @@ $pageDescription = $pageDescription ?? 'A digital marketing agency focused on me
 $pageCanonical = $pageCanonical ?? SITE_URL;
 $pageBodyClass = $pageBodyClass ?? 'page';
 
+/*
+ * Optional per-page stylesheets, e.g. in a page before the include:
+ *   $pageStyles = ['css/service-card.css'];
+ * Keeps component CSS out of the global bundle.
+ */
+$pageStyles = $pageStyles ?? [];
+
 function escapeHtml(string $value): string
 {
     return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
@@ -39,6 +46,9 @@ function escapeHtml(string $value): string
     <link rel="stylesheet" href="css/technology.css">
     <link rel="stylesheet" href="css/cta.css">
     <link rel="stylesheet" href="css/creative.css">
+<?php foreach ($pageStyles as $styleHref): ?>
+    <link rel="stylesheet" href="<?= escapeHtml((string) $styleHref) ?>">
+<?php endforeach; ?>
 </head>
 <body class="<?= escapeHtml($pageBodyClass) ?>">
     <a class="skip-link" href="#main-content">Skip to main content</a>

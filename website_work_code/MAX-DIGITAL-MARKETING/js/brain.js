@@ -50,6 +50,16 @@
     let pageVisible = !document.hidden;
     const entranceStart = performance.now();
     const entranceDuration = 3400;
+
+    /*
+     * PLANET-LIKE Y-AXIS SPIN.
+     * A continuously advancing angle (time * constant) that rotates the
+     * neural network slowly about its vertical axis - like Earth spinning
+     * on its orbit. Because the angle is monotonic (time-based) it NEVER
+     * snaps, resets or jumps, and sin()/cos() of it loop seamlessly
+     * forever. 0.00015 rad/ms = one full revolution roughly every 42s.
+     */
+    const spinSpeed = 0.00015;
     let serviceTimer = 0;
     let serviceTimeout = 0;
     let serviceIndex = 0;
@@ -280,6 +290,36 @@
         };
     }
 
+    /*
+     * AUTONOMOUS IDLE ORBIT.
+     * A very subtle independent float so the Brain always feels like a
+     * living digital object, even when the user is not scrolling.
+     *
+     * - Values are in the existing canvas pixel coordinate system and are
+     *   deliberately tiny (a few px, ~0.02 rad) so it reads as floating,
+     *   never as bouncing.
+     * - Amplitude eases down slightly as depth increases (deeper sections
+     *   feel heavier / more distant).
+     * - On mobile the amplitudes are reduced further.
+     * - Disabled entirely under prefers-reduced-motion via motionScale in
+     *   getSceneMotion().
+     */
+    function getIdleOrbit(time, depth) {
+        const mobile = width < 600;
+        const depthEase = 1 - depth * 0.25;
+        const mobileEase = mobile ? 0.35 : 1;
+
+        const amountX = (mobile ? 5 : 8) * depthEase;
+        const amountY = (mobile ? 3.2 : 5.2) * depthEase;
+        const amountR = 0.02 * depthEase * mobileEase;
+
+        return {
+            x: Math.sin(time * 0.00035) * amountX,
+            y: Math.cos(time * 0.00028) * amountY,
+            rotation: Math.sin(time * 0.00022) * amountR
+        };
+    }
+
     function getSceneMotion(time) {
         const motionScale = reducedMotionQuery.matches ? 0 : 1;
         const activity = pointer.active ? 1 : 0;
@@ -296,6 +336,16 @@
         const pitch = Math.cos(time * 0.00027) * 0.032 * motionScale + pointerY * 0.026 * activity;
 
         /*
+         * Continuous Y-axis spin phase for this frame.
+         * The scene width gently narrows when the spin brings the network
+         * edge-on (cos < 1) and relaxes when it faces forward again. The
+         * factor always stays positive (0.98 .. 1), so nothing ever
+         * mirrors or flips, and it is zeroed under reduced motion.
+         */
+        const spinAngle = time * spinSpeed;
+        const spinWidth = 1 - 0.04 * (1 - Math.cos(spinAngle)) * 0.5 * motionScale;
+
+        /*
          * Continuous world travel derived from the fractional section
          * index. The existing breathing / orbit / pointer / depth motion
          * is preserved and simply layered on top.
@@ -309,13 +359,23 @@
         const travelY = world.y * height;
         const depthDrift = world.depth * 8;
 
+        /*
+         * Autonomous idle orbit is layered ON TOP of the scroll travel,
+         * breathing, pointer and depth motion (never replacing them).
+         * motionScale zeroes it under prefers-reduced-motion.
+         */
+        const idleOrbit = getIdleOrbit(time, world.depth);
+        const orbitX = idleOrbit.x * motionScale;
+        const orbitY = idleOrbit.y * motionScale;
+        const orbitRotation = idleOrbit.rotation * motionScale;
+
         return {
             zoom: (0.5 + entrance * 0.5) * world.scale * (1 + scrollProgress * 0.05 + breathing + depthWave),
-            scaleX: Math.cos(yaw) * (1 + breathing * 0.4),
+            scaleX: Math.cos(yaw) * (1 + breathing * 0.4) * spinWidth,
             scaleY: Math.cos(pitch) * (1 - breathing * 0.3),
-            rotation: Math.sin(time * 0.00016) * 0.018 * motionScale + world.rotation,
-            offsetX: Math.sin(orbit) * 3.5 * motionScale + pointerX * 4 * activity + travelX,
-            offsetY: Math.cos(orbit * 0.82) * 2.5 * motionScale + pointerY * 3 * activity + travelY + depthDrift,
+            rotation: Math.sin(time * 0.00016) * 0.018 * motionScale + world.rotation + orbitRotation,
+            offsetX: Math.sin(orbit) * 3.5 * motionScale + pointerX * 4 * activity + travelX + orbitX,
+            offsetY: Math.cos(orbit * 0.82) * 2.5 * motionScale + pointerY * 3 * activity + travelY + depthDrift + orbitY,
             yaw,
             pitch
         };
@@ -661,6 +721,17 @@
         const damping = Math.pow(0.88, delta / 16.67);
         const motionScale = reducedMotionQuery.matches ? 0 : 1;
 
+        /*
+         * Y-axis spin parallax: each node drifts horizontally with a
+         * phase offset taken from its own depth, so the front and the
+         * back of the neural cloud slide against each other exactly like
+         * the surface of a slowly rotating planet. The existing spring
+         * integration smooths this motion, so it can never snap or
+         * flicker, and the resting geometry is unchanged.
+         */
+        const spinAngle = time * spinSpeed;
+        const spinEase = motionScale * (width < 600 ? 0.5 : 1);
+
         nodes.forEach((node) => {
             const distanceX = scenePointer.x - node.x;
             const distanceY = scenePointer.y - node.y;
@@ -669,8 +740,9 @@
             const magneticForce = influence * 0.22 * motionScale;
             const idleX = Math.sin(time * 0.0007 + node.phase) * 0.7 * motionScale;
             const idleY = Math.cos(time * 0.0006 + node.phase) * 0.7 * motionScale;
+            const spinX = Math.sin(spinAngle + node.depth * 1.15) * 4.5 * spinEase;
 
-            node.vx += (node.baseX + idleX - node.x) * spring;
+            node.vx += (node.baseX + idleX + spinX - node.x) * spring;
             node.vy += (node.baseY + idleY - node.y) * spring;
             node.vx += distanceX / Math.max(distance, 1) * magneticForce;
             node.vy += distanceY / Math.max(distance, 1) * magneticForce;
@@ -684,6 +756,8 @@
     function updateParticles(delta, zoom, time) {
         const scenePointer = getScenePointer(zoom);
         const motionScale = reducedMotionQuery.matches ? 0 : 1;
+        const spinAngle = time * spinSpeed;
+        const spinEase = motionScale * (width < 600 ? 0.5 : 1);
 
         particles.forEach((particle) => {
             const distanceX = scenePointer.x - particle.x;
@@ -703,7 +777,8 @@
             particle.y += particle.vy * motionScale;
 
             const returnForce = 0.00045 * delta;
-            particle.x += (particle.baseX - particle.x) * returnForce;
+            const spinX = Math.sin(spinAngle + particle.depth * 1.2) * 3 * spinEase;
+            particle.x += (particle.baseX + spinX - particle.x) * returnForce;
             particle.y += (particle.baseY - particle.y) * returnForce;
         });
     }

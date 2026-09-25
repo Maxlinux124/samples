@@ -1,6 +1,6 @@
 /* =========================================================
    MAX DIGITAL MARKETING
-   SECTION 02 — DIGITAL STRATEGY
+   SECTION 02 â€” DIGITAL STRATEGY
    ========================================================= */
 
 .home-section--strategy {
@@ -229,7 +229,7 @@
 }
 
 /* =========================================================
-   DESKTOP — KEEP CONTENT AWAY FROM BRAIN
+   DESKTOP â€” KEEP CONTENT AWAY FROM BRAIN
    ========================================================= */
 
 @media (min-width: 1101px) {
@@ -374,3 +374,917 @@
         transition: none !important;
     }
 }
+
+/* =========================================================
+   MAX DIGITAL MARKETING
+   SECTION 02 — NEURAL 3D SERVICE CAROUSEL
+   ---------------------------------------------------------
+   Layer order inside Section 02 (bottom -> top):
+
+     section background / decorations
+     BRAIN (fixed visual layer, z-index 1)
+     carousel stage + cards  (z-index 3, inherited from
+       .home-section--strategy .home-section__inner)
+
+   Only transform + opacity are animated, so the carousel stays
+   GPU-friendly and never touches the Brain render loop.
+
+   CARD GEOMETRY
+   ---------------------------------------------------------
+   Every card keeps the SAME base size. Depth is expressed with
+   transform scale / rotateY only — never by shrinking the font,
+   so side cards stay legible at every breakpoint.
+   ========================================================= */
+
+.home-section--strategy .home-section__inner.services-carousel {
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+
+    /* the old 70vh floor left a large empty panel around the
+       carousel — the stage now sets its own height */
+    min-height: auto;
+
+    /*
+     * Only the HORIZONTAL padding is set here, so the vertical rhythm
+     * from the shared .home-section__inner rules above survives for
+     * every breakpoint. The tighter inline padding is what gives the
+     * five-card composition room to spread out laterally.
+     */
+    padding-inline: clamp(16px, 2.6vw, 48px);
+
+    /* Extra breathing room between the heading and the carousel. */
+    gap: clamp(36px, 4vw, 64px);
+}
+
+.services-carousel {
+    --sv-blue: #3ea6ff;
+    --sv-cyan: #86d8ff;
+
+    /*
+     * Desktop premium card: 360-420px wide, 500-580px tall.
+     * The height is clamped independently of the width so the active
+     * card always lands inside that band instead of tracking one fixed
+     * ratio across the whole clamp range.
+     */
+    --sv-card: clamp(360px, 29vw, 420px);
+    --sv-card-h: clamp(500px, calc(var(--sv-card) * 1.33), 580px);
+
+    /* Bounded icon box. The SVG itself is capped at 54% of the
+       box, so an icon can never outgrow its card. */
+    --sv-icon: 62px;
+    --sv-icon-ratio: 54%;
+
+    --sv-rise: 820ms;
+    --sv-ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ---------------------------------------------------------
+   HEADING — centred, with real vertical rhythm
+   --------------------------------------------------------- */
+
+.services-carousel .services-carousel__head.home-section__content {
+    flex: 0 0 auto;
+
+    width: min(760px, 100%);
+
+    margin-inline: auto;
+
+    text-align: center;
+}
+
+.services-carousel .home-section__number {
+    margin-bottom: 16px;
+
+    font-size: 15px;
+    letter-spacing: 0.24em;
+
+    opacity: 0.5;
+}
+
+.services-carousel .home-section__eyebrow {
+    margin-bottom: 14px;
+
+    font-size: 13px;
+    letter-spacing: 0.24em;
+
+    opacity: 0.7;
+}
+
+.services-carousel .home-section__title {
+    max-width: 20ch;
+
+    margin-inline: auto;
+
+    font-size: clamp(40px, 4.4vw, 58px);
+    line-height: 1.02;
+    letter-spacing: -0.04em;
+}
+
+.services-carousel .home-section__description {
+    max-width: 60ch;
+
+    margin: 20px auto 0;
+
+    font-size: clamp(15px, 1.15vw, 17px);
+    line-height: 1.7;
+
+    opacity: 0.76;
+}
+
+.services-carousel .home-section__meta {
+    justify-content: center;
+
+    margin-top: 24px;
+}
+
+.services-carousel .home-section__meta span {
+    font-size: 12px;
+}
+
+/* ---------------------------------------------------------
+   STAGE
+   --------------------------------------------------------- */
+
+.services-carousel__stage {
+    position: relative;
+    flex: 0 0 auto;
+
+    width: 100%;
+    height: calc(var(--sv-card-h) + 48px);
+
+    overflow: hidden;
+
+    perspective: 1900px;
+    perspective-origin: 50% 50%;
+
+    transform: translate3d(var(--sv-drag, 0px), 0, 0);
+    transition: transform 660ms var(--sv-ease);
+
+    touch-action: pan-y;
+
+    cursor: grab;
+
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.services-carousel__stage.is-dragging {
+    transition: none;
+    cursor: grabbing;
+}
+
+.services-carousel__stage:focus-visible {
+    outline: 2px solid rgb(62 166 255 / 55%);
+    outline-offset: 10px;
+    border-radius: 26px;
+}
+
+/*
+ * Soft blue energy field behind the active card. Keeps the
+ * carousel visually connected to the Brain without ever
+ * covering it — a gradient, never a solid block.
+ */
+.services-carousel__stage::before {
+    content: "";
+
+    position: absolute;
+    top: 50%;
+    left: 50%;
+
+    width: min(900px, 82%);
+    height: 70%;
+
+    transform: translate(-50%, -50%);
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            ellipse,
+            rgb(62 166 255 / 13%) 0%,
+            rgb(62 166 255 / 4%) 52%,
+            transparent 74%
+        );
+
+    filter: blur(30px);
+
+    pointer-events: none;
+}
+
+.services-carousel__ring {
+    position: absolute;
+    inset: 0;
+
+    transform-style: preserve-3d;
+}
+
+/* ---------------------------------------------------------
+   CARD
+   --------------------------------------------------------- */
+
+.services-carousel__card {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+
+    width: var(--sv-card);
+    height: var(--sv-card-h);
+
+    padding: clamp(22px, 2vw, 30px);
+
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+
+    border: 1px solid rgb(130 200 255 / 22%);
+    border-radius: 26px;
+
+    /*
+     * Deliberately translucent so the Brain network stays visible
+     * around the composition and subtly through the glass, instead of
+     * being sealed off behind solid panels.
+     */
+    background:
+        linear-gradient(
+            155deg,
+            rgb(13 30 58 / 88%) 0%,
+            rgb(7 18 38 / 90%) 48%,
+            rgb(4 11 24 / 92%) 100%
+        );
+
+    box-shadow:
+        0 24px 60px rgb(0 0 0 / 52%),
+        inset 0 1px 1px rgb(255 255 255 / 9%);
+
+    color: #f2f7ff;
+
+    /*
+     * Order matters. The Z push-back is applied AFTER the in-plane
+     * offset, so it deepens the card under the stage's perspective
+     * without re-scaling the horizontal curve — while rotateY still
+     * throws one edge forward and the other back, which is what makes
+     * the side cards read as genuinely 3D.
+     */
+    transform:
+        translate3d(-50%, -50%, 0)
+        translateZ(calc(var(--sv-tz, 0) * 1px))
+        translateX(calc(var(--sv-x, 0) * 1%))
+        scale(var(--sv-scale, 1))
+        rotateY(calc(var(--sv-ry, 0) * 1deg));
+
+    transform-origin: 50% 50%;
+
+    /*
+     * The fallback value is 0, not 1: if the controller ever fails to
+     * run, the cards stay cleanly invisible instead of stacking into
+     * an unreadable pile. The no-JS fallback below shows one card.
+     */
+    opacity: var(--sv-op, 0);
+    filter: blur(var(--sv-blur, 0px));
+
+    z-index: var(--sv-z, 10);
+
+    /*
+     * Transitions are gated behind .is-ready so the very first
+     * paint can never animate the cards flying in from centre.
+     */
+    transition: none;
+
+    pointer-events: none;
+}
+
+.services-carousel.is-ready .services-carousel__card {
+    transition:
+        transform var(--sv-rise) var(--sv-ease),
+        opacity 660ms ease,
+        filter 660ms ease,
+        border-color 460ms ease,
+        box-shadow 660ms ease;
+}
+
+.services-carousel__card.is-near {
+    pointer-events: auto;
+}
+
+.services-carousel__card.is-active {
+    border-color: rgb(160 222 255 / 80%);
+
+    /* filter: none keeps the active card's text perfectly crisp */
+    filter: none;
+
+    box-shadow:
+        0 30px 74px rgb(0 0 0 / 56%),
+        0 0 44px rgb(62 166 255 / 26%),
+        0 0 96px rgb(62 166 255 / 16%),
+        inset 0 1px 1px rgb(255 255 255 / 14%);
+
+    -webkit-backdrop-filter: blur(16px) saturate(150%);
+    backdrop-filter: blur(16px) saturate(150%);
+
+    pointer-events: auto;
+}
+
+/*
+ * Inner top-light so each card reads as a lit glass panel
+ * rather than a flat rectangle.
+ */
+.services-carousel__card::before {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+
+    border-radius: inherit;
+
+    background:
+        radial-gradient(
+            120% 70% at 50% -12%,
+            rgb(86 178 255 / 16%),
+            transparent 62%
+        );
+
+    pointer-events: none;
+}
+
+.services-carousel__card.is-active::before {
+    background:
+        radial-gradient(
+            120% 70% at 50% -12%,
+            rgb(96 188 255 / 26%),
+            transparent 64%
+        );
+}
+
+/* Energy seam along the bottom edge of the active card. */
+.services-carousel__beam {
+    position: absolute;
+    bottom: -1px;
+    left: 50%;
+
+    width: 58%;
+    height: 1px;
+
+    transform: translateX(-50%);
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            var(--sv-blue),
+            transparent
+        );
+
+    box-shadow: 0 0 18px rgb(62 166 255 / 60%);
+}
+
+/* ---------------------------------------------------------
+   CARD — TOP ROW (number + corner indicator)
+   --------------------------------------------------------- */
+
+.services-carousel__card-top {
+    position: relative;
+    z-index: 1;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 14px;
+}
+
+.services-carousel__count {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+
+    color: rgb(150 220 255 / 78%);
+}
+
+.services-carousel__corner {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 30px;
+    height: 30px;
+
+    flex: 0 0 auto;
+
+    border: 1px solid rgb(130 200 255 / 26%);
+    border-radius: 50%;
+
+    font-size: 13px;
+    line-height: 1;
+
+    color: rgb(150 220 255 / 82%);
+
+    transition:
+        border-color 320ms ease,
+        color 320ms ease,
+        transform 420ms var(--sv-ease);
+}
+
+.services-carousel__card.is-near:hover .services-carousel__corner {
+    border-color: rgb(150 220 255 / 60%);
+    color: #ffffff;
+
+    transform: translate3d(2px, -2px, 0);
+}
+
+/* ---------------------------------------------------------
+   CARD — ICON (bounded box, never larger than the card)
+   --------------------------------------------------------- */
+
+.services-carousel__icon {
+    position: relative;
+    z-index: 1;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    flex: 0 0 auto;
+
+    width: var(--sv-icon);
+    height: var(--sv-icon);
+
+    margin: clamp(20px, 2.4vw, 32px) auto 0;
+
+    overflow: hidden;
+
+    border: 1px solid rgb(130 200 255 / 30%);
+    border-radius: 20px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgb(62 166 255 / 18%),
+            rgb(62 166 255 / 5%)
+        );
+
+    color: var(--sv-cyan);
+
+    box-shadow:
+        inset 0 0 24px rgb(62 166 255 / 12%),
+        0 10px 30px rgb(0 0 0 / 34%);
+
+    transition:
+        width 620ms var(--sv-ease),
+        height 620ms var(--sv-ease),
+        border-radius 620ms var(--sv-ease),
+        box-shadow 620ms ease;
+}
+
+.services-carousel__icon svg {
+    /* Hard caps: the icon can never escape its container. */
+    width: var(--sv-icon-ratio);
+    height: var(--sv-icon-ratio);
+
+    max-width: var(--sv-icon-ratio);
+    max-height: var(--sv-icon-ratio);
+
+    filter: drop-shadow(0 0 7px rgb(62 166 255 / 58%));
+}
+
+.services-carousel__card.is-active .services-carousel__icon {
+    --sv-icon: clamp(76px, 6.6vw, 96px);
+
+    border-radius: 24px;
+
+    box-shadow:
+        inset 0 0 30px rgb(62 166 255 / 16%),
+        0 14px 38px rgb(0 0 0 / 40%),
+        0 0 34px rgb(62 166 255 / 16%);
+}
+
+/* ---------------------------------------------------------
+   CARD — TEXT
+   --------------------------------------------------------- */
+
+.services-carousel__card-title {
+    position: relative;
+    z-index: 1;
+
+    margin: clamp(18px, 1.8vw, 24px) 0 0;
+
+    font-size: clamp(24px, 2.1vw, 30px);
+    font-weight: 700;
+    line-height: 1.16;
+    letter-spacing: -0.025em;
+
+    color: #ffffff;
+
+    text-align: center;
+    text-wrap: balance;
+}
+
+.services-carousel__card-text {
+    position: relative;
+    z-index: 1;
+
+    margin: 14px 0 0;
+
+    font-size: clamp(15px, 1.15vw, 16.5px);
+    line-height: 1.62;
+
+    color: rgb(206 224 248 / 78%);
+
+    text-align: center;
+    text-wrap: pretty;
+}
+
+/* ---------------------------------------------------------
+   CARD — DIVIDER + CTA
+   --------------------------------------------------------- */
+
+.services-carousel__rule {
+    position: relative;
+    z-index: 1;
+
+    display: block;
+
+    height: 1px;
+
+    margin-top: auto;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgb(130 200 255 / 34%),
+            rgb(130 200 255 / 8%) 70%,
+            transparent
+        );
+}
+
+.services-carousel__cta {
+    position: relative;
+    z-index: 1;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+
+    margin-top: 16px;
+
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+
+    color: var(--sv-cyan);
+    text-decoration: none;
+
+    transition:
+        color 300ms ease,
+        opacity 380ms ease,
+        visibility 380ms ease;
+}
+
+.services-carousel__cta span {
+    transition: transform 420ms var(--sv-ease);
+}
+
+.services-carousel__cta:hover {
+    color: #ffffff;
+}
+
+.services-carousel__cta:hover span {
+    transform: translate3d(5px, 0, 0);
+}
+
+.services-carousel__cta:focus-visible {
+    outline: 2px solid rgb(62 166 255 / 60%);
+    outline-offset: 5px;
+    border-radius: 6px;
+}
+
+/*
+ * Side cards expose only number + icon + title + corner cue.
+ * The detail block belongs to the active card alone.
+ */
+.services-carousel__card-text,
+.services-carousel__rule,
+.services-carousel__cta,
+.services-carousel__beam {
+    transition: opacity 380ms ease, visibility 380ms ease;
+}
+
+.services-carousel__card:not(.is-active) .services-carousel__card-text,
+.services-carousel__card:not(.is-active) .services-carousel__rule,
+.services-carousel__card:not(.is-active) .services-carousel__cta,
+.services-carousel__card:not(.is-active) .services-carousel__beam {
+    opacity: 0;
+    visibility: hidden;
+}
+
+/*
+ * GRACEFUL FALLBACK
+ * ---------------------------------------------------------
+ * Reached only when the controller has not taken over (JS disabled,
+ * blocked, or still loading). Instead of ten stacked cards the stage
+ * shows a single, fully readable card, so Section 02 can never render
+ * in a broken state.
+ */
+.services-carousel:not(.is-ready) .services-carousel__card:first-child {
+    opacity: var(--sv-op, 1);
+}
+
+.services-carousel:not(.is-ready) .services-carousel__card:first-child .services-carousel__card-text,
+.services-carousel:not(.is-ready) .services-carousel__card:first-child .services-carousel__rule,
+.services-carousel:not(.is-ready) .services-carousel__card:first-child .services-carousel__cta,
+.services-carousel:not(.is-ready) .services-carousel__card:first-child .services-carousel__beam {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* ---------------------------------------------------------
+   CONTROLS — centred below the cards
+   --------------------------------------------------------- */
+
+.services-carousel__controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(14px, 1.6vw, 22px);
+
+    flex: 0 0 auto;
+}
+
+.services-carousel__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    flex: 0 0 auto;
+
+    width: 50px;
+    height: 50px;
+
+    padding: 0;
+
+    border: 1px solid rgb(130 200 255 / 32%);
+    border-radius: 50%;
+
+    background: rgb(8 20 40 / 78%);
+    color: #dcebff;
+
+    font-size: 19px;
+    line-height: 1;
+
+    cursor: pointer;
+
+    transition:
+        border-color 260ms ease,
+        background 260ms ease,
+        box-shadow 260ms ease,
+        transform 260ms var(--sv-ease);
+}
+
+.services-carousel__button:hover {
+    border-color: rgb(140 210 255 / 68%);
+    background: rgb(18 44 82 / 86%);
+
+    transform: translateY(-2px);
+
+    box-shadow: 0 0 26px rgb(62 166 255 / 28%);
+}
+
+.services-carousel__button:active {
+    transform: translateY(0);
+}
+
+.services-carousel__button:focus-visible {
+    outline: 2px solid rgb(62 166 255 / 65%);
+    outline-offset: 3px;
+}
+
+.services-carousel__status {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 7px;
+
+    margin: 0;
+
+    min-width: 5.5rem;
+
+    justify-content: center;
+
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+
+    font-variant-numeric: tabular-nums;
+
+    color: rgb(212 228 250 / 70%);
+}
+
+.services-carousel__status-sep {
+    color: rgb(130 200 255 / 42%);
+}
+
+/* ---------------------------------------------------------
+   RESPONSIVE — LARGE DESKTOP (<= 1240px)
+   --------------------------------------------------------- */
+
+@media (max-width: 1240px) {
+
+    .services-carousel__stage {
+        perspective: 1650px;
+    }
+}
+
+/* ---------------------------------------------------------
+   RESPONSIVE — SMALL DESKTOP / TABLET LANDSCAPE (<= 1100px)
+   --------------------------------------------------------- */
+
+@media (max-width: 1100px) {
+
+    .services-carousel {
+        --sv-card: clamp(300px, 30vw, 380px);
+        --sv-card-h: calc(var(--sv-card) * 1.34);
+        --sv-icon: 58px;
+    }
+
+    .services-carousel__stage {
+        perspective: 1500px;
+    }
+}
+
+/* ---------------------------------------------------------
+   RESPONSIVE — TABLET (<= 900px)
+   Cards shrink, offsets tighten, depth is reduced so the
+   neighbouring cards still read as cards.
+   --------------------------------------------------------- */
+
+@media (max-width: 900px) {
+
+    .home-section--strategy .home-section__inner.services-carousel {
+        min-height: auto;
+
+        padding: 68px 5vw;
+
+        gap: 30px;
+    }
+
+    .services-carousel {
+        --sv-card: clamp(200px, 32vw, 300px);
+        --sv-card-h: calc(var(--sv-card) * 1.34);
+        --sv-icon: 54px;
+    }
+
+    .services-carousel .services-carousel__title,
+    .services-carousel .home-section__title {
+        font-size: clamp(34px, 5.4vw, 46px);
+    }
+
+    .services-carousel__stage {
+        perspective: 1300px;
+    }
+
+    .services-carousel__card {
+        border-radius: 22px;
+
+        padding: 24px;
+    }
+
+    .services-carousel__button {
+        width: 46px;
+        height: 46px;
+
+        font-size: 17px;
+    }
+}
+
+/* ---------------------------------------------------------
+   RESPONSIVE — MOBILE (<= 600px)
+   One dominant card, with the neighbouring cards peeking in
+   from the edges as a clear "there is more" cue.
+   --------------------------------------------------------- */
+
+@media (max-width: 600px) {
+
+    .home-section--strategy .home-section__inner.services-carousel {
+        padding: 56px 12px;
+
+        gap: 24px;
+    }
+
+    .services-carousel {
+        --sv-card: min(252px, 68vw);
+        --sv-card-h: calc(var(--sv-card) * 1.40);
+
+        --sv-icon: 56px;
+        --sv-icon-ratio: 52%;
+
+        --sv-rise: 620ms;
+    }
+
+    .services-carousel .home-section__number {
+        margin-bottom: 12px;
+
+        font-size: 13px;
+    }
+
+    .services-carousel .home-section__eyebrow {
+        font-size: 12px;
+    }
+
+    .services-carousel .home-section__title {
+        font-size: clamp(32px, 9vw, 42px);
+    }
+
+    .services-carousel .home-section__description {
+        margin-top: 16px;
+
+        font-size: 15px;
+    }
+
+    .services-carousel .home-section__meta {
+        margin-top: 20px;
+    }
+
+    .services-carousel .home-section__meta span {
+        font-size: 11px;
+    }
+
+    .services-carousel__stage {
+        height: calc(var(--sv-card-h) + 32px);
+
+        perspective: 1100px;
+    }
+
+    .services-carousel__card {
+        border-radius: 20px;
+
+        padding: 20px;
+    }
+
+    .services-carousel__card.is-active .services-carousel__icon {
+        --sv-icon: 64px;
+    }
+
+    .services-carousel__card-title {
+        margin-top: 16px;
+
+        font-size: clamp(22px, 6vw, 26px);
+    }
+
+    .services-carousel__card-text {
+        margin-top: 12px;
+
+        font-size: clamp(14px, 3.9vw, 16px);
+    }
+
+    .services-carousel__count {
+        font-size: 14px;
+    }
+
+    .services-carousel__cta {
+        margin-top: 14px;
+
+        font-size: 14px;
+    }
+
+    .services-carousel__button {
+        width: 44px;
+        height: 44px;
+
+        font-size: 16px;
+    }
+
+    .services-carousel__status {
+        font-size: 14px;
+
+        min-width: 5rem;
+    }
+}
+
+/* ---------------------------------------------------------
+   RESPONSIVE — SMALL MOBILE (<= 400px)
+   --------------------------------------------------------- */
+
+@media (max-width: 400px) {
+
+    .services-carousel {
+        /*
+         * Slightly narrower than the <=600px band so the clipped
+         * neighbour strip stays wide enough to read as "another card"
+         * while the centre card keeps >=20px of clear space beside it.
+         */
+        --sv-card: min(240px, 63vw);
+    }
+
+    .services-carousel__card {
+        padding: 18px;
+    }
+
+    .services-carousel__card.is-active .services-carousel__icon {
+        --sv-icon: 58px;
+    }
+
+    .services-carousel__card-title {
+        font-size: 21px;
+    }
+}
+
