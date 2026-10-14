@@ -40,9 +40,162 @@
     padding: 120px 6vw 80px;
 
     display: flex;
-    align-items: center;
+
+    /*
+       stretch, not center.
+       .hero__copy is a single child, and it is a COLUMN flex box
+       that pushes the heading to the top and the description to
+       the bottom. For that to work it has to span the full height
+       of the hero, which only happens when the cross axis is
+       stretched. With the old `align-items: center` the block
+       shrank to its content and both elements sat stacked in the
+       middle of the screen, over the Brain.
+    */
+    align-items: stretch;
     justify-content: space-between;
     gap: 70px;
+}
+
+/* ---------------------------------------------------------
+   1b. STRETCH OVERRIDE  (specificity, not load order)
+   ---------------------------------------------------------
+   css/components.css is loaded AFTER this file and contains its
+   own `.hero__inner { align-items: center; justify-content: center }`.
+   Same specificity, later file, so it wins and collapses the copy
+   block back into the middle of the screen.
+
+   `.hero .hero__inner` is (0,2,0) against (0,1,0), so it wins
+   wherever the two rules sit in the load order.
+
+   It is deliberately a SEPARATE one-property rule. Raising the
+   specificity of the whole .hero__inner block would also outrank
+   the `padding` in the media queries further down this file, which
+   are (0,1,0) and would then never apply on phones.
+   --------------------------------------------------------- */
+
+.hero .hero__inner {
+    align-items: stretch;
+}
+
+/* =========================================================
+   HERO COPY WRAPPER  (.hero__copy)
+   ---------------------------------------------------------
+   THE LAYOUT
+
+     TOP-LEFT ............ the H1
+     BOTTOM-RIGHT ........ the description
+     CENTRE .............. deliberately empty, so the Brain
+                           canvas stays completely unobstructed.
+
+   It is a full-height COLUMN flex box. The heading is the first
+   child and the description the last, so `justify-content:
+   space-between` parks them against the two vertical extremes
+   with no absolute positioning and no fixed pixel offsets —
+   they stay correct at any height.
+
+   `align-items: flex-start` keeps the heading hard against the
+   left edge; the description opts out with `align-self: flex-end`
+   to sit against the right.
+
+   Deliberately NOT the historical .hero-text class. js/
+   drag-cards.js:63 selects ".hero-text" and line 67 calls
+   getElementCenter(), which is undefined in this project, so
+   re-adding that class throws a ReferenceError on every load.
+
+   The typography itself is untouched and still comes from
+   .hero-text__title / .hero-text__description in components.css.
+   Only the placement is new.
+   ========================================================= */
+
+.hero__copy {
+    position: relative;
+    z-index: 2;
+
+    /* Full width, so the right-hand edge is a real edge. */
+    width: 100%;
+    max-width: 100%;
+
+    /*
+       flex: 1 1 auto is what keeps the full-height behaviour at
+       BOTH orientations.
+
+       Above 900px .hero__inner is a ROW, so `align-items: stretch`
+       fills .hero__copy vertically and this grows it horizontally.
+
+       Below 900px .hero__inner becomes a COLUMN, and the axes swap:
+       `align-items: stretch` now fills the width, while the HEIGHT
+       comes from this flex-grow. Without it the wrapper would
+       shrink to its content on phones, the inner space-between
+       would collapse, and the heading and description would sit
+       stacked in the middle again.
+    */
+    flex: 1 1 auto;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+
+    /*
+       The hero stacks to a column below 900px and sets
+       text-align: center on .hero__inner. The brief asks for the
+       heading at the top LEFT, so left alignment is restored
+       here and applies at every width.
+    */
+    text-align: left;
+}
+
+/*
+   Heading, top-left.
+   `max-width: 15ch` is inherited from components.css and is what
+   keeps every one of the ten headlines to two or three lines;
+   it is repeated here only to state the intent at the layout
+   level. margin-inline is reset because the mobile rule in
+   responsive.css sets `margin-inline: auto`, which would pull
+   the heading off the left edge on small screens.
+*/
+.hero__copy .hero-text__title {
+    align-self: flex-start;
+    max-width: 15ch;
+    margin: 0;
+    margin-inline: 0;
+    text-align: left;
+}
+
+/*
+   Description, bottom-right.
+   align-self overrides the wrapper's flex-start, and the text is
+   right-aligned inside its own box so the ragged edge sits on the
+   right too. The 34rem ceiling stops the line stretching across a
+   wide screen; below that the available width governs.
+*/
+.hero__copy .hero-text__description {
+    align-self: flex-end;
+    max-width: 34rem;
+    margin: 0;
+    margin-inline: 0;
+    text-align: right;
+}
+
+/*
+   css/components.css gives .hero-text__title and
+   .hero-text__description perpetual drift animations
+   (hero-title-drift 10s, hero-description-drift 9.5s). Those
+   animate `transform`, which would fight the text-change
+   animation planned for the next task, and a headline that
+   never stops moving is hard to read.
+
+   They are switched off HERE ONLY, for this block. The rules
+   themselves are untouched, so nothing else on the site is
+   affected. Specificity (0,2,0) beats the single-class
+   originals, so this wins on load order as well as weight.
+
+   The rotation task will re-introduce motion deliberately, and
+   can remove this override when it does.
+*/
+.hero__copy .hero-text__title,
+.hero__copy .hero-text__description {
+    animation: none;
 }
 
 /* =========================================================

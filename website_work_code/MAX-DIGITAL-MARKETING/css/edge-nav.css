@@ -1,0 +1,816 @@
+/* =========================================================
+   MAX DIGITAL MARKETING
+   EDGE NAVIGATION  —  dark glass panel, home page only
+   ---------------------------------------------------------
+   Styles includes/edge-nav.php. Vanilla CSS, no preprocessor,
+   no framework, no icon font, no external requests. All icons
+   are inline SVG in the PHP, matching the project's existing
+   stroke-icon language (about.css ring, floating-cards.css arcs).
+
+   THE FOUR RULES THIS FILE EXISTS TO KEEP
+   -------------------------------------------------
+   1. NO LAYOUT SHIFT
+      Every layer here is position:fixed and out of flow. Nothing
+      changes the width, height, inset or margin of
+      .brain-visual-layer, so js/brain.js never fires resize() and
+      the canvas backing store is never reallocated. That
+      reallocation is the most expensive thing that can happen to
+      a fullscreen canvas, and is what makes Chrome stutter when
+      a panel opens.
+
+   2. TRANSFORM AND OPACITY ONLY
+      'left' and 'width' are never transitioned. Both would force
+      layout on every frame. The panel moves on translate3d() and
+      fades on opacity, which the compositor handles without
+      touching layout or paint.
+
+   3. GPU PROMOTION, DONE CORRECTLY
+      will-change: transform, opacity is applied to the panel
+      WHILE IT IS OPEN ONLY, never permanently. A permanent
+      will-change keeps a fullscreen compositing layer alive for
+      the whole session, which costs memory and can itself cause
+      the jank it is meant to prevent. translateZ(0) and
+      backface-visibility:hidden carry the promotion during the
+      animation.
+
+   4. BACKDROP-FILTER IS COMPOSED, NOT NESTED
+      The blur sits on exactly ONE element. A blur on a container
+      that also has blurred children forces Chrome to re-rasterise
+      the subtree every frame. Here the blur is on the panel
+      surface only, and the content above it is plain paint.
+
+   COLOUR RULE
+      Dark navy / near-black glass, one blue accent
+      (--color-hero-accent), low-alpha white edges. No purple, no
+      rainbow, no saturated neon.
+   ========================================================= */
+
+/* ---------------------------------------------------------
+   1. COMPONENT TOKENS
+   Private to this component, so the edge nav can never drift
+   from the rest of the page.
+   --------------------------------------------------------- */
+.edge-nav {
+    /* Panel width as a share of the viewport.
+       Desktop: 44vw, inside the required 40-50% band. Deliberately
+       NOT capped in rem — a rem cap silently binds on a 1440px
+       screen (34rem = 544px = 38.4% of the viewport) and pushes the
+       panel outside the band. The spec is a ratio of the viewport,
+       so it is expressed purely as one.
+       Tablet/mobile: 86vw, inside the required 80-90% band. vw also
+       guarantees the panel can never exceed the viewport, so it
+       cannot cause horizontal overflow. */
+    --edge-nav-w: 44vw;
+
+    /* Glass layers */
+    --edge-nav-glass: rgb(9 14 26 / 72%);
+    --edge-nav-glass-edge: rgb(9 14 26 / 84%);
+
+    /* One blue accent + a faint luminous edge */
+    --edge-nav-accent: var(--color-hero-accent);
+    --edge-nav-line: rgb(131 165 255 / 24%);
+    --edge-nav-glow: rgb(68 102 255 / 22%);
+    --edge-nav-highlight: rgb(255 255 255 / 8%);
+
+    --edge-nav-dur: 380ms;
+    --edge-nav-ease: cubic-bezier(0.32, 0.72, 0.24, 1);
+}
+
+@media (max-width: 68rem) {
+    .edge-nav {
+        /* Tablet and mobile: 86vw, inside the 80-90% band. */
+        --edge-nav-w: 86vw;
+    }
+}
+
+/* ---------------------------------------------------------
+   2. THE SHELL
+   Not a positioning context and not a painted box: the panel
+   and scrim are position:fixed against the viewport, so this
+   wrapper stays static and contributes nothing to layout.
+   --------------------------------------------------------- */
+.edge-nav {
+    position: static;
+    z-index: 8000;
+}
+
+/* Hidden from the tab order and assistive tech only while closed.
+   js/edge-nav.js mirrors this with the `inert` attribute, which is
+   what actually removes descendants from the tab order. */
+.edge-nav[data-edge-nav-state='closed'] .edge-nav__panel {
+    visibility: hidden;
+}
+
+/* ---------------------------------------------------------
+   3. TRIGGERS
+   Both are small, glass, on an edge, and are the only
+   navigation affordances visible when the panel is closed.
+   --------------------------------------------------------- */
+.edge-nav__strip,
+.edge-nav__account {
+    position: fixed;
+    z-index: 8001;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+    color: var(--color-hero-text);
+
+    background: rgb(9 14 26 / 58%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    backdrop-filter: blur(14px) saturate(140%);
+
+    border: 1px solid var(--edge-nav-line);
+    box-shadow:
+        inset 0 1px 0 var(--edge-nav-highlight),
+        0 0.75rem 2rem rgb(0 0 0 / 34%);
+
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+
+    transform: translateZ(0);
+    backface-visibility: hidden;
+
+    transition:
+        color var(--transition-base),
+        background-color var(--transition-base),
+        border-color var(--transition-base),
+        box-shadow var(--transition-base);
+}
+
+.edge-nav__strip:hover,
+.edge-nav__account:hover {
+    color: var(--edge-nav-accent);
+    background: rgb(18 28 48 / 72%);
+    border-color: rgb(131 165 255 / 42%);
+    box-shadow:
+        inset 0 1px 0 var(--edge-nav-highlight),
+        0 0 1.5rem var(--edge-nav-glow),
+        0 0.75rem 2rem rgb(0 0 0 / 34%);
+}
+
+.edge-nav__strip:focus-visible,
+.edge-nav__account:focus-visible {
+    outline: 2px solid var(--edge-nav-accent);
+    outline-offset: 3px;
+}
+
+.edge-nav__icon {
+    display: block;
+    width: 1.25rem;
+    height: 1.25rem;
+    flex: 0 0 auto;
+}
+/* --- TRIGGER 1: LEFT EDGE VERTICAL STRIP --- */
+.edge-nav__strip {
+    top: 50%;
+    left: 0;
+
+    /* A vertical pill, flush to the edge, vertically centred. */
+    flex-direction: column;
+    gap: 0.75rem;
+
+    width: 3.25rem;
+    padding-block: 1.25rem;
+    padding-inline: 0.5rem;
+
+    border-block: none;
+    border-inline-start: none;
+    border-start-end-radius: var(--radius-lg);
+    border-end-end-radius: var(--radius-lg);
+
+    /* translate3d rather than translateY: keeps the centring on
+       the GPU-composited axis. */
+    transform: translate3d(0, -50%, 0);
+}
+
+/* Rotated wordmark. Reads as texture on the strip, not a link. */
+.edge-nav__strip-label {
+    writing-mode: vertical-rl;
+    font-family: var(--font-family-display);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.34em;
+    text-transform: uppercase;
+    color: var(--color-hero-muted);
+    transition: color var(--transition-base);
+}
+
+.edge-nav__strip:hover .edge-nav__strip-label {
+    color: var(--edge-nav-accent);
+}
+
+/* --- TRIGGER 2: TOP RIGHT PROFILE DISC --- */
+.edge-nav__account {
+    top: var(--space-3);
+    right: var(--space-3);
+
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+}
+
+/* A hairline ring drawn with a pseudo-element so it can sit
+   outside the 1px border without changing the button's box. */
+.edge-nav__account-ring {
+    position: absolute;
+    inset: -1px;
+    border: 1px solid transparent;
+    border-radius: 50%;
+    pointer-events: none;
+    transition: border-color var(--transition-base);
+}
+
+.edge-nav__account:hover .edge-nav__account-ring {
+    border-color: rgb(131 165 255 / 30%);
+}
+/* ---------------------------------------------------------
+   4. SCRIM
+   Fixed over the viewport, but DARKEST AT THE LEFT and fading
+   to nearly clear on the right, so the panel reads as focused
+   while the Brain and hero on the right stay genuinely visible
+   rather than greyed out. No colour of its own.
+
+   Hidden while closed. visibility is transitioned with a delay
+   equal to the panel duration, so it only flips once the panel
+   has finished sliding out — this keeps the panel unclickable
+   the instant it is dismissed, with no pointer-event lag.
+   --------------------------------------------------------- */
+.edge-nav__scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 8002;
+
+    background: linear-gradient(
+        100deg,
+        rgb(4 8 18 / 82%) 0%,
+        rgb(4 8 18 / 58%) 46%,
+        rgb(4 8 18 / 18%) 78%,
+        rgb(4 8 18 / 8%) 100%
+    );
+
+    opacity: 0;
+    visibility: hidden;
+
+    /* Backdrop blur is NOT used here on purpose. The panel already
+       blurs the surface it covers; a second fullscreen blur layer
+       would double the rasterisation cost per frame and is the
+       fastest way to reintroduce the stutter this design avoids. */
+    transition:
+        opacity var(--edge-nav-dur) var(--edge-nav-ease),
+        visibility 0s linear var(--edge-nav-dur);
+}
+
+.edge-nav[data-edge-nav-state='open'] .edge-nav__scrim {
+    opacity: 1;
+    visibility: visible;
+    transition:
+        opacity var(--edge-nav-dur) var(--edge-nav-ease),
+        visibility 0s linear 0s;
+}
+
+/* ---------------------------------------------------------
+   5. THE GLASS PANEL  —  the performance-critical element
+   --------------------------------------------------------- */
+.edge-nav__panel {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 8003;
+
+    /* vw-based, so it is always a true share of the viewport and
+       can never exceed 100% or cause horizontal overflow. */
+    width: var(--edge-nav-w);
+    height: 100%;
+    /* Fallback for very short viewports (landscape phones). */
+    max-height: 100vh;
+
+    /* THE ONLY BLUR IN THE COMPONENT.
+       One backdrop-filter on one element. The panel surface is a
+       flat, empty box — all content sits in a plain child above
+       it — so Chrome rasterises the blur once per frame of the
+       transform, not once per link. */
+    background: var(--edge-nav-glass);
+    -webkit-backdrop-filter: blur(22px) saturate(150%);
+    backdrop-filter: blur(22px) saturate(150%);
+
+    /* Luminous right edge + inner top highlight. This is what
+       sells "glass" rather than "grey rectangle". */
+    border-inline-end: 1px solid var(--edge-nav-line);
+    box-shadow:
+        inset 1px 0 0 var(--edge-nav-highlight),
+        inset 0 1px 0 var(--edge-nav-highlight),
+        2rem 0 4rem rgb(0 0 0 / 40%),
+        0 0 2.5rem var(--edge-nav-glow);
+
+    /* CLOSED: parked fully off-screen to the LEFT via translate3d.
+       No 'left' and no 'width' are ever animated, so opening the
+       panel costs zero layout. */
+
+    /* Restrained fade as it enters, so it reads as arriving
+       rather than materialising. */
+    opacity: 0;
+
+    /* The closed position AND the promotion in one declaration.
+       translate3d carries the Z translation that keeps this on
+       the GPU, and backface-visibility stops Chrome re-rasterising
+       the blur during the slide. Both are inert once the panel is
+       off-screen, and the will-change layer is released on close. */
+    transform: translate3d(-100%, 0, 0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+
+    /* Internal scroll if the viewport is too short for the full
+       list. Keeps the panel usable in landscape without the page
+       scrolling behind it. */
+    overflow-y: auto;
+    overscroll-behavior: contain;
+
+    transition:
+        transform var(--edge-nav-dur) var(--edge-nav-ease),
+        opacity var(--edge-nav-dur) var(--edge-nav-ease),
+        visibility 0s linear var(--edge-nav-dur);
+}
+
+/* OPEN.
+   will-change is applied HERE, in the open state only, and is
+   released on close by the rule above not matching. Keeping a
+   fullscreen compositing layer promoted for the whole session
+   wastes GPU memory and can itself cause jank — the opposite of
+   the intent. */
+.edge-nav[data-edge-nav-state='open'] .edge-nav__panel {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+
+    will-change: transform, opacity;
+
+    transition:
+        transform var(--edge-nav-dur) var(--edge-nav-ease),
+        opacity var(--edge-nav-dur) var(--edge-nav-ease),
+        visibility 0s linear 0s;
+}
+
+/* Slightly denser fill once open: a larger pane has to hide more
+/* --- BRAND --- */
+.edge-nav__brand {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+
+    color: var(--color-hero-text);
+    text-decoration: none;
+    transition: color var(--transition-base);
+}
+
+.edge-nav__brand-mark {
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+
+    width: 2.5rem;
+    height: 2.5rem;
+
+    font-family: var(--font-family-display);
+    font-size: 1.125rem;
+    font-weight: 700;
+
+    color: var(--color-hero-text);
+    background: linear-gradient(140deg, rgb(68 102 255 / 24%), rgb(131 165 255 / 8%));
+    border: 1px solid var(--edge-nav-line);
+    border-radius: var(--radius-md);
+
+    text-shadow: 0 0 0.75rem var(--edge-nav-glow);
+}
+
+.edge-nav__brand:hover {
+    color: var(--edge-nav-accent);
+}
+
+.edge-nav__brand-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.edge-nav__brand-name {
+    font-family: var(--font-family-display);
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    line-height: 1.15;
+}
+
+.edge-nav__brand-sub {
+    font-size: 0.6875rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    line-height: 1.5;
+    color: var(--color-hero-muted);
+}
+
+/* --- CLOSE CONTROL --- */
+.edge-nav__close {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex: 0 0 auto;
+
+    padding: 0.5rem 0.75rem;
+
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+
+    color: var(--color-hero-muted);
+    background: rgb(255 255 255 / 4%);
+    border: 1px solid rgb(255 255 255 / 12%);
+    border-radius: var(--radius-pill);
+
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+
+    transition:
+        color var(--transition-base),
+        background-color var(--transition-base),
+        border-color var(--transition-base);
+}
+
+.edge-nav__close:hover {
+    color: var(--color-hero-text);
+    background: rgb(131 165 255 / 16%);
+    border-color: var(--edge-nav-line);
+}
+
+.edge-nav__close:focus-visible {
+    outline: 2px solid var(--edge-nav-accent);
+    outline-offset: 2px;
+}
+
+.edge-nav__close-icon {
+    display: grid;
+    place-items: center;
+}
+
+/* --- MENU --- */
+.edge-nav__menu {
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+.edge-nav__list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.edge-nav__item {
+    position: relative;
+    margin: 0;
+}
+
+/* Row highlight wipes in from the left on hover.
+   Driven by transform: scaleX(), NOT by width. Animating width
+   would force layout on every frame of the hover — on a fixed
+   overlay that also risks nudging the canvas's compositing layer.
+   scaleX runs on the compositor and paints nothing but the fill. */
+.edge-nav__item::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+
+    background: linear-gradient(
+        90deg,
+        rgb(68 102 255 / 24%),
+        rgb(131 165 255 / 5%) 62%,
+        transparent
+    );
+    border-inline-start: 2px solid var(--edge-nav-accent);
+    border-start-end-radius: var(--radius-sm);
+    border-end-end-radius: var(--radius-sm);
+
+    /* Origin on the left edge so the wipe grows rightward. */
+    transform: scaleX(0);
+    transform-origin: left center;
+
+    pointer-events: none;
+    transition: transform var(--transition-base);
+}
+
+.edge-nav__link {
+    position: relative;
+    z-index: 1;
+
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+
+    padding: 0.7rem var(--space-3);
+
+    color: var(--color-hero-muted);
+    text-decoration: none;
+
+    border-radius: var(--radius-sm);
+
+    transition: color var(--transition-base);
+}
+
+.edge-nav__link:hover,
+.edge-nav__link:focus-visible {
+    color: var(--color-hero-text);
+}
+
+.edge-nav__link:hover::before,
+.edge-nav__link:focus-visible::before {
+    transform: scaleX(1);
+}
+
+.edge-nav__link:focus-visible {
+    outline: 2px solid var(--edge-nav-accent);
+    outline-offset: -2px;
+}
+
+/* The 01-08 index doubles as the item's visual anchor. */
+.edge-nav__link-index {
+    flex: 0 0 auto;
+    width: 1.75rem;
+
+    font-family: var(--font-family-display);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    font-variant-numeric: tabular-nums;
+
+    color: rgb(131 165 255 / 66%);
+    transition:
+/* ---------------------------------------------------------
+   7. RESPONSIVE
+   Widths come from the tokens above, so there is one number per
+   breakpoint and nothing to keep in sync.
+   --------------------------------------------------------- */
+
+/* Tablet and mobile: panel is 86vw (inside the 80-90% band).
+   Inner padding tightens so long labels never wrap awkwardly. */
+@media (max-width: 68rem) {
+    .edge-nav__inner {
+        gap: var(--space-3);
+        padding: var(--space-4) var(--space-4) var(--space-4);
+    }
+
+    .edge-nav__brand-mark {
+        width: 2.25rem;
+        height: 2.25rem;
+        font-size: 1rem;
+    }
+
+    .edge-nav__link {
+        padding: 0.6rem var(--space-2);
+    }
+
+    .edge-nav__link-label {
+        font-size: 0.9375rem;
+    }
+
+    /* The rotated word is the first thing to go: on a narrow
+       strip it competes with the icon. The icon remains. */
+    .edge-nav__strip-label {
+        display: none;
+    }
+
+    .edge-nav__strip {
+        width: 2.75rem;
+        padding-block: var(--space-3);
+    }
+}
+
+/* Small phones: tighten further and drop the "Close" word, since
+   the X icon alone is unambiguous at this size. */
+@media (max-width: 30rem) {
+    .edge-nav__inner {
+        padding: var(--space-3) var(--space-3) var(--space-4);
+    }
+
+    .edge-nav__close-text {
+        display: none;
+    }
+
+    .edge-nav__close {
+        padding: 0.5rem;
+    }
+
+    .edge-nav__account {
+        width: 2.5rem;
+        height: 2.5rem;
+    }
+}
+
+/* Short landscape viewports (e.g. a phone on its side): the panel
+   scrolls internally, so just make sure nothing overflows
+   sideways and the trigger stays reachable. */
+@media (max-height: 30rem) {
+    .edge-nav__inner {
+        gap: var(--space-2);
+        padding-block: var(--space-3);
+    }
+
+    .edge-nav__head {
+        padding-block-end: var(--space-2);
+    }
+
+    .edge-nav__strip {
+        padding-block: var(--space-2);
+    }
+}
+
+/* ---------------------------------------------------------
+   8. REDUCED MOTION
+   The panel still opens and closes — it stays usable — it just
+   arrives instantly instead of sliding, and the scrim fades
+   with no delay. 0.01ms rather than 0 so transitionend still
+   fires for anything listening.
+   --------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+    .edge-nav__panel,
+    .edge-nav__scrim,
+    .edge-nav__strip,
+    .edge-nav__account,
+    .edge-nav__item::before,
+    .edge-nav__link-arrow,
+    .edge-nav__social-item {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+    }
+
+    /* Hover states still apply, they just arrive instantly: the
+       highlight is shown at full scale rather than wiping in. */
+    .edge-nav__link:hover::before,
+    .edge-nav__link:focus-visible::before {
+        transform: scaleX(1);
+    }
+
+    /* The chevron is shown rather than sliding in from the left. */
+    .edge-nav__link-arrow {
+        opacity: 1;
+        transform: none;
+    }
+}
+        color var(--transition-base),
+        text-shadow var(--transition-base);
+}
+
+.edge-nav__link:hover .edge-nav__link-index {
+    color: var(--edge-nav-accent);
+    text-shadow: 0 0 0.6rem var(--edge-nav-glow);
+}
+
+.edge-nav__link-label {
+    min-width: 0;
+    flex: 1 1 auto;
+
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+}
+
+/* Chevron, revealed on hover. transform only, no layout. */
+.edge-nav__link-arrow {
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+
+    color: var(--edge-nav-accent);
+    opacity: 0;
+    transform: translate3d(-0.25rem, 0, 0);
+
+    transition:
+        opacity var(--transition-base),
+        transform var(--transition-base);
+}
+
+.edge-nav__link:hover .edge-nav__link-arrow,
+.edge-nav__link:focus-visible .edge-nav__link-arrow {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+}
+
+/* --- SOCIAL: placeholder text only --- */
+.edge-nav__social {
+    flex: 0 0 auto;
+
+    padding-block-start: var(--space-4);
+    border-block-start: 1px solid rgb(255 255 255 / 7%);
+}
+
+.edge-nav__social-title {
+    margin: 0 0 var(--space-2);
+    padding-inline-start: var(--space-3);
+
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--edge-nav-accent);
+}
+
+.edge-nav__social-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.edge-nav__social-item {
+    display: block;
+    padding: 0.3rem var(--space-3);
+
+    font-size: 0.875rem;
+    letter-spacing: 0.04em;
+    color: var(--color-hero-muted);
+}
+   of the artwork behind it for the links to stay legible. */
+.edge-nav[data-edge-nav-state='open'] .edge-nav__panel {
+    background: var(--edge-nav-glass-edge);
+}
+
+/* ---------------------------------------------------------
+   6. PANEL CONTENT
+   A plain, opaque-free column above the blurred surface.
+   --------------------------------------------------------- */
+.edge-nav__inner {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+
+    min-height: 100%;
+    padding: var(--space-4) var(--space-5) var(--space-5);
+}
+
+.edge-nav__head {
+    flex: 0 0 auto;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+
+    padding-block-end: var(--space-4);
+    border-block-end: 1px solid rgb(255 255 255 / 7%);
+}
+
+.edge-nav__account-icon {
+    position: relative;
+    display: grid;
+    place-items: center;
+}
+
+/* Visually hidden, still announced. */
+.edge-nav__sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    clip-path: inset(50%);
+    border: 0;
+}
+/* Compact Hero navigation rail: visual-only extension. */
+.edge-nav { --edge-nav-w: 15.5rem; --edge-nav-rail-w: 3.625rem; --edge-nav-rail-offset: clamp(.75rem, 2vw, 1.5rem); }
+.edge-nav__account, .edge-nav__scrim, .edge-nav__social, .edge-nav__brand { display: none; }
+.edge-nav__strip { top: calc(50% - 14.75rem); left: var(--edge-nav-rail-offset); z-index: 8004; width: var(--edge-nav-rail-w); height: 3.625rem; padding: 0; border: 1px solid var(--edge-nav-line); border-radius: .75rem; background: rgb(7 15 29 / 76%); box-shadow: inset 0 1px 0 var(--edge-nav-highlight), 0 0 1.75rem var(--edge-nav-glow), 0 .75rem 2rem rgb(0 0 0 / 30%); transform: none; }
+.edge-nav__strip-label { display: none; }
+.edge-nav__panel, .edge-nav[data-edge-nav-state='closed'] .edge-nav__panel { top: calc(50% - 11.5rem); bottom: auto; left: var(--edge-nav-rail-offset); z-index: 8003; width: var(--edge-nav-rail-w); height: 24.5rem; max-height: calc(100vh - 2rem); overflow-x: hidden; overflow-y: auto; visibility: visible; opacity: 1; transform: none; border: 1px solid var(--edge-nav-line); border-radius: .875rem; background: rgb(7 15 29 / 72%); box-shadow: inset 0 1px 0 var(--edge-nav-highlight), 0 0 2rem var(--edge-nav-glow), 0 1rem 2.5rem rgb(0 0 0 / 30%); transition: width var(--edge-nav-dur) var(--edge-nav-ease), background-color var(--edge-nav-dur) var(--edge-nav-ease), box-shadow var(--edge-nav-dur) var(--edge-nav-ease); }
+.edge-nav[data-edge-nav-state='open'] .edge-nav__panel { width: var(--edge-nav-w); opacity: 1; transform: none; background: rgb(7 15 29 / 86%); will-change: width; }
+.edge-nav__inner { gap: .35rem; min-width: var(--edge-nav-w); padding: .5rem; }
+.edge-nav__head { justify-content: flex-start; height: 2.75rem; padding: 0; border: 0; }
+.edge-nav__close { width: 100%; height: 2.75rem; justify-content: flex-start; gap: .875rem; padding: 0 .625rem; overflow: hidden; color: var(--color-hero-text); border-color: rgb(131 165 255 / 18%); border-radius: .625rem; }
+.edge-nav__close-icon { flex: 0 0 2rem; }
+.edge-nav__close-text, .edge-nav__link-label { opacity: 0; transform: translate3d(-.5rem,0,0); white-space: nowrap; transition: opacity 220ms ease, transform 260ms var(--edge-nav-ease); }
+.edge-nav[data-edge-nav-state='open'] .edge-nav__close-text, .edge-nav[data-edge-nav-state='open'] .edge-nav__link-label { opacity: 1; transform: translate3d(0,0,0); transition-delay: 90ms; }
+.edge-nav__menu { flex: 0 0 auto; } .edge-nav__list { gap: .25rem; }
+.edge-nav__link { gap: .875rem; min-height: 2.25rem; padding: .5rem .625rem; overflow: hidden; border: 1px solid transparent; border-radius: .625rem; }
+.edge-nav__item::before, .edge-nav__link-arrow { display: none; }
+.edge-nav__link-index { display: grid; place-items: center; flex: 0 0 2rem; width: 2rem; height: 2rem; font-size: 0; color: var(--edge-nav-accent); border-radius: .5rem; background: rgb(72 145 255 / 10%); }
+.edge-nav__link-index::before { content: ''; width: .75rem; height: .75rem; border: 1.5px solid currentColor; border-radius: 50%; box-shadow: 0 0 .65rem var(--edge-nav-glow); }
+.edge-nav__item:nth-child(1) .edge-nav__link-index::before { border-radius: .18rem; transform: rotate(45deg); }
+.edge-nav__item:nth-child(3) .edge-nav__link-index::before { border-radius: .15rem; box-shadow: -.45rem -.45rem 0 -1px currentColor, .45rem -.45rem 0 -1px currentColor, -.45rem .45rem 0 -1px currentColor, .45rem .45rem 0 -1px currentColor; }
+.edge-nav__item:nth-child(6) .edge-nav__link-index::before { border-radius: 0; transform: rotate(45deg); }
+.edge-nav__link:hover, .edge-nav__link:focus-visible { color: var(--color-hero-text); background: rgb(73 139 255 / 12%); border-color: rgb(126 185 255 / 28%); box-shadow: 0 0 1rem rgb(48 142 255 / 12%); }
+@media (max-width: 68rem) { .edge-nav { --edge-nav-w: min(14.5rem, calc(100vw - 2rem)); --edge-nav-rail-offset: .75rem; } .edge-nav__strip { top: max(.75rem, calc(50% - 13.5rem)); } .edge-nav__panel, .edge-nav[data-edge-nav-state='closed'] .edge-nav__panel { top: max(4.875rem, calc(50% - 10.25rem)); } }
+@media (prefers-reduced-motion: reduce) { .edge-nav__panel, .edge-nav__close-text, .edge-nav__link-label { transition-duration: .01ms !important; } }
+

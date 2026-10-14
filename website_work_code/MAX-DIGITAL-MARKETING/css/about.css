@@ -1,0 +1,612 @@
+/* =========================================================
+   SECTION 08 — ABOUT / THE COGNITIVE LOOP
+   Max Digital Marketing
+   ---------------------------------------------------------
+   Own stylesheet, matching the section-per-file convention of
+   strategy / website / performance / creative / technology / cta.
+
+   Brain safety: this section does NOT add, edit or replace any
+   Brain logic. It only carries `data-brain-section="about"`,
+   which brain.js uses for presence only. Because worldSections[]
+   still has 7 entries, this section resolves to the same pose as
+   the CTA that follows it — the Brain animates normally through
+   it and is never frozen or reset.
+   ========================================================= */
+
+.home-section--about {
+    position: relative;
+    min-height: 100svh;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    overflow: hidden;
+
+    /*
+     * Same root-stacking contract as the other sections: no
+     * isolation and no z-index, so the section background paints
+     * below the Brain canvas while its content paints above it.
+     */
+    isolation: auto;
+    z-index: auto;
+
+    background:
+        radial-gradient(
+            circle at 72% 45%,
+            rgba(24, 64, 150, 0.18),
+            transparent 44%
+        ),
+        radial-gradient(
+            circle at 18% 78%,
+            rgba(30, 90, 200, 0.10),
+            transparent 38%
+        ),
+        linear-gradient(
+            180deg,
+            #050912 0%,
+            #07101f 50%,
+            #040811 100%
+        );
+}
+
+/* Deep digital atmosphere (below the Brain) */
+.home-section--about::before {
+    content: "";
+    position: absolute;
+    inset: -20%;
+    z-index: 0;
+
+    background:
+        radial-gradient(
+            circle at 50% 50%,
+            rgba(80, 140, 255, 0.09),
+            transparent 34%
+        ),
+        radial-gradient(
+            circle at 25% 30%,
+            rgba(24, 64, 150, 0.07),
+            transparent 30%
+        ),
+        radial-gradient(
+            circle at 80% 70%,
+            rgba(40, 100, 220, 0.05),
+            transparent 30%
+        );
+
+    pointer-events: none;
+}
+
+/* Subtle neural grid (below the Brain) */
+.home-section--about::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+
+    background-image:
+        linear-gradient(
+            rgba(255, 255, 255, 0.022) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0.022) 1px,
+            transparent 1px
+        );
+
+    background-size: 70px 70px;
+
+    mask-image: radial-gradient(
+        circle at center,
+        black 0%,
+        transparent 72%
+    );
+
+    -webkit-mask-image: radial-gradient(
+        circle at center,
+        black 0%,
+        transparent 72%
+    );
+
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   LAYOUT — asymmetric two columns
+   ========================================================= */
+
+.home-section--about .home-section__inner {
+    position: relative;
+    z-index: 2;
+
+    width: min(100% - 40px, 1180px);
+    min-height: 100svh;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 120px 20px;
+}
+
+.home-section--about__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    align-items: center;
+    gap: clamp(40px, 6vw, 88px);
+
+    width: 100%;
+}
+
+.home-section--about__copy {
+    position: relative;
+    z-index: 3;
+
+    min-width: 0;
+}
+
+
+/* =========================================================
+   HEADING BLOCK — same grammar as Sections 02-07
+   ========================================================= */
+
+.home-section--about .home-section__number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 46px;
+    height: 46px;
+
+    margin-bottom: 24px;
+
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 50%;
+
+    background: rgba(255, 255, 255, 0.04);
+
+    color: rgba(255, 255, 255, 0.65);
+
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.home-section--about .home-section__eyebrow {
+    margin: 0 0 18px;
+
+    color: rgba(255, 255, 255, 0.58);
+
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+}
+
+.home-section--about .home-section__title {
+    max-width: 15ch;
+
+    margin: 0 0 26px;
+
+    color: #ffffff;
+
+    font-size: clamp(38px, 4.6vw, 66px);
+    line-height: 1.02;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+
+    text-wrap: balance;
+}
+
+.home-section--about__lead {
+    max-width: 52ch;
+
+    margin: 0 0 22px;
+
+    color: rgba(255, 255, 255, 0.74);
+
+    font-size: 17px;
+    line-height: 1.75;
+
+    text-wrap: pretty;
+}
+
+/* Belief / approach statements read as quoted system notes */
+.home-section--about__note {
+    max-width: 52ch;
+
+    margin: 0 0 14px;
+    padding: 0 0 0 18px;
+
+    border-left: 1px solid rgba(120, 170, 255, 0.28);
+
+    color: rgba(255, 255, 255, 0.62);
+
+    font-size: 15px;
+    line-height: 1.72;
+}
+
+.home-section--about__note:last-of-type {
+    margin-bottom: 0;
+}
+
+.home-section--about__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+
+    margin-top: 34px;
+}
+
+.home-section--about .button {
+    position: relative;
+    z-index: 4;
+}
+
+
+/* =========================================================
+   COGNITIVE LOOP — right column
+   A structural diagram that rhymes with the organic Brain
+   behind it. Pure CSS + inline SVG: no canvas, no JS.
+   ========================================================= */
+
+.home-section--about__diagram {
+    position: relative;
+    z-index: 3;
+
+    min-width: 0;
+
+    padding: clamp(22px, 2.4vw, 32px);
+
+    border: 1px solid rgba(130, 200, 255, 0.30);
+    border-radius: 26px;
+
+    background:
+        linear-gradient(
+            155deg,
+            rgba(13, 30, 58, 0.72) 0%,
+            rgba(7, 18, 38, 0.80) 52%,
+            rgba(4, 11, 24, 0.86) 100%
+        );
+
+    box-shadow:
+        0 24px 60px rgba(0, 0, 0, 0.45),
+        inset 0 1px 1px rgba(255, 255, 255, 0.09);
+
+    backdrop-filter: blur(14px) saturate(150%);
+    -webkit-backdrop-filter: blur(14px) saturate(150%);
+}
+
+.home-section--about__diagram-label {
+    margin: 0 0 18px;
+
+    color: rgba(255, 255, 255, 0.48);
+
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+}
+
+/* The stage holds the SVG ring and the six node chips. */
+.home-section--about__loop {
+    position: relative;
+
+    /*
+     * Kept square at every breakpoint. The node ring is positioned as a
+     * percentage of THIS box and the SVG ring is positioned by its
+     * 400-unit viewBox (r = 132 = 33% of 400). A height cap here could
+     * make the box non-square, and the nodes would drift off the ring.
+     */
+    width: min(100%, 420px);
+    aspect-ratio: 1 / 1;
+
+    margin: 0 auto;
+}
+
+.home-section--about__loop-svg {
+    position: absolute;
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    overflow: visible;
+}
+
+/* Rotating only the link ring reads as flow without moving text. */
+.home-section--about__loop-svg .about-loop__orbit {
+    transform-origin: 200px 200px;
+    animation: about-loop-spin 42s linear infinite;
+}
+
+.home-section--about__loop-svg .about-loop__dash {
+    stroke-dasharray: 6 14;
+}
+
+.home-section--about__loop-svg .about-loop__hub {
+    fill: rgba(62, 166, 255, 0.10);
+    stroke: rgba(130, 200, 255, 0.38);
+}
+
+.home-section--about__loop-svg .about-loop__hub-text {
+    fill: rgba(255, 255, 255, 0.78);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-anchor: middle;
+}
+
+.home-section--about__loop-svg .about-loop__hub-sub {
+    fill: rgba(255, 255, 255, 0.42);
+    font-family: inherit;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-anchor: middle;
+    text-transform: uppercase;
+}
+
+/* Connector spokes: one per node, drawn to the ring radius. */
+.home-section--about__loop-svg .about-loop__spoke {
+    stroke: rgba(130, 200, 255, 0.22);
+    stroke-width: 1;
+}
+
+.home-section--about__loop-svg .about-loop__arrow {
+    fill: rgba(146, 214, 255, 0.62);
+}
+
+/*
+ * Nodes are placed by explicit percentages of the square loop box.
+ * Each centre sits exactly 33% of the loop from the middle — the same
+ * radius the SVG ring is drawn at (r = 132 in a 400-unit viewBox).
+ *
+ * A rotate/translateY chain was avoided deliberately: `translateY()`
+ * percentages resolve against this element's OWN height, and fixing it
+ * would need `cqw` — which has no container context anywhere in this
+ * project and would fall back to the viewport. Percentages also keep
+ * every chip upright without a counter-rotation.
+ */
+.home-section--about__node {
+    position: absolute;
+
+    width: 33%;
+
+    transform: translate(-50%, -50%);
+}
+
+/*
+ * Node placement, clockwise from the top. The order is the working
+ * cycle rather than the printed number order:
+ * Strategy -> Web -> SEO -> Performance -> Creative -> Technology.
+ *
+ * With r = 33% of the loop and θ measured clockwise from the top:
+ *   left = 50% + r·sin θ      top = 50% − r·cos θ
+ */
+.home-section--about__node--strategy    { left: 50%;     top: 17%; }
+.home-section--about__node--web         { left: 78.579%; top: 33.5%; }
+.home-section--about__node--seo         { left: 78.579%; top: 66.5%; }
+.home-section--about__node--performance { left: 50%;     top: 83%; }
+.home-section--about__node--creative    { left: 21.421%; top: 66.5%; }
+.home-section--about__node--technology  { left: 21.421%; top: 33.5%; }
+
+.home-section--about__node-chip {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+
+    padding: 8px 6px;
+
+    border: 1px solid rgba(130, 200, 255, 0.26);
+    border-radius: 14px;
+
+    background: rgba(7, 18, 38, 0.82);
+
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.38);
+
+    text-align: center;
+}
+
+.home-section--about__node-num {
+    color: rgba(146, 214, 255, 0.72);
+
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+}
+
+.home-section--about__node-name {
+    color: rgba(255, 255, 255, 0.88);
+
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.28;
+    letter-spacing: -0.005em;
+
+    text-wrap: balance;
+}
+
+
+/* =========================================================
+   PRINCIPLES — full-width row beneath both columns
+   ========================================================= */
+
+.home-section--about__principles {
+    grid-column: 1 / -1;
+
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+
+    margin-top: clamp(36px, 4vw, 56px);
+}
+
+.home-section--about__principle {
+    position: relative;
+
+    padding: 20px 22px;
+
+    border: 1px solid rgba(130, 200, 255, 0.20);
+    border-radius: 18px;
+
+    background: rgba(7, 18, 38, 0.52);
+
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.06);
+
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.home-section--about__principle::before {
+    content: "";
+
+    position: absolute;
+    top: 0;
+    left: 22px;
+
+    width: 28px;
+    height: 1px;
+
+    background: rgba(146, 214, 255, 0.65);
+}
+
+.home-section--about__principle-name {
+    margin: 0 0 6px;
+
+    color: #ffffff;
+
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+.home-section--about__principle-text {
+    margin: 0;
+
+    color: rgba(255, 255, 255, 0.58);
+
+    font-size: 13.5px;
+    line-height: 1.6;
+}
+
+
+/* =========================================================
+   MOTION — deliberately minimal
+   ========================================================= */
+
+@keyframes about-loop-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .home-section--about__loop-svg .about-loop__orbit {
+        animation: none;
+    }
+}
+
+
+/* =========================================================
+   RESPONSIVE — matches the site's 1100 / 900 / 600 breaks
+   ========================================================= */
+
+@media (max-width: 1100px) {
+    .home-section--about__grid {
+        gap: clamp(32px, 4.5vw, 56px);
+    }
+
+    /*
+     * Shrink by WIDTH only. The node ring is positioned as a
+     * percentage of this box, so a height cap here would make the
+     * box non-square and pull every node off the SVG ring.
+     */
+    .home-section--about__loop {
+        width: min(100%, 380px);
+    }
+}
+
+@media (max-width: 900px) {
+    .home-section--about .home-section__inner {
+        padding: 100px 5vw;
+    }
+
+    .home-section--about__grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 44px;
+    }
+
+    .home-section--about__diagram {
+        max-width: 560px;
+        margin: 0 auto;
+    }
+
+    /* Stacked: the loop may take a little more width back. */
+    .home-section--about__loop {
+        width: min(100%, 440px);
+    }
+
+    .home-section--about .home-section__title {
+        max-width: 18ch;
+    }
+}
+
+@media (max-width: 600px) {
+    .home-section--about .home-section__inner {
+        padding: 84px 20px;
+    }
+
+    .home-section--about__grid {
+        gap: 36px;
+    }
+
+    .home-section--about .home-section__title {
+        font-size: clamp(34px, 9.5vw, 46px);
+    }
+
+    .home-section--about__lead {
+        font-size: 16px;
+    }
+
+    .home-section--about__diagram {
+        padding: 20px 16px;
+
+        border-radius: 22px;
+    }
+
+    .home-section--about__loop {
+        width: min(100%, 320px);
+    }
+
+    .home-section--about__node {
+        width: 34%;
+    }
+
+    .home-section--about__node-chip {
+        padding: 7px 4px;
+
+        border-radius: 12px;
+    }
+
+    .home-section--about__node-name {
+        font-size: 10px;
+    }
+
+    .home-section--about__principles {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 12px;
+
+        margin-top: 34px;
+    }
+
+    .home-section--about__principle {
+        padding: 17px 18px;
+    }
+}

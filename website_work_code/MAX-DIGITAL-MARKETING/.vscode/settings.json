@@ -1,0 +1,48 @@
+{
+    // ------------------------------------------------------------------
+    //  Editor + preview behaviour
+    //  Scope: this workspace only. Nothing global is touched.
+    // ------------------------------------------------------------------
+
+    // Save-triggered refresh. `afterDelay` means you never have to
+    // think about saving, and the browser updates on its own.
+    // The delay is deliberately generous (1000ms) so a half-typed
+    // word is not saved and reloaded while you are still typing.
+    "files.autoSave": "afterDelay",
+    "files.autoDelay": 1000,
+
+    // ------------------------------------------------------------------
+    //  Live Server (ritwickdey.liveserver)
+    //  NOTE: this only serves STATIC files. The PHP pages in this
+    //  project (index.php, includes/*.php) are rendered by Apache
+    //  and will NOT work here — see README note below.
+    // ------------------------------------------------------------------
+    "liveServer.settings.port": 5500,
+
+    // "swap" hot-swaps the stylesheet in place instead of reloading
+    // the page. This is the setting that keeps the tab open and
+    // avoids a white flash on every CSS save.
+    "liveServer.settings.reloadMethod": "swap",
+
+    // Keep the preview tab where you put it; do not steal focus.
+    "liveServer.settings.openBrowser": "outside",
+
+    // Do not rewrite or pollute the file on save.
+    "liveServer.settings.monitorSubstituteAll": false,
+
+    // Skip noise and anything that is not servable statically.
+    "liveServer.settings.ignoreFiles": "**/.git/**,**/node_modules/**,**/*.php",
+
+    // ------------------------------------------------------------------
+    //  Small quality-of-life defaults for HTML/CSS/JS work
+    // ------------------------------------------------------------------
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "explicit"
+    },
+    "files.insertFinalNewline": true,
+    "files.trimTrailingWhitespace": true,
+    "[html]": {
+        "editor.defaultFormatter": "ritwickdey.live-server"
+    }
+}

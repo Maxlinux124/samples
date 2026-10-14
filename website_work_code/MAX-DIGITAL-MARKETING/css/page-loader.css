@@ -1,0 +1,575 @@
+/* =========================================================
+   HOME PAGE — LOADING / RELOAD OVERLAY
+   Max Digital Marketing
+   ---------------------------------------------------------
+   ONE file, ONE job: the full-screen loading experience that
+   covers the home page while it is still arriving.
+
+   SCOPE
+     * Home page ONLY, via the existing $pageStyles hook in
+       index.php, loaded last of all stylesheets.
+     * It is a SIBLING overlay. Not a section, not inside
+       <main>, paints no page content — so the section
+       background rhythm in section-rhythm.css and every
+       section stylesheet stay completely untouched.
+
+   COLOUR — reused, not invented
+     surface   --color-hero-background / #0a1020 (the existing
+                home page atmosphere, style.css .page--home)
+     text      --color-hero-text / --color-hero-muted
+     signal    #21aaff / #47b4ff / #6fe0ff — lifted from the
+                live Brain palette in js/brain.js (lines 540-557)
+                so the loader shares the existing visual language.
+
+   TYPOGRAPHY  --font-family-display, already in use. No webfont.
+
+   THE NO-JAVASCRIPT CONTRACT  (important)
+     .page-loader is display:none by DEFAULT. It is only ever
+     painted when a 4-line inline script has added the .js class
+     to <html>. Consequences:
+       * JS disabled        -> overlay never paints, page shows.
+       * page-loader.js 404 -> the inline script still removes the
+         overlay after 15s, so the page can never be locked.
+       * JS enabled         -> the class is added during the same
+         parse pass, BEFORE the overlay element is reached, so
+         there is no flash of uncovered page.
+
+   REDUCED MOTION
+     The reduced-motion block at the end removes every pulse,
+     sweep and glow, leaving a static, readable brand lockup and
+     the same progress bar. js/page-loader.js also shortens its
+     minimum display time to 240ms in that case.
+   ========================================================= */
+
+/* ---------------------------------------------------------
+   0. HIDDEN BY DEFAULT — the no-JS guard
+   --------------------------------------------------------- */
+
+.page-loader {
+    display: none;
+}
+
+/* Everything below only exists once JS has opted in. */
+.js .page-loader {
+    position: fixed;
+    inset: 0;
+    z-index: 9000;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    /*
+     * inset:0 with auto width/height instead of 100vw/100vh.
+     * 100vw includes the classic scrollbar gutter and is a
+     * common cause of a horizontal scrollbar appearing on an
+     * otherwise overflow-free page.
+     */
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+
+    background:
+        radial-gradient(
+            circle at 50% 46%,
+            rgba(20, 96, 190, 0.16),
+            transparent 46%
+        ),
+        radial-gradient(
+            circle at 50% 50%,
+            rgba(11, 52, 112, 0.06),
+            transparent 62%
+        ),
+        linear-gradient(180deg, #090b13 0%, #0a1020 52%, #090b13 100%);
+
+    color: var(--color-hero-text);
+    font-family: var(--font-family-display);
+
+    /*
+     * The overlay is decorative while it plays. The accessible
+     * name lives on the root node (role="status"), so the inner
+     * content can be hidden from assistive tech entirely.
+     */
+    opacity: 1;
+    transition:
+        opacity 620ms cubic-bezier(0.16, 1, 0.3, 1),
+        visibility 620ms linear;
+}
+
+/* ---------------------------------------------------------
+   1. ATMOSPHERE
+   A faint neural grid and one slow vertical sweep. Both sit
+   behind everything and are pure CSS, so they cost no JS.
+   --------------------------------------------------------- */
+
+.js .page-loader__grid,
+.js .page-loader__scan {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.js .page-loader__grid {
+    background-image:
+        linear-gradient(rgba(111, 224, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(111, 224, 255, 0.05) 1px, transparent 1px);
+    background-size: 4rem 4rem;
+
+    /* Fades the grid toward the edges so it never reads as a table. */
+    -webkit-mask-image: radial-gradient(circle at 50% 50%, #000 0%, transparent 72%);
+    mask-image: radial-gradient(circle at 50% 50%, #000 0%, transparent 72%);
+}
+
+.js .page-loader__scan {
+    inset: auto 0 auto 0;
+    height: 38%;
+
+    background: linear-gradient(
+        180deg,
+        transparent 0%,
+        rgba(111, 224, 255, 0.05) 44%,
+        rgba(111, 224, 255, 0.11) 50%,
+        rgba(111, 224, 255, 0.05) 56%,
+        transparent 100%
+    );
+
+    animation: page-loader-scan 4.6s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+    will-change: transform;
+}
+
+@keyframes page-loader-scan {
+    from {
+        transform: translate3d(0, -100%, 0);
+    }
+    to {
+        transform: translate3d(0, 265%, 0);
+    }
+}
+
+/* ---------------------------------------------------------
+   2. CENTRE STACK
+   --------------------------------------------------------- */
+
+.js .page-loader__inner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(1.5rem, 3.4vmin, 2.25rem);
+
+    /* Padded so the lockup never touches a short viewport edge. */
+    width: min(100% - 2.5rem, 30rem);
+    text-align: center;
+
+    transform: scale(1);
+    transition: transform 700ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ---------------------------------------------------------
+   3. STATUS LINE
+   One short, calm label. Swapped once by JS, never animated
+   per-character.
+   --------------------------------------------------------- */
+
+.js .page-loader__status {
+    margin: 0;
+    color: var(--color-hero-muted);
+    font-size: clamp(0.6875rem, 1.5vmin, 0.75rem);
+    letter-spacing: 0.42em;
+    text-indent: 0.42em;
+    text-transform: uppercase;
+}
+
+/* ---------------------------------------------------------
+   4. NEURAL CORE
+   A node, three outward pulses and six spokes. The whole thing
+   is rings and gradients — no canvas, no animation loop.
+   --------------------------------------------------------- */
+
+.js .page-loader__core {
+    position: relative;
+    width: clamp(7.5rem, 22vmin, 11rem);
+    aspect-ratio: 1;
+    display: grid;
+    place-items: center;
+}
+
+.js .page-loader__ring {
+    position: absolute;
+    inset: 0;
+    border: 1px solid rgba(71, 180, 255, 0.34);
+    border-radius: 50%;
+
+    animation: page-loader-ring 3s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+/* Staggered so the pulses read as travelling outward. */
+.js .page-loader__ring:nth-of-type(2) {
+    animation-delay: 1s;
+}
+
+.js .page-loader__ring:nth-of-type(3) {
+    animation-delay: 2s;
+}
+
+@keyframes page-loader-ring {
+    0% {
+        opacity: 0;
+        transform: scale(0.32);
+    }
+    22% {
+        opacity: 0.9;
+    }
+    100% {
+        opacity: 0;
+        transform: scale(1);
+    }
+}
+
+/*
+ * Spokes. Rotation and offset are static (set per spoke below);
+ * only opacity is animated, so the keyframes never clobber the
+ * transform that places each spoke around the node.
+ *
+ * They live inside their own wrapper deliberately. :nth-of-type()
+ * counts ALL siblings of the same element type, and the rings and
+ * the node are <span> too — so without this wrapper a spoke could
+ * never be nth-of-type(1) and the rotation rules would silently
+ * match nothing.
+ */
+.js .page-loader__spokes {
+    position: absolute;
+    inset: 0;
+}
+
+.js .page-loader__spoke {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 1px;
+    height: 46%;
+    transform-origin: 50% 0;
+
+    background: linear-gradient(
+        180deg,
+        transparent 0%,
+        rgba(71, 180, 255, 0.85) 100%
+    );
+
+    opacity: 0;
+    animation: page-loader-spoke 2.4s ease-in-out infinite;
+}
+
+@keyframes page-loader-spoke {
+    0%,
+    100% {
+        opacity: 0.12;
+    }
+    50% {
+        opacity: 0.9;
+    }
+}
+
+.js .page-loader__spoke:nth-of-type(1) {
+    transform: translate(-50%, 0) rotate(0deg) translateY(-62%);
+}
+.js .page-loader__spoke:nth-of-type(2) {
+    transform: translate(-50%, 0) rotate(60deg) translateY(-62%);
+    animation-delay: 0.2s;
+}
+.js .page-loader__spoke:nth-of-type(3) {
+    transform: translate(-50%, 0) rotate(120deg) translateY(-62%);
+    animation-delay: 0.4s;
+}
+.js .page-loader__spoke:nth-of-type(4) {
+    transform: translate(-50%, 0) rotate(180deg) translateY(-62%);
+    animation-delay: 0.6s;
+}
+.js .page-loader__spoke:nth-of-type(5) {
+    transform: translate(-50%, 0) rotate(240deg) translateY(-62%);
+    animation-delay: 0.8s;
+}
+.js .page-loader__spoke:nth-of-type(6) {
+    transform: translate(-50%, 0) rotate(300deg) translateY(-62%);
+    animation-delay: 1s;
+}
+
+/* The node itself: a soft core plus a slow breathing glow. */
+.js .page-loader__node {
+    position: relative;
+    width: 0.875rem;
+    height: 0.875rem;
+    border-radius: 50%;
+    background: #6fe0ff;
+    box-shadow:
+        0 0 1.25rem rgba(33, 170, 255, 0.75),
+        0 0 3.5rem rgba(33, 170, 255, 0.32);
+
+    animation: page-loader-node 2.4s ease-in-out infinite;
+}
+
+@keyframes page-loader-node {
+    0%,
+    100% {
+        opacity: 0.62;
+        transform: scale(0.86);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.08);
+    }
+}
+
+/* ---------------------------------------------------------
+   5. BRAND LOCKUP
+   Typographic, because no valid Max Digital Marketing logo
+   asset exists in the project. See the note in index.php.
+   --------------------------------------------------------- */
+
+.js .page-loader__brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+}
+
+.js .page-loader__brand-max {
+    color: var(--color-hero-text);
+    font-size: clamp(1.5rem, 5.4vmin, 2.375rem);
+    font-weight: 700;
+    letter-spacing: 0.34em;
+    text-indent: 0.34em;
+    line-height: 1;
+    text-transform: uppercase;
+}
+
+.js .page-loader__brand-sub {
+    position: relative;
+    padding-top: 0.75rem;
+    color: var(--color-hero-muted);
+    font-size: clamp(0.625rem, 1.7vmin, 0.75rem);
+    letter-spacing: 0.38em;
+    text-indent: 0.38em;
+    text-transform: uppercase;
+}
+
+/* Hairline rule between the two lines of the lockup. */
+.js .page-loader__brand-sub::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 2.75rem;
+    height: 1px;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(111, 224, 255, 0.75),
+        transparent
+    );
+    transform: translateX(-50%);
+}
+
+/* ---------------------------------------------------------
+   6. PROGRESS
+   A 2px line and a tabular percentage. Deliberately plain: the
+   neural core is the visual, this is only the reassurance that
+   the page is doing something.
+   --------------------------------------------------------- */
+
+.js .page-loader__foot {
+    position: absolute;
+    z-index: 1;
+    bottom: clamp(1.75rem, 5vmin, 3rem);
+    left: 50%;
+    width: min(100% - 2.5rem, 22rem);
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+}
+
+.js .page-loader__track {
+    position: relative;
+    flex: 1 1 auto;
+    height: 2px;
+    background: rgba(174, 184, 210, 0.16);
+    overflow: hidden;
+}
+
+.js .page-loader__bar {
+    display: block;
+    height: 100%;
+    width: 100%;
+
+    /* transform, not width: stays on the compositor. */
+    transform: scaleX(var(--page-loader-progress, 0.04));
+    transform-origin: 0 50%;
+
+    background: linear-gradient(
+        90deg,
+        rgba(33, 170, 255, 0.55),
+        #6fe0ff
+    );
+    box-shadow: 0 0 0.75rem rgba(71, 180, 255, 0.55);
+
+    transition: transform 620ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.js .page-loader__value {
+    flex: 0 0 auto;
+    min-width: 2.5em;
+    text-align: right;
+    color: var(--color-hero-muted);
+    font-family: var(--font-family-display);
+    font-size: 0.6875rem;
+    letter-spacing: 0.16em;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ---------------------------------------------------------
+   7. EXIT
+   Fade the layer out while the lockup eases up and slightly
+   away, which reads as the page pushing past the overlay.
+   --------------------------------------------------------- */
+
+.js .page-loader.is-leaving {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.js .page-loader.is-leaving .page-loader__inner {
+    transform: scale(1.06) translate3d(0, -0.75rem, 0);
+}
+
+/* Stop every looping animation the instant the exit starts. */
+.js .page-loader.is-leaving .page-loader__scan,
+.js .page-loader.is-leaving .page-loader__ring,
+.js .page-loader.is-leaving .page-loader__spoke,
+.js .page-loader.is-leaving .page-loader__node {
+    animation-play-state: paused;
+}
+
+/* ---------------------------------------------------------
+   8. SCROLL LOCK
+   Applied by JS to <html> and <body> only while the overlay is
+   up, so the page cannot be scrolled behind it.
+   --------------------------------------------------------- */
+
+.js-page-loader-lock {
+    overflow: hidden !important;
+    overscroll-behavior: none;
+}
+
+/* ---------------------------------------------------------
+   9. SCREEN-READER ONLY TEXT
+   --------------------------------------------------------- */
+
+.js .page-loader__sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* ---------------------------------------------------------
+   10. REDUCED MOTION
+   The overlay still appears and still reports progress — it
+   simply stops moving. The exit stays, but it is near-instant
+   so nothing lingers.
+   --------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+    .js .page-loader {
+        transition: opacity 200ms linear, visibility 200ms linear;
+    }
+
+    .js .page-loader__scan,
+    .js .page-loader__ring,
+    .js .page-loader__spoke,
+    .js .page-loader__node {
+        animation: none;
+    }
+
+    /* Keep the core legible as a static mark. */
+    .js .page-loader__ring {
+        opacity: 0.22;
+        transform: scale(0.72);
+    }
+
+    .js .page-loader__ring:nth-of-type(2) {
+        transform: scale(0.86);
+    }
+
+    .js .page-loader__ring:nth-of-type(3) {
+        transform: scale(1);
+    }
+
+    .js .page-loader__spoke {
+        opacity: 0.42;
+    }
+
+    .js .page-loader__node {
+        opacity: 1;
+        transform: none;
+    }
+
+    .js .page-loader__inner,
+    .js .page-loader__bar {
+        transition: none;
+    }
+
+    .js .page-loader.is-leaving .page-loader__inner {
+        transform: none;
+    }
+}
+
+/* ---------------------------------------------------------
+   11. SMALL SCREENS
+   Only size and spacing are adjusted. The composition is the
+   same on every breakpoint, which is what keeps it cinematic.
+   --------------------------------------------------------- */
+
+@media (max-width: 30rem) {
+    .js .page-loader__grid {
+        background-size: 3rem 3rem;
+    }
+
+    .js .page-loader__brand-max {
+        letter-spacing: 0.28em;
+        text-indent: 0.28em;
+    }
+
+    .js .page-loader__brand-sub {
+        letter-spacing: 0.3em;
+        text-indent: 0.3em;
+    }
+
+    .js .page-loader__foot {
+        width: min(100% - 2rem, 20rem);
+    }
+}
+
+/* Short viewports (landscape phones): pull the foot line in. */
+@media (max-height: 30rem) {
+    .js .page-loader__inner {
+        gap: 1rem;
+    }
+
+    .js .page-loader__core {
+        width: clamp(4.5rem, 26vmin, 6.5rem);
+    }
+
+    .js .page-loader__foot {
+        bottom: 1rem;
+    }
+}

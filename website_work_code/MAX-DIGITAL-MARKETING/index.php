@@ -6,9 +6,220 @@ $pageDescription = 'Max Digital Marketing helps ambitious businesses build visib
 $pageCanonical = 'https://www.example.com/';
 $pageBodyClass = 'page page--home';
 
+/*
+ * Page-level stylesheet, loaded after every global sheet in
+ * includes/header.php via its $pageStyles hook. This is how the
+ * section background rhythm is applied without editing the
+ * header or any of the per-section stylesheets:
+ *
+ *   01 DARK · 02 LIGHT · 03 DARK · 04 LIGHT · 05 DARK
+ *   06 LIGHT · 07 DARK · 08 DARK (footer-anchored) · 09 untouched
+ *
+ * css/page-loader.css is the loading overlay and is listed last
+ * so it wins over anything a component sheet might set.
+ *
+ * css/edge-nav.css is the edge navigation. It sits above the
+ * loader in the source order but below it in z-index (8000 vs
+ * 9000), so the loader still covers the triggers while the page
+ * is arriving.
+ */
+$pageStyles = [
+    'css/section-rhythm.css',
+    'css/edge-nav.css',
+    'css/page-loader.css',
+];
+
+/*
+ * =========================================================
+ *  HERO HEADLINE MESSAGES  (content only — no animation yet)
+ * ---------------------------------------------------------
+ * Ten short headline / description pairs, one per intended
+ * rotation slot. They are held here as the single source of
+ * truth and are emitted into the markup two ways:
+ *
+ *   1. The FIRST pair is rendered as real text inside the H1
+ *      and the paragraph, so the Hero reads correctly with
+ *      JavaScript disabled and before any script runs.
+ *   2. The WHOLE list is JSON-encoded into a data-hero-messages
+ *      attribute on the wrapper, which is the hand-off point
+ *      for the smooth text-change animation in a later task.
+ *      That task only has to read this attribute — it does not
+ *      need to touch PHP again.
+ *
+ * COPY RULES APPLIED
+ *   * Headlines stay short enough to set in two lines at the
+ *     existing max-width of 15ch, never more than three.
+ *   * Descriptions are one short sentence each. No paragraphs.
+ *
+ * LENGTH CHECK
+ *   .hero-text__description in css/components.css caps the
+ *   measure at 34rem, so every description below wraps to at
+ *   most two lines on desktop and one or two on mobile.
+ * ========================================================= */
+
+$heroMessages = [
+    [
+        'heading'     => 'Grow Your Digital Future.',
+        'description' => 'Marketing that moves your business forward.',
+    ],
+    [
+        'heading'     => 'Build Better. Grow Faster.',
+        'description' => 'Strategy, content and technology, working as one.',
+    ],
+    [
+        'heading'     => 'Turn Ideas Into Impact.',
+        'description' => 'From a first idea to real, measurable results.',
+    ],
+    [
+        'heading'     => 'Make Your Brand Visible.',
+        'description' => 'Be found, remembered and chosen.',
+    ],
+    [
+        'heading'     => 'Create. Connect. Grow.',
+        'description' => 'Creative, content and growth under one roof.',
+    ],
+    [
+        'heading'     => 'Digital Strategy That Moves.',
+        'description' => 'Clear plans, fast action and real results.',
+    ],
+    [
+        'heading'     => 'Build Experiences That Matter.',
+        'description' => 'Design and technology working together.',
+    ],
+    [
+        'heading'     => 'Turn Attention Into Growth.',
+        'description' => 'Reach the right people and convert them.',
+    ],
+    [
+        'heading'     => 'Think Digital. Grow Smarter.',
+        'description' => 'Smarter decisions, backed by data.',
+    ],
+    [
+        'heading'     => 'Your Next Growth Starts Here.',
+        'description' => 'Let us build your next chapter together.',
+    ],
+];
+
+/*
+ * JSON for the future rotation script. JSON_UNESCAPED_SLASHES keeps
+ * href-style slashes readable, and escapeHtml() below makes the whole
+ * payload safe to sit inside a double-quoted HTML attribute.
+ */
+$heroMessagesJson = (string) json_encode(
+    $heroMessages,
+    JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+);
+
 require_once __DIR__ . '/includes/header.php';
-require_once __DIR__ . '/includes/navbar.php';
+
+/*
+ * Home page navigation.
+ *
+ * The traditional horizontal bar (includes/navbar.php) is NOT
+ * rendered here any more. The hero now starts clean and
+ * fullscreen, and every primary control lives on a screen edge:
+ * a vertical strip on the left and a profile disc top-right.
+ * Both open the same glass panel.
+ *
+ * includes/edge-nav.php is included here, after the header and
+ * before <main>, so it sits outside the main landmark and adds
+ * no section, no ordering change and no data-brain-section
+ * attribute. navbar.php is left untouched on disk for any other
+ * page that may want it.
+ */
+require_once __DIR__ . '/includes/edge-nav.php';
 ?>
+
+<!-- =========================================================
+     LOADING OVERLAY
+     ---------------------------------------------------------
+     A sibling of <main>, not a section. It owns no page content
+     and is removed from the DOM by js/page-loader.js once the
+     page has genuinely finished loading.
+
+     BRAND ASSET NOTE — PLEASE READ
+       There is currently NO valid Max Digital Marketing logo in
+       this project. Every image in asset/ (logo.jpg, logo2.png,
+       logo2 (2).png, max.png) is a different company's artwork
+       reading "MAX linux", and it carries purple, which is not
+       in the project palette. The navbar also points at
+       asset/logo.png, which does not exist at all.
+
+       Rather than ship the wrong brand, the lockup below is
+       typographic and built from the existing SITE_NAME and
+       display font. Drop in a real logo later by replacing the
+       .page-loader__brand block with an <img> — no other change
+       is needed.
+     ========================================================== -->
+<script>
+    /*
+     * CRITICAL, inline and deliberately tiny.
+     *
+     * This runs during the parse pass BEFORE the overlay below is
+     * reached, which gives us two guarantees at once:
+     *
+     *   1. css/page-loader.css keeps .page-loader { display:none }
+     *      by default and only paints it under ".js". Adding the
+     *      class here, in the same parse pass, means the overlay
+     *      is never painted uncovered — no flash.
+     *
+     *   2. If JavaScript is unavailable, ".js" is never added, so
+     *      the overlay is never painted at all and the page shows
+     *      normally. Same result if js/page-loader.js 404s, which
+     *      is why the failsafe below exists: the page can never be
+     *      left permanently covered.
+     */
+    (function (d) {
+        d.documentElement.classList.add('js');
+        window.setTimeout(function () {
+            var l = d.getElementById('pageLoader');
+            if (l && l.parentNode) { l.parentNode.removeChild(l); }
+        }, 15000);
+    }(document));
+</script>
+
+<div class="page-loader" id="pageLoader" role="status" aria-live="polite">
+    <span class="page-loader__sr">Loading Max Digital Marketing</span>
+
+    <span class="page-loader__grid" aria-hidden="true"></span>
+    <span class="page-loader__scan" aria-hidden="true"></span>
+
+    <div class="page-loader__inner" aria-hidden="true">
+        <p class="page-loader__status">
+            <span class="page-loader__status-text">Loading</span>
+        </p>
+
+        <!-- Neural core: rings + spokes + node. Pure CSS motion. -->
+        <div class="page-loader__core">
+            <span class="page-loader__ring"></span>
+            <span class="page-loader__ring"></span>
+            <span class="page-loader__ring"></span>
+
+            <span class="page-loader__spokes">
+                <span class="page-loader__spoke"></span>
+                <span class="page-loader__spoke"></span>
+                <span class="page-loader__spoke"></span>
+                <span class="page-loader__spoke"></span>
+                <span class="page-loader__spoke"></span>
+                <span class="page-loader__spoke"></span>
+            </span>
+
+            <span class="page-loader__node"></span>
+        </div>
+
+        <p class="page-loader__brand">
+            <span class="page-loader__brand-max">Max</span>
+            <span class="page-loader__brand-sub">Digital Marketing</span>
+        </p>
+    </div>
+
+    <div class="page-loader__foot" aria-hidden="true">
+        <div class="page-loader__track">
+            <span class="page-loader__bar"></span>
+        </div>
+        <span class="page-loader__value">0</span>
+    </div>
+</div>
 
 <!-- =========================================================
      GLOBAL BRAIN VISUAL LAYER
@@ -18,466 +229,149 @@ require_once __DIR__ . '/includes/navbar.php';
     <canvas id="brainCanvas" class="brain-canvas"></canvas>
 </div>
 
+<!--
+    =========================================================
+     HOME PAGE — CONTENT CLEARED FOR REBUILD
+    ==========================================================
+
+     Every heading, paragraph, image, button and data-driven card
+     has been removed. What remains is the SKELETON:
+
+       - the shared .home-section / .home-section__inner /
+         .home-section__content containers
+       - the per-section id and class hooks
+       - the data-brain-section / data-brain-position attributes
+         that js/brain.js reads to move the neural canvas
+
+     IMPORTANT — those attributes are POSITIONAL. brain.js builds
+     its scroll index from the ordered list of [data-brain-section]
+     elements and blends worldSections[] against that index, so:
+
+       * keep the sections in their current order;
+       * keep at least two of them — brain.js returns early when it
+         finds fewer than two (js/brain.js:387) and the canvas
+         stops travelling entirely;
+       * a section without the attribute is simply skipped, which
+         is why Section 08 (Portfolio) omits it.
+
+     The shared heading/description/meta content classes used by the
+     old sections are still available and still styled:
+
+       .home-section__number      01 / 02 / 03 …
+       .home-section__eyebrow     small uppercase label
+       .home-section__title       the main heading
+       .home-section__description the paragraph
+       .home-section__meta        <div> of <span> chips
+       .home-section__actions     button row
+       .button.button--primary     primary action
+       .button.button--secondary   secondary action
+
+     Reference section shell:
+
+       <section id="unique-id" class="home-section" data-brain-section="N">
+           <div class="home-section__inner">
+               <div class="home-section__content"> … </div>
+           </div>
+       </section>
+
+    =========================================================
+-->
+
 <main id="main-content" class="site-main" tabindex="-1">
 
     <!-- =========================================================
-         SECTION 01 — HERO / BRAIN CORE
+         SECTION 01 — HERO
+         Brain Position: CENTER
     ========================================================== -->
     <section
         id="hero"
         class="hero home-section home-section--hero"
         data-brain-section="1"
         data-brain-position="center"
-        aria-labelledby="hero-title"
     >
-
         <div class="hero__inner home-section__inner">
 
-            <!-- Hero Text -->
-            <div class="hero-text home-section__content">
+            <!--
+                =========================================================
+                 HERO TEXT — prepared content, NO rotation animation yet
+                ==========================================================
 
-                <p class="hero-text__eyebrow home-section__eyebrow">
-                    MAX DIGITAL MARKETING
-                </p>
+                ONE H1 AND ONE SHORT LINE. NOTHING ELSE: no cards, no
+                buttons, no images.
 
-                <h1 id="hero-title" class="hero-text__title home-section__title">
-                    Grow Your Business in the Digital World
-                </h1>
+                PLACEMENT — THE POINT OF THIS BLOCK
+                  The heading sits in the TOP-LEFT corner of the hero
+                  and the supporting line in the BOTTOM-RIGHT corner.
+                  The middle of the screen is left completely empty
+                  on purpose: that is where the Brain canvas draws
+                  itself, and this layout keeps it fully unobstructed
+                  at every width.
 
-                <p class="hero-text__description home-section__description">
-                    Max Digital Marketing combines sharp strategy, memorable creative,
-                    and measurable performance to turn attention into meaningful growth.
-                </p>
+                  All of that placement is done in css/hero.css with
+                  a full-height column flex box and space-between.
+                  Nothing here is absolutely positioned, so the two
+                  corners stay correct as the viewport changes and
+                  no fixed pixel offsets can drift out of date.
 
-                <div class="hero__actions home-section__actions" aria-label="Hero actions">
-                    <a class="button button--primary" href="contact.php">
-                        Start a Project
-                    </a>
+                WHY THIS WRAPPER IS .hero__copy AND NOT .hero-text
+                  The historical .hero-text class must NOT come back.
+                  js/drag-cards.js:63 does
+                      const heroText = document.querySelector(".hero-text");
+                  and line 67 then calls getElementCenter(heroText) —
+                  a function that is not defined anywhere in the project.
+                  Re-adding .hero-text would therefore throw a
+                  ReferenceError on every page load. .hero__copy is a
+                  different name with an identical job, so that script
+                  keeps finding null and skipping safely.
 
-                    <a class="button button--secondary" href="services.php">
-                        Explore Our Services
-                    </a>
-                </div>
+                TYPOGRAPHY
+                  The H1 and the paragraph deliberately keep the existing
+                  classes .hero-text__title and .hero-text__description
+                  (css/components.css). Those give the current Hero look:
+                  clamp(2.5rem, 5.4vw, 4.35rem) — 69.6px on desktop —
+                  weight 800, -0.045em tracking, 15ch measure.
 
-            </div>
+                data-hero-messages
+                  The full list of ten pairs, JSON-encoded, waiting for
+                  the next task. The rotation script only needs to read
+                  this attribute; it never has to come back to PHP.
 
-            <!-- Hero Visual -->
+                STATIC ON PURPOSE
+                  No JavaScript is added in this task, and the perpetual
+                  drift animations that those two classes normally carry
+                  are switched off for this block in css/hero.css, so
+                  the copy sits still until the animation task arrives.
+                ========================================================= -->
             <div
-                class="hero-visual-card"
-                aria-label="Digital marketing intelligence visual"
+                class="hero__copy"
+                data-hero-messages="<?= escapeHtml($heroMessagesJson) ?>"
             >
+                <h1
+                    class="hero-text__title"
+                    data-hero-heading
+                ><?= escapeHtml($heroMessages[0]['heading']) ?></h1>
 
-                <span
-                    class="hero-visual-card__line hero-visual-card__line--top"
-                    aria-hidden="true"
-                ></span>
-
-                <span
-                    class="hero-visual-card__line hero-visual-card__line--bottom"
-                    aria-hidden="true"
-                ></span>
-
-                <div class="hero-visual-card__image-wrap">
-
-                    <img
-                        src="asset/max.png"
-                        alt="Max Digital Marketing strategist"
-                        class="hero-visual-card__image"
-                    >
-
-                    <svg
-                        class="network-arcs-svg"
-                        viewBox="0 0 500 500"
-                        preserveAspectRatio="none"
-                        aria-hidden="true"
-                    >
-                        <path
-                            class="arc-line arc-1"
-                            d="M 50,150 Q 250,50 450,200"
-                        />
-
-                        <path
-                            class="arc-line arc-2"
-                            d="M 50,300 Q 250,450 450,250"
-                        />
-                    </svg>
-
-                </div>
-
-                <div
-                    class="hero-visual-card__terminal"
-                    aria-live="polite"
-                >
-                    <span class="hero-visual-card__prompt">&gt;</span>
-                    <span data-visual-terminal> SYSTEM ONLINE_</span>
-                </div>
-
-                <span
-                    class="hero-visual-card__node"
-                    aria-hidden="true"
-                ></span>
-
-            </div>
-
-
-            <!-- =====================================================
-                 FLOATING TECHNOLOGY CARDS
-            ====================================================== -->
-
-            <!-- HTML5 -->
-            <div
-                class="sm-glass-card card-small pos-html fly-from-top-left"
-                title="HTML5"
-            >
-                <svg viewBox="0 0 24 24" class="svg-icon" aria-hidden="true">
-                    <path
-                        fill="#E34F26"
-                        d="M1.5 0h21l-1.91 21.563L11.97 24l-8.564-2.438L1.5 0zm7.031 9.75l-.232-2.718 10.059.003.23-2.622L5.412 4.41l.698 8.058h8.421l-.342 3.826-2.222.6-2.228-.6-.144-1.618H6.98l.288 3.332 4.702 1.303 4.702-1.303.655-7.308H8.531z"
-                    />
-                </svg>
-            </div>
-
-            <!-- WordPress -->
-            <div
-                class="sm-glass-card card-small pos-wp fly-from-top-right"
-                title="WordPress"
-            >
-                <svg viewBox="0 0 24 24" class="svg-icon" aria-hidden="true">
-                    <path
-                        fill="#21759B"
-                        d="M12.158 0C5.457 0 0 5.457 0 12.158c0 5.097 3.142 9.458 7.598 11.237l-4.14-11.334c.54-.027 1.05-.084 1.05-.084.475-.056.418-.755-.058-.727 0 0-1.42.112-2.336.112-.863 0-2.281-.112-2.281-.112-.476-.028-.532.671-.056.727 0 0 .48.057.966.084l4.032 11.026A12.106 12.106 0 010 12.158C0 5.457 5.457 0 12.158 0zm6.273 12.215c0-2.092-.752-3.551-1.401-4.689-.863-1.423-1.673-2.618-1.673-4.032 0-1.589 1.202-3.067 2.899-3.067.073 0 .142.008.214.012A12.08 12.08 0 0012.158.158c-3.805 0-7.202 1.76-9.432 4.512 1.348-.04 2.624.218 2.624.218.476.056.42.755-.056.727 0 0-.48-.057-.966-.084l2.846 7.794 1.7-5.088-1.212-3.328c.476-.027.966-.084.966-.084.476-.056.42-.755-.056-.727 0 0-1.42.112-2.336.112-.132 0-.301-.003-.483-.008A12.128 12.128 0 0112.158.158c2.404 0 4.63.702 6.502 1.91-.252.883-.538 1.921-.538 3.09 0 2.302 1.34 4.089 2.766 6.182.973 1.45 1.968 3.125 1.968 5.61 0 .954-.153 1.834-.413 2.628l-.053.18-2.697-7.543zm-3.882 11.516l3.654-10.596c.642 1.31 1.256 2.818 1.256 4.382 0 1.282-.284 2.385-.689 3.391a12.086 12.086 0 01-4.221 2.823z"
-                    />
-                </svg>
-            </div>
-
-            <!-- PHP -->
-            <div
-                class="sm-glass-card card-small pos-php fly-from-bottom-left"
-                title="PHP"
-            >
-                <svg viewBox="0 0 24 24" class="svg-icon" aria-hidden="true">
-                    <path
-                        fill="#777BB4"
-                        d="M11.547 10.323c-.347 0-.61.108-.79.323-.18.217-.23.513-.153.89l.385 1.916c.077.388.243.682.5.882.257.2.593.3 1.01.3.385 0 .67-.107.854-.32.185-.214.238-.51.16-.893l-.384-1.905c-.08-.39-.247-.688-.503-.892-.258-.204-.593-.306-1.008-.306zm10.742-5.836H1.711C.766 4.487 0 5.253 0 6.2v11.6c0 .945.766 1.713 1.711 1.713h20.578c.945 0 1.713-.768 1.713-1.713V6.2c0-.947-.766-1.713-1.713-1.713zm-14.77 10.37h-1.39l.863-4.303h1.868c.552 0 .964.12 1.236.36.27.24.343.59.217 1.05-.133.51-.433.91-.9 1.2-.468.29-1.077.435-1.828.435h-.066l-.066-.023v1.28zm5.72 0h-1.426l1.398-6.974h1.427l-.438 2.186h1.72l.438-2.186h1.427l-1.398 6.974h-1.427l.462-2.31h-1.72l-.463 2.31zm5.228-2.671h1.39l-.863 4.303h-1.868c-.552 0-.964-.12-1.236-.36-.27-.214-.238-.51-.16-.893l.384-1.905c.08-.39.247-.688.503-.892.258-.204.593-.306 1.008-.306z"
-                    />
-                </svg>
-            </div>
-
-            <!-- Python -->
-            <div
-                class="sm-glass-card card-small pos-python fly-from-bottom-right"
-                title="Python"
-            >
-                <svg viewBox="0 0 24 24" class="svg-icon" aria-hidden="true">
-                    <path
-                        fill="#3776AB"
-                        d="M11.898 0c-5.26 0-4.922 2.28-4.922 2.28l.006 2.355h4.985v.702H5.013S1.61 5.012 1.61 10.334c0 5.32 2.973 5.127 2.973 5.127h1.777v-2.49s-.096-2.973 2.92-2.973h4.983s2.825.044 2.825-2.732V2.28S17.472 0 11.898 0zm-2.69 1.488c.478 0 .864.387.864.865a.865.865 0 1 1-1.728 0c0-.478.386-.865.864-.865z"
-                    />
-
-                    <path
-                        fill="#FFD43B"
-                        d="M12.102 24c5.26 0 4.922-2.28 4.922-2.28l-.006-2.355h-4.985v-.702h6.954s3.403.325 3.403-4.997c0-5.32-2.973-5.127-2.973-5.127h-1.777v2.49s.096 2.973-2.92 2.973H9.736s-2.825-.044-2.825 2.732v5.008S6.528 24 12.102 24zm2.69-1.488a.865.865 0 1 1 0-1.73.865.865 0 0 1 0 1.73z"
-                    />
-                </svg>
-            </div>
-
-            <!-- Meta Ads -->
-            <div
-                class="sm-glass-card card-large pos-fbads fly-from-top"
-                title="Meta Ads"
-            >
-                <div class="card-icon-badge">
-                    <svg viewBox="0 0 24 24" class="svg-icon" aria-hidden="true">
-                        <path
-                            fill="#1877F2"
-                            d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"
-                        />
-                    </svg>
-                </div>
-
-                <div class="card-info">
-                    <strong>Meta Campaigns</strong>
-                    <small>Engajamento Total</small>
-                </div>
-            </div>
-
-            <!-- Google Ads -->
-            <div
-                class="sm-glass-card card-large pos-googleads fly-from-right"
-                title="Google Ads"
-            >
-                <div class="card-icon-badge">
-                    <svg viewBox="0 0 24 24" class="svg-icon" aria-hidden="true">
-                        <path
-                            fill="#EA4335"
-                            d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.3 9 5 12 5z"
-                        />
-
-                        <path
-                            fill="#4285F4"
-                            d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.6h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.9z"
-                        />
-
-                        <path
-                            fill="#FBBC05"
-                            d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12.4 0 15.3c0 2.9.7 5.6 1.9 8l3.7-2.9c-.2-.7-.4-1.5-.4-2.3z"
-                        />
-
-                        <path
-                            fill="#34A853"
-                            d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.3-6.4-5.2L1.9 16C3.7 19.7 7.5 22.3 12 23z"
-                        />
-                    </svg>
-                </div>
-
-                <div class="card-info">
-                    <strong>Google Ads</strong>
-                    <small>Conversão de Vendas</small>
-                </div>
-            </div>
-
-            <!-- Analytics -->
-            <div
-                class="sm-glass-card card-analytics-board pos-board fly-from-bottom"
-            >
-                <div class="board-header">
-                    <span>CRESCIMENTO DE SEGUIDORES</span>
-                    <small id="growth-percent">+148%</small>
-                </div>
-
-                <canvas
-                    id="heroAnalyticsCanvas"
-                    width="220"
-                    height="70"
-                    aria-hidden="true"
-                ></canvas>
+                <p
+                    class="hero-text__description"
+                    data-hero-description
+                ><?= escapeHtml($heroMessages[0]['description']) ?></p>
             </div>
 
         </div>
     </section>
 
-
     <!-- =========================================================
-         SECTION 02 — SERVICES / DIGITAL STRATEGY
+         SECTION 02 — SERVICES
          Brain Position: RIGHT
-         Neural 3D sliding service carousel
     ========================================================== -->
-    <?php
-    /*
-     * Section 02 service data.
-     * data/services.json is an empty placeholder in this project, so the
-     * list lives here, scoped to Section 02 only.
-     */
-    $services = [
-        [
-            'number' => '01',
-            'title' => 'Website Design',
-            'summary' => 'Clear, modern interfaces shaped around your brand, your audience, and the action you want visitors to take.',
-            'icon' => 'design'
-        ],
-        [
-            'number' => '02',
-            'title' => 'Website Development',
-            'summary' => 'Fast, responsive, scalable builds — custom code or WordPress, engineered for stability and easy growth.',
-            'icon' => 'development'
-        ],
-        [
-            'number' => '03',
-            'title' => 'SEO Optimization',
-            'summary' => 'Technical, on-page, and content SEO that helps the right people find you first and keeps you visible.',
-            'icon' => 'seo'
-        ],
-        [
-            'number' => '04',
-            'title' => 'Digital Marketing',
-            'summary' => 'Full-funnel campaigns that connect strategy, creative, and media into one measurable growth system.',
-            'icon' => 'marketing'
-        ],
-        [
-            'number' => '05',
-            'title' => 'Social Media Marketing',
-            'summary' => 'Platform-native content and community management that builds attention, engagement, and demand.',
-            'icon' => 'social'
-        ],
-        [
-            'number' => '06',
-            'title' => 'Video Editing',
-            'summary' => 'Short-form and brand films edited for retention — built for reels, paid ads, and every screen.',
-            'icon' => 'video'
-        ],
-        [
-            'number' => '07',
-            'title' => 'Graphic Design',
-            'summary' => 'Campaign visuals, layouts, and design systems kept consistent across every digital touchpoint.',
-            'icon' => 'graphic'
-        ],
-        [
-            'number' => '08',
-            'title' => 'Branding & Identity',
-            'summary' => 'Positioning, voice, and visual identity that make your business instantly recognisable and trusted.',
-            'icon' => 'branding'
-        ],
-        [
-            'number' => '09',
-            'title' => 'E-Commerce Solutions',
-            'summary' => 'Product-led storefronts and optimisation that turn browsing into checkout without friction.',
-            'icon' => 'ecommerce'
-        ],
-        [
-            'number' => '10',
-            'title' => 'Analytics & Reporting',
-            'summary' => 'Tracking, dashboards, and clear reporting so every growth decision is backed by real data.',
-            'icon' => 'analytics'
-        ]
-    ];
-
-    /*
-     * Minimal inline stroke icons (24x24) matching the existing
-     * .svg-icon language used by the hero floating cards.
-     */
-    $serviceIcons = [
-        'design' => '<rect x="3" y="4.5" width="18" height="13" rx="2.2"/><path d="M3 9h18M8.5 21h7M12 17.5V21"/>',
-        'development' => '<path d="M9.2 7.6 4 12l5.2 4.4M14.8 7.6 20 12l-5.2 4.4"/>',
-        'seo' => '<circle cx="10.8" cy="10.8" r="6.2"/><path d="M15.4 15.4 20.5 20.5M8 12.4l2-2.1 1.6 1.6 2.6-2.8"/>',
-        'marketing' => '<path d="M4 10.2v3.6a1 1 0 0 0 1 1h2.1l4.4 3.1V6.1L7.1 9.2H5a1 1 0 0 0-1 1z"/><path d="M15.2 9.4a4 4 0 0 1 0 5.2M18.2 6.8a7.6 7.6 0 0 1 0 10.4"/>',
-        'social' => '<circle cx="6.2" cy="12" r="2.6"/><circle cx="17.4" cy="6.2" r="2.6"/><circle cx="17.4" cy="17.8" r="2.6"/><path d="M8.5 10.7l6.6-3.2M8.5 13.3l6.6 3.2"/>',
-        'video' => '<rect x="3" y="5.2" width="18" height="13.6" rx="2.4"/><path d="M10.6 9.4l4.6 2.6-4.6 2.6z"/>',
-        'graphic' => '<path d="M12 3.2a8.8 8.8 0 1 0 0 17.6h1.5a2 2 0 0 0 1.4-3.4 2 2 0 0 1 1.4-3.4h1.4a3 3 0 0 0 3-3A8.6 8.6 0 0 0 12 3.2z"/><circle cx="8.2" cy="10.4" r="1.05"/><circle cx="12" cy="7.6" r="1.05"/><circle cx="15.6" cy="10.4" r="1.05"/>',
-        'branding' => '<path d="M12 3.4l2.5 5.1 5.6.8-4.1 4 1 5.6-5-2.7-5 2.7 1-5.6-4.1-4 5.6-.8z"/>',
-        'ecommerce' => '<path d="M3.2 4.8h1.8l2.2 9.3a1 1 0 0 0 1 .77h8.4a1 1 0 0 0 1-.78l1.6-6.5H6"/><circle cx="9.6" cy="19" r="1.3"/><circle cx="17.2" cy="19" r="1.3"/>',
-        'analytics' => '<path d="M4.2 20V11.2M9.6 20V4.8M15 20v-6.4M20.4 20H3.4"/>'
-    ];
-    ?>
     <section
         id="strategy"
         class="home-section home-section--strategy"
         data-brain-section="2"
         data-brain-position="right"
-        aria-labelledby="strategy-title"
     >
-
-        <div class="home-section__inner services-carousel" data-service-carousel>
-
-            <div class="services-carousel__head home-section__content">
-
-                <span class="home-section__number">01</span>
-
-                <p class="home-section__eyebrow">
-                    WHAT WE DO
-                </p>
-
-                <h2 id="strategy-title" class="home-section__title">
-                    Our Services
-                </h2>
-
-                <p class="home-section__description">
-                    Ten connected capabilities, one growth system.
-                    From strategy and design to performance and analytics,
-                    every service is built to move your business forward.
-                </p>
-
-                <div class="home-section__meta">
-                    <span>Research</span>
-                    <span>Positioning</span>
-                    <span>Growth Planning</span>
-                </div>
-
-            </div>
-
-            <div
-                class="services-carousel__stage"
-                data-carousel-stage
-                role="group"
-                aria-roledescription="carousel"
-                aria-label="Max Digital Marketing services"
-                tabindex="0"
-            >
-
-                <div class="services-carousel__ring" data-carousel-track>
-
-                    <?php foreach ($services as $index => $service): ?>
-
-                        <article
-                            class="services-carousel__card"
-                            data-carousel-card
-                            data-index="<?= (int) $index ?>"
-                            role="group"
-                            aria-roledescription="slide"
-                            aria-label="<?= escapeHtml($service['number'] . ' — ' . $service['title']) ?>"
-                        >
-
-                            <span class="services-carousel__beam" aria-hidden="true"></span>
-
-                            <div class="services-carousel__card-top">
-
-                                <span class="services-carousel__count"><?= escapeHtml($service['number']) ?></span>
-
-                                <span class="services-carousel__corner" aria-hidden="true">&nearr;</span>
-
-                            </div>
-
-                            <span class="services-carousel__icon" aria-hidden="true">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><?= $serviceIcons[$service['icon']] ?></svg>
-                            </span>
-
-                            <h3 class="services-carousel__card-title">
-                                <?= escapeHtml($service['title']) ?>
-                            </h3>
-
-                            <p class="services-carousel__card-text">
-                                <?= escapeHtml($service['summary']) ?>
-                            </p>
-
-                            <span class="services-carousel__rule" aria-hidden="true"></span>
-
-                            <a
-                                class="services-carousel__cta"
-                                href="services.php"
-                                data-carousel-link
-                            >
-                                Explore Service
-                                <span aria-hidden="true">&rarr;</span>
-                            </a>
-
-                        </article>
-
-                    <?php endforeach; ?>
-
-                </div>
-
-            </div>
-
-            <div class="services-carousel__controls">
-
-                <button
-                    type="button"
-                    class="services-carousel__button"
-                    data-carousel-prev
-                    aria-label="Previous service"
-                >
-                    <span aria-hidden="true">&larr;</span>
-                </button>
-
-                <p class="services-carousel__status" aria-live="polite">
-                    <span data-carousel-current>01</span>
-                    <span class="services-carousel__status-sep" aria-hidden="true">/</span>
-                    <span><?= str_pad((string) count($services), 2, '0', STR_PAD_LEFT) ?></span>
-                </p>
-
-                <button
-                    type="button"
-                    class="services-carousel__button"
-                    data-carousel-next
-                    aria-label="Next service"
-                >
-                    <span aria-hidden="true">&rarr;</span>
-                </button>
-
-            </div>
-
-        </div>
+        <div class="home-section__inner"></div>
     </section>
-
 
     <!-- =========================================================
          SECTION 03 — WEBSITE & EXPERIENCE
@@ -488,44 +382,9 @@ require_once __DIR__ . '/includes/navbar.php';
         class="home-section home-section--website"
         data-brain-section="3"
         data-brain-position="left"
-        aria-labelledby="website-title"
     >
-
-        <div class="home-section__inner">
-
-            <div class="home-section__content">
-
-                <span class="home-section__number">02</span>
-
-                <p class="home-section__eyebrow">
-                    WEB DEVELOPMENT
-                </p>
-
-                <h2 id="website-title" class="home-section__title">
-                    Websites Built to Create Trust
-                </h2>
-
-                <p class="home-section__description">
-                    Your website is more than a digital address.
-                    We build modern, responsive, conversion-focused experiences
-                    designed to communicate your value and guide visitors toward action.
-                </p>
-
-                <div class="home-section__meta">
-                    <span>UI / UX</span>
-                    <span>WordPress</span>
-                    <span>Custom Development</span>
-                </div>
-
-                <a class="button button--primary" href="portfolio.php">
-                    View Our Work
-                </a>
-
-            </div>
-
-        </div>
+        <div class="home-section__inner"></div>
     </section>
-
 
     <!-- =========================================================
          SECTION 04 — PERFORMANCE MARKETING
@@ -536,44 +395,9 @@ require_once __DIR__ . '/includes/navbar.php';
         class="home-section home-section--performance"
         data-brain-section="4"
         data-brain-position="right"
-        aria-labelledby="performance-title"
     >
-
-        <div class="home-section__inner">
-
-            <div class="home-section__content">
-
-                <span class="home-section__number">03</span>
-
-                <p class="home-section__eyebrow">
-                    PERFORMANCE MARKETING
-                </p>
-
-                <h2 id="performance-title" class="home-section__title">
-                    Turn Attention Into Real Results
-                </h2>
-
-                <p class="home-section__description">
-                    From Google Ads to Meta campaigns, we focus on reaching the
-                    right audience, testing the right message, and improving
-                    performance through measurable data.
-                </p>
-
-                <div class="home-section__meta">
-                    <span>Google Ads</span>
-                    <span>Meta Ads</span>
-                    <span>Analytics</span>
-                </div>
-
-                <a class="button button--primary" href="services.php">
-                    See Marketing Services
-                </a>
-
-            </div>
-
-        </div>
+        <div class="home-section__inner"></div>
     </section>
-
 
     <!-- =========================================================
          SECTION 05 — CREATIVE & CONTENT
@@ -584,44 +408,9 @@ require_once __DIR__ . '/includes/navbar.php';
         class="home-section home-section--creative"
         data-brain-section="5"
         data-brain-position="left"
-        aria-labelledby="creative-title"
     >
-
-        <div class="home-section__inner">
-
-            <div class="home-section__content">
-
-                <span class="home-section__number">04</span>
-
-                <p class="home-section__eyebrow">
-                    CREATIVE & CONTENT
-                </p>
-
-                <h2 id="creative-title" class="home-section__title">
-                    Make People Stop, Notice, and Remember
-                </h2>
-
-                <p class="home-section__description">
-                    Creative is where strategy becomes visible.
-                    We create digital content, branding, social media assets,
-                    videos, and visual experiences that communicate clearly.
-                </p>
-
-                <div class="home-section__meta">
-                    <span>Branding</span>
-                    <span>Content</span>
-                    <span>Video</span>
-                </div>
-
-                <a class="button button--primary" href="portfolio.php">
-                    Explore Creative Work
-                </a>
-
-            </div>
-
-        </div>
+        <div class="home-section__inner"></div>
     </section>
-
 
     <!-- =========================================================
          SECTION 06 — TECHNOLOGY / AI
@@ -632,91 +421,49 @@ require_once __DIR__ . '/includes/navbar.php';
         class="home-section home-section--technology"
         data-brain-section="6"
         data-brain-position="center"
-        aria-labelledby="technology-title"
     >
-
-        <div class="home-section__inner">
-
-            <div class="home-section__content">
-
-                <span class="home-section__number">05</span>
-
-                <p class="home-section__eyebrow">
-                    TECHNOLOGY & AI
-                </p>
-
-                <h2 id="technology-title" class="home-section__title">
-                    Human Thinking. Digital Intelligence.
-                </h2>
-
-                <p class="home-section__description">
-                    We use modern technology and AI-assisted workflows to research,
-                    create, analyze, automate, and improve digital experiences
-                    without losing the human side of communication.
-                </p>
-
-                <div class="home-section__meta">
-                    <span>AI Workflows</span>
-                    <span>Automation</span>
-                    <span>Data</span>
-                </div>
-
-                <a class="button button--primary" href="about.php">
-                    Learn About Max
-                </a>
-
-            </div>
-
-        </div>
+        <div class="home-section__inner"></div>
     </section>
 
+    <!-- =========================================================
+         SECTION 07 — ABOUT
+         Brain Position: LEFT
+    ========================================================== -->
+    <section
+        id="about"
+        class="home-section home-section--about"
+        data-brain-section="7"
+        data-brain-position="left"
+    >
+        <div class="home-section__inner"></div>
+    </section>
 
     <!-- =========================================================
-         SECTION 07 — FINAL CTA / DEEP BRAIN
+         SECTION 08 — OUR WORK / PORTFOLIO
+         No data-brain-section here, by design: that attribute
+         is read positionally, so adding a section before it would
+         shift the Brain pose of every following section. It
+         inherits the 06 -> 07 transition instead.
+    ========================================================== -->
+    <section
+        id="work"
+        class="home-section home-section--portfolio"
+        data-portfolio
+    >
+        <div class="home-section__inner"></div>
+    </section>
+
+    <!-- =========================================================
+         SECTION 09 — FINAL CTA
          Brain Position: CENTER
     ========================================================== -->
     <section
         id="contact-cta"
         class="home-section home-section--cta"
-        data-brain-section="7"
+        data-brain-section="8"
         data-brain-position="center"
-        aria-labelledby="cta-title"
     >
-
-        <div class="home-section__inner">
-
-            <div class="home-section__content">
-
-                <span class="home-section__number">06</span>
-
-                <p class="home-section__eyebrow">
-                    LET'S BUILD SOMETHING
-                </p>
-
-                <h2 id="cta-title" class="home-section__title">
-                    Your Next Digital Growth Story Starts Here.
-                </h2>
-
-                <p class="home-section__description">
-                    Have an idea, a business, or a digital problem to solve?
-                    Let's turn it into a clear strategy and a real digital experience.
-                </p>
-
-                <div class="home-section__actions">
-
-                    <a class="button button--primary" href="contact.php">
-                        Start a Project
-                    </a>
-
-                    <a class="button button--secondary" href="portfolio.php">
-                        View Portfolio
-                    </a>
-
-                </div>
-
-            </div>
-
-        </div>
+        <div class="home-section__inner"></div>
     </section>
 
 </main>
@@ -726,9 +473,22 @@ require_once __DIR__ . '/includes/navbar.php';
      JAVASCRIPT
 ============================================================== -->
 
+<!--
+     Deferred scripts execute in document order. The loading
+     experience (page-loader.js) runs first; js/brain.js is
+     untouched.
+
+     edge-nav.js runs after page-loader.js and before brain.js.
+     It only flips one data attribute, so it cannot affect how
+     the canvas is sized or drawn.
+-->
+<script src="js/page-loader.js" defer></script>
+<script src="js/edge-nav.js" defer></script>
+
 <script src="js/brain.js" defer></script>
 <script src="js/service-panel.js" defer></script>
 <script src="js/service-carousel.js" defer></script>
+<script src="js/portfolio.js" defer></script>
 <script src="js/drag-cards.js" defer></script>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

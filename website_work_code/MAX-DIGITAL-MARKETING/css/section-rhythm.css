@@ -1,0 +1,288 @@
+/* =========================================================
+   HOME PAGE — SECTION BACKGROUND RHYTHM
+   Max Digital Marketing
+   ---------------------------------------------------------
+   ONE file, ONE job: the alternating dark / light background
+   sequence down the home page.
+
+       01 hero          DARK
+       02 strategy      LIGHT
+       03 website       DARK
+       04 performance   LIGHT
+       05 creative      DARK
+       06 technology    LIGHT
+       07 about         DARK
+       08 work          DARK   (footer-anchored)
+       09 contact-cta   untouched
+
+   WHY THIS IS ITS OWN FILE
+     Every section stylesheet already owns its own interior (cards,
+     grids, diagrams). Background rhythm is a page-level concern, so
+     keeping it separate means adding it cannot disturb any of them.
+     It is loaded LAST and only overrides the `background` property
+     of the section root, which is why the change is surgical.
+
+   BRAIN VISIBILITY — THE IMPORTANT PART
+     style.css:133 documents the required contract: the Brain canvas
+     (z-index: 1) must paint ABOVE every section background but BELOW
+     all content. That only works when a section does NOT create its
+     own stacking context.
+
+     Six sections previously set `isolation: isolate`, which trapped
+     the canvas behind their background and hid the Brain entirely.
+     This file switches them to `isolation: auto` so the Brain stays
+     visible on BOTH dark and light sections. No Brain code changes.
+
+   COLOUR SOURCES — both are reused, not invented
+     DARK  : the existing hero/page atmosphere
+             (style.css:67 .page--home and the dark sections)
+     LIGHT : the existing premium white treatment
+             (css/technology.css + css/creative.css)
+   ========================================================= */
+
+/* ---------------------------------------------------------
+   SHARED CONTRACT
+   Applied to every home section. Restating the documented
+   architecture so the rhythm never depends on load order.
+   --------------------------------------------------------- */
+
+.page--home .home-section {
+    /*
+     * No z-index and no isolation => this element does not create a
+     * stacking context, so the fixed Brain canvas (z-index: 1) paints
+     * above the background painted here, and section content — which
+     * sits in normal flow above both — stays readable on top of it.
+     */
+    isolation: auto;
+    z-index: auto;
+}
+
+/* ---------------------------------------------------------
+   01 — HERO  ·  DARK
+   The hero is the page's opening statement and already sits on
+   the dark page backdrop, so it keeps that: transparent, letting
+   .page--home show through. This is the existing treatment.
+   --------------------------------------------------------- */
+
+.page--home .home-section--hero {
+    background: transparent;
+}
+
+/* ---------------------------------------------------------
+   02 — SERVICES  ·  LIGHT
+   --------------------------------------------------------- */
+
+.page--home .home-section--strategy {
+    background:
+        radial-gradient(
+            circle at 68% 42%,
+            rgba(45, 100, 220, 0.07),
+            transparent 34%
+        ),
+        linear-gradient(
+            180deg,
+            #ffffff 0%,
+            #f6f8fd 100%
+        );
+
+    color: var(--color-text);
+}
+
+/* ---------------------------------------------------------
+   03 — WEBSITE & EXPERIENCE  ·  DARK
+   Matches the established dark surface so the alternation
+   reads as one continuous system.
+   --------------------------------------------------------- */
+
+.page--home .home-section--website {
+    background:
+        radial-gradient(
+            circle at 30% 40%,
+            rgba(24, 64, 150, 0.16),
+            transparent 40%
+        ),
+        linear-gradient(
+            180deg,
+            #050912 0%,
+            #07101f 50%,
+            #040811 100%
+        );
+
+    color: var(--color-hero-text);
+}
+
+/* ---------------------------------------------------------
+   04 — PERFORMANCE MARKETING  ·  LIGHT
+   --------------------------------------------------------- */
+
+.page--home .home-section--performance {
+    background:
+        radial-gradient(
+            circle at 32% 58%,
+            rgba(45, 100, 220, 0.075),
+            transparent 34%
+        ),
+        linear-gradient(
+            180deg,
+            #f8faff 0%,
+            #ffffff 100%
+        );
+
+    color: var(--color-text);
+}
+
+/* ---------------------------------------------------------
+   05 — CREATIVE & CONTENT  ·  DARK
+   This section was the only light one before; it now takes the
+   dark surface so the rhythm alternates cleanly.
+   --------------------------------------------------------- */
+
+.page--home .home-section--creative {
+    background:
+        radial-gradient(
+            circle at 70% 50%,
+            rgba(24, 64, 150, 0.14),
+            transparent 38%
+        ),
+        linear-gradient(
+            180deg,
+            #050912 0%,
+            #07101f 50%,
+            #040811 100%
+        );
+
+    color: var(--color-hero-text);
+}
+
+/* ---------------------------------------------------------
+   06 — TECHNOLOGY / AI  ·  LIGHT
+   --------------------------------------------------------- */
+
+.page--home .home-section--technology {
+    background:
+        radial-gradient(
+            circle at 50% 45%,
+            rgba(45, 100, 220, 0.08),
+            transparent 40%
+        ),
+        linear-gradient(
+            180deg,
+            #ffffff 0%,
+            #f5f8fe 100%
+        );
+
+    color: var(--color-text);
+}
+
+/* ---------------------------------------------------------
+   07 — ABOUT  ·  DARK
+   --------------------------------------------------------- */
+
+.page--home .home-section--about {
+    background:
+        radial-gradient(
+            circle at 72% 45%,
+            rgba(24, 64, 150, 0.18),
+            transparent 44%
+        ),
+        linear-gradient(
+            180deg,
+            #050912 0%,
+            #07101f 50%,
+            #040811 100%
+        );
+
+    color: var(--color-hero-text);
+}
+
+/* ---------------------------------------------------------
+   08 — OUR WORK  ·  DARK  (footer-anchored)
+   The deepest surface in the page, leading into the CTA and the
+   footer, so the sequence resolves to near-black.
+   --------------------------------------------------------- */
+
+.page--home .home-section--portfolio {
+    background:
+        radial-gradient(
+            circle at 50% 42%,
+            rgba(20, 54, 122, 0.22),
+            transparent 52%
+        ),
+        linear-gradient(
+            180deg,
+            #04070e 0%,
+            #060b16 46%,
+            #03060c 100%
+        );
+
+    color: var(--color-hero-text);
+}
+
+/* ---------------------------------------------------------
+   09 — FINAL CTA
+   Deliberately NOT styled here. It is the closing statement and
+   already owns the darkest surface in the project. Section 09
+   keeps its existing background and its existing isolation
+   behaviour untouched, per the brief.
+   --------------------------------------------------------- */
+
+/* ---------------------------------------------------------
+   TEXT LEGIBILITY
+   The shared content classes were authored for a dark page. On the
+   light sections they would otherwise inherit the page's near-white
+   text and disappear, so they are re-pointed at the existing light
+   tokens. This only restores readability; it adds no new styling.
+   --------------------------------------------------------- */
+
+.page--home .home-section--strategy .home-section__title,
+.page--home .home-section--performance .home-section__title,
+.page--home .home-section--technology .home-section__title {
+    color: var(--color-text);
+}
+
+.page--home .home-section--strategy .home-section__description,
+.page--home .home-section--performance .home-section__description,
+.page--home .home-section--technology .home-section__description,
+.page--home .home-section--strategy .home-section__meta span,
+.page--home .home-section--performance .home-section__meta span,
+.page--home .home-section--technology .home-section__meta span {
+    color: var(--color-text-muted);
+}
+
+.page--home .home-section--strategy .home-section__eyebrow,
+.page--home .home-section--performance .home-section__eyebrow,
+.page--home .home-section--technology .home-section__eyebrow,
+.page--home .home-section--strategy .home-section__number,
+.page--home .home-section--performance .home-section__number,
+.page--home .home-section--technology .home-section__number {
+    color: var(--color-primary);
+}
+
+/* Dark sections keep the light-on-dark treatment they already had. */
+.page--home .home-section--website .home-section__title,
+.page--home .home-section--creative .home-section__title,
+.page--home .home-section--about .home-section__title,
+.page--home .home-section--portfolio .home-section__title,
+.page--home .home-section--hero .home-section__title {
+    color: var(--color-hero-text);
+}
+
+.page--home .home-section--website .home-section__description,
+.page--home .home-section--creative .home-section__description,
+.page--home .home-section--about .home-section__description,
+.page--home .home-section--portfolio .home-section__description,
+.page--home .home-section--hero .home-section__description {
+    color: var(--color-hero-muted);
+}
+
+/* ---------------------------------------------------------
+   NO HORIZONTAL OVERFLOW
+   Decorative layers are already inset beyond the section edge in
+   their own stylesheets. This pins the page-level guarantee so a
+   wide gradient can never introduce a horizontal scrollbar.
+   --------------------------------------------------------- */
+
+.page--home {
+    overflow-x: clip;
+}
+

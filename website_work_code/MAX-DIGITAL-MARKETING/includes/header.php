@@ -46,6 +46,8 @@ function escapeHtml(string $value): string
     <link rel="stylesheet" href="css/technology.css">
     <link rel="stylesheet" href="css/cta.css">
     <link rel="stylesheet" href="css/creative.css">
+    <link rel="stylesheet" href="css/about.css">
+    <link rel="stylesheet" href="css/portfolio.css">
 <?php foreach ($pageStyles as $styleHref): ?>
     <link rel="stylesheet" href="<?= escapeHtml((string) $styleHref) ?>">
 <?php endforeach; ?>
