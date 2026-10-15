@@ -19,7 +19,29 @@ This is a **local-first** personal assistant project. It starts with a command-l
 You should see a Python version message. Later, you will create a virtual environment and install packages.
 
 ## Project structure
-[insert directory tree from final review]
+
+PETER__PLAENT/
+- app/
+  - cli/
+- core/
+- agents/
+- database/
+- integrations/
+- workflows/
+- tests/
+- data/
+- logs/
+- templates/
+- docs/
+
+- README.md
+- ROADMAP.md
+- ARCHITECTURE.md
+- SECURITY.md
+- CHANGELOG.md
+- PETER_PLANET_MASTER_PLAN.md
+- .gitignore
+- .env.example
 
 ## Next steps
 1. Review ARCHITECTURE.md and ROADMAP.md.

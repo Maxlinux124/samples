@@ -11,7 +11,7 @@ This document explains how the main parts of the project fit together. It uses s
 
 ## 2. Intended directory tree
 
-peter-planet/
+PETER__PLAENT/
 │
 ├── app/                     # User-facing application code (entry points, CLI commands)
 ├── core/                    # Central coordinator + core business logic (Peter Core)
@@ -28,6 +28,11 @@ peter-planet/
 ├── README.md                # Getting started + quick overview
 ├── ROADMAP.md               # Planned features and phases
 ├── ARCHITECTURE.md          # How components fit together
+├── SECURITY.md              # Security basics for beginners
+├── CHANGELOG.md             # Simple record of changes over time
+├── PETER_PLANET_MASTER_PLAN.md # Main planning and decision reference
+├── .gitignore               # Files Git should not track
+└── .env.example             # Example environment variables (no real secrets)
 ├── SECURITY.md              # Security basics for beginners
 ├── CHANGELOG.md             # Simple record of changes over time
 ├── .gitignore               # Files Git should not track
