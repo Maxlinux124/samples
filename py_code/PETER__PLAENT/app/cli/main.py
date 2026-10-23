@@ -1,25 +1,48 @@
+"""Peter Planet CLI — first interactive menu.
+
+Only Python standard library.
+No internet. No AI. No database.
+"""
+
+APP_NAME = "Peter Planet CLI"
+APP_VERSION = "v0.1.0"
+TAGLINE = "One Vision. One AI Team. One Planet of Possibilities."
+
+LINE = "=" * 56
+THIN = "-" * 56
+
+
 def show_header():
     """Show the application name, version, and tagline."""
-    print("Peter Planet CLI v0.1.0")
-    print("One Vision. One AI Team. One Planet.")
+    print(LINE)
+    print(f"  {APP_NAME}  {APP_VERSION}")
+    print(f"  {TAGLINE}")
+    print(LINE)
     print()
 
 
 def show_status():
     """Show the honest system status."""
+    rows = [
+        ("Application", "Ready"),
+        ("Python CLI", "Active"),
+        ("AI Engine", "Not connected"),
+        ("Google", "Not connected"),
+        ("YouTube", "Not connected"),
+        ("Database", "Not connected"),
+    ]
+
     print("System Status")
-    print("  Application: Ready")
-    print("  Python CLI: Active")
-    print("  AI Engine: Not connected")
-    print("  Google: Not connected")
-    print("  YouTube: Not connected")
-    print("  Database: Not connected")
+    print(THIN)
+    for label, value in rows:
+        print(f"  {label:<12} : {value}")
     print()
 
 
 def show_menu():
     """Show the main menu."""
     print("Main Menu")
+    print(THIN)
     print("  1. System Status")
     print("  2. About Peter Planet")
     print("  0. Exit")
@@ -29,9 +52,10 @@ def show_menu():
 def show_about():
     """Show a short explanation of Peter Planet."""
     print("About Peter Planet")
-    print("Peter Planet is a local-first personal assistant project.")
-    print("It starts with a command-line interface and a SQLite database.")
-    print("AI integrations are optional and disabled by default.")
+    print(THIN)
+    print("  Peter Planet is a local-first personal assistant project.")
+    print("  It starts with a command-line interface and a SQLite database.")
+    print("  AI integrations are optional and disabled by default.")
     print()
 
 
@@ -42,9 +66,11 @@ def choose_choice(choice):
     elif choice == "2":
         show_about()
     elif choice == "0":
-        print("Goodbye.")
+        print("Goodbye, friend. Peter is always here.")
+        print()
     else:
         print("Invalid choice. Please enter 0, 1, or 2.")
+        print()
 
 
 def main():
@@ -54,11 +80,11 @@ def main():
     while True:
         try:
             show_menu()
-
             choice = input("Select an option: ").strip()
 
             if not choice:
                 print("Invalid choice. Please enter 0, 1, or 2.")
+                print()
                 continue
 
             choose_choice(choice)
@@ -68,10 +94,9 @@ def main():
 
         except (KeyboardInterrupt, EOFError):
             print()
-            print("Goodbye.")
+            print("Goodbye, friend. Peter is always here.")
             break
 
 
 if __name__ == "__main__":
     main()
-

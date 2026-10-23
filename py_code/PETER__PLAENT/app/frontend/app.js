@@ -1,4 +1,7 @@
-﻿const app = window.app || {};
+import { initNeuralCanvas } from "./neural-canvas.js";
+
+const app = window.app || {};
+let isInitialized = false;
 
 // Configuration
 app.apiBase = ""; // Since we serve from the same origin, use relative paths
@@ -9,6 +12,7 @@ app.isSpeaking = false;     // Speech synthesis active
 app.neuralEngine = null;    // Will be set once the neural engine is loaded
 
 app.init = () => {
+    if (isInitialized) return;
     const clock = document.getElementById("clock");
     if (clock) {
         const tick = () => {
@@ -19,41 +23,20 @@ app.init = () => {
         tick();
     }
 
-    const indicator = document.getElementById("connectionIndicator");
-    const dot = indicator?.querySelector(".dot");
-    if (indicator && dot) {
-        dot.style.background = "var(--cyan)";
-        indicator.querySelector("span").textContent = "Local";
-    }
-
     const greeting = document.getElementById("greeting");
     if (greeting) {
-        greeting.textContent = "Peter Planet initialized. Neural visualization online.";
+        greeting.textContent = "Neural visualization ready. Chat service status is being checked.";
     }
 
-    const log = document.getElementById("activityList");
-    if (log) {
-        const logActivity = (text, type = "info") => {
-            const node = document.createElement("div");
-            node.className = "activity-item" + (type ? " " + type : "");
-            node.textContent = text;
-            log.appendChild(node);
-            requestAnimationFrame(() => {
-                log.lastElementChild.scrollIntoView({ behavior: "smooth", block: "nearest" });
-            });
-        };
-
-        logActivity("Application startup", "audit");
-        logActivity("Frontend ready", "audit");
-    }
-
+    app.logActivity("Application startup", "audit");
+    app.logActivity("Frontend ready", "audit");
     const clearBtn = document.getElementById("clearChatBtn");
     if (clearBtn) {
         clearBtn.addEventListener("click", () => {
             const messages = document.querySelectorAll(".chat-messages .message");
             messages.forEach((item) => item.remove());
             app.addMessage("Peter", "Conversation cleared.");
-            logActivity("Conversation cleared", "info");
+            app.logActivity("Conversation cleared", "info");
         });
     }
 
@@ -66,7 +49,7 @@ app.init = () => {
             app.sendMessageToBackend(text);
             messageInput.value = "";
             messageInput.style.height = "auto";
-            logActivity("Message submitted", "audit");
+            app.logActivity("Message submitted", "audit");
         });
 
         messageInput.addEventListener("keydown", (e) => {
@@ -107,22 +90,24 @@ app.init = () => {
         modalBackdrop.addEventListener("click", close);
     }
 
+    document.querySelectorAll(".nav-link[href^='#']").forEach((link) => {
+        link.addEventListener("click", () => {
+            document.querySelectorAll(".nav-link[href^='#']").forEach((item) => item.classList.remove("active"));
+            link.classList.add("active");
+        });
+    });
+
     // Initialize voice engine
     app.initVoiceEngine();
 
     // Start checking backend health
     app.startHealthChecks();
 
-    // Wait for neural engine to be exposed (it's set in neural-canvas.js)
-    setTimeout(() => {
-        app.neuralEngine = window.neuralEngine;
-        if (app.neuralEngine) {
-            app.updateNeuralEngineState(); // Set initial state
-            logActivity("Neural engine ready", "audit");
-        } else {
-            logActivity("Neural engine not found", "error");
-        }
-    }, 100);
+    app.neuralEngine = initNeuralCanvas();
+    app.neuralEngine.start();
+    app.updateNeuralEngineState();
+    app.logActivity("Neural animation ready", "audit");
+    isInitialized = true;
 };
 
 app.addMessage = (from, text) => {
@@ -138,7 +123,14 @@ app.addMessage = (from, text) => {
     messages.scrollTop = messages.scrollHeight;
 };
 
+app.setChatMode = (mode) => {
+    const badge = document.getElementById("chatMode");
+    if (!badge) return;
+    badge.textContent = mode ? (mode === "demo" ? "Demo Mode" : `${mode} mode`) : "Mode unavailable";
+};
+
 app.sendMessageToBackend = async (text) => {
+    app.addMessage("Me", text);
     // Set processing state
     app.isProcessing = true;
     app.updateNeuralEngineState();
@@ -157,6 +149,7 @@ app.sendMessageToBackend = async (text) => {
         }
 
         const data = await response.json();
+        if (data.mode) app.setChatMode(data.mode);
         const reply = data.reply || "Sorry, I didn't understand that.";
         app.addMessage("Peter", reply);
         app.logActivity("Backend response received", "audit");
@@ -190,34 +183,32 @@ app.updateNeuralEngineState = () => {
     app.neuralEngine.setState(newState);
 };
 
+app.setStatusLabel = (id, text, state) => {
+    const label = document.getElementById(id);
+    if (!label) return;
+    label.textContent = text;
+    label.className = "status-value " + (state || "checking");
+};
+
 app.setConnectionStatus = (status) => {
     const indicator = document.getElementById("connectionIndicator");
     const dot = indicator?.querySelector(".dot");
-    const textSpan = indicator?.querySelector("span");
+    const textSpan = indicator?.querySelector("span:last-child");
     if (!indicator || !dot || !textSpan) return;
 
-    switch (status) {
-        case "connected":
-            dot.style.background = "var(--green)";
-            textSpan.textContent = "Connected";
-            break;
-        case "connecting":
-            dot.style.background = "var(--yellow)";
-            textSpan.textContent = "Connecting...";
-            break;
-        case "disconnected":
-            dot.style.background = "var(--red)";
-            textSpan.textContent = "Disconnected";
-            break;
-        case "error":
-            dot.style.background = "var(--red)";
-            textSpan.textContent = "Error";
-            break;
-        default:
-            dot.style.background = "var(--cyan)";
-            textSpan.textContent = "Local";
-    }
+    const states = {
+        connected: ["Backend running", "#62d6a5"],
+        connecting: ["Checking backend", "#e7bd68"],
+        disconnected: ["Backend unavailable", "#f07882"],
+        error: ["Backend error", "#f07882"]
+    };
+    const [label, color] = states[status] || states.connecting;
+    dot.style.background = color;
+    dot.style.boxShadow = "0 0 12px " + color + "55";
+    textSpan.textContent = label;
+    indicator.dataset.state = status;
 };
+
 
 app.startHealthChecks = () => {
     // Initial check
@@ -227,26 +218,63 @@ app.startHealthChecks = () => {
 };
 
 app.checkBackendHealth = async () => {
-    app.setConnectionStatus("connecting");
     try {
-        const response = await fetch(`${app.apiBase}/api/health`, {
-            timeout: 3000
-        });
-        if (response.ok) {
-            app.setConnectionStatus("connected");
-        } else {
-            app.setConnectionStatus("error");
+        const healthResponse = await fetch(`${app.apiBase}/api/health`);
+        if (!healthResponse.ok) throw new Error("Health endpoint returned an error");
+        const health = await healthResponse.json();
+        if (health.status !== "ok") throw new Error("Backend health check failed");
+
+        app.setConnectionStatus("connected");
+        app.setStatusLabel("backendStatus", "Running", "ok");
+
+        try {
+            const statusResponse = await fetch(`${app.apiBase}/api/status`);
+            if (!statusResponse.ok) throw new Error("Status endpoint returned an error");
+            const status = await statusResponse.json();
+            const services = status.services || {};
+
+            app.setStatusLabel("backendStatus", status.backend === "running" ? "Running" : "Unavailable", status.backend === "running" ? "ok" : "unavailable");
+            app.setStatusLabel("aiEngineStatus", services.ai_engine === "demo" ? "Demo responses" : (services.ai_engine || "Unavailable"), services.ai_engine === "demo" ? "demo" : "unavailable");
+            app.setStatusLabel("databaseStatus", services.database === "disconnected" ? "Not connected" : (services.database || "Unavailable"), services.database === "disconnected" ? "off" : "unavailable");
+            app.setChatMode(services.ai_engine === "demo" ? "demo" : null);
+            const greeting = document.getElementById("greeting");
+            if (greeting) greeting.textContent = services.ai_engine === "demo" ? "Local demo chat is available. Voice input is optional." : "Backend status loaded.";
+        } catch (statusError) {
+            console.warn("Backend status check failed:", statusError);
+            app.setStatusLabel("aiEngineStatus", "Unavailable", "unavailable");
+            app.setStatusLabel("databaseStatus", "Unavailable", "unavailable");
+            app.setChatMode(null);
+            const greeting = document.getElementById("greeting");
+            if (greeting) greeting.textContent = "Backend is running, but service details are unavailable.";
         }
     } catch (error) {
         console.warn("Health check failed:", error);
         app.setConnectionStatus("disconnected");
+        app.setStatusLabel("backendStatus", "Unavailable", "unavailable");
+        app.setStatusLabel("aiEngineStatus", "Unavailable", "unavailable");
+        app.setStatusLabel("databaseStatus", "Unavailable", "unavailable");
+        app.setChatMode(null);
+        const greeting = document.getElementById("greeting");
+        if (greeting) greeting.textContent = "Backend unavailable. Chat requires the local server.";
     }
 };
+
 
 app.initVoiceEngine = () => {
     // Check if speech recognition and synthesis are supported
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     const speechSynthesis = window.speechSynthesis;
+
+    const recognitionAvailable = !!SpeechRecognition;
+    const synthesisAvailable = !!speechSynthesis;
+    app.setStatusLabel("speechRecognitionStatus", recognitionAvailable ? "Available" : "Unavailable", recognitionAvailable ? "ok" : "off");
+    app.setStatusLabel("speechSynthesisStatus", synthesisAvailable ? "Available" : "Unavailable", synthesisAvailable ? "ok" : "off");
+    const recognitionSettings = document.getElementById("recognitionStatusText");
+    const synthesisSettings = document.getElementById("synthesisStatusText");
+    if (recognitionSettings) recognitionSettings.textContent = recognitionAvailable ? "Available" : "Unavailable";
+    if (synthesisSettings) synthesisSettings.textContent = synthesisAvailable ? "Available" : "Unavailable";
+    const microphoneStatus = document.getElementById("micPermissionText");
+    if (microphoneStatus) microphoneStatus.textContent = "Not requested";
 
     app.voiceEngine = {
         recognition: null,
@@ -313,7 +341,7 @@ app.initVoiceEngine = () => {
             app.updateVoiceButton();
         },
         toggle: async () => {
-            if (app.voiceEngine.isListening) {
+            if (app.voiceEngine.isListening()) {
                 await app.voiceEngine.stop();
             } else {
                 await app.voiceEngine.start();
@@ -345,12 +373,21 @@ app.initVoiceEngine = () => {
     };
 
     app.voiceEngine.init();
+    app.updateVoiceButton();
 };
 
 app.updateVoiceButton = () => {
     const voiceBtn = document.getElementById("voiceButton");
     if (!voiceBtn || !app.voiceEngine) return;
 
+    if (!app.voiceEngine.recognition) {
+        voiceBtn.disabled = true;
+        voiceBtn.setAttribute("aria-label", "Voice input unavailable");
+        voiceBtn.setAttribute("title", "Speech recognition is unavailable");
+        return;
+    }
+
+    voiceBtn.disabled = false;
     if (app.voiceEngine.isListening()) {
         voiceBtn.classList.add("active");
         voiceBtn.setAttribute("aria-label", "Stop voice input");
@@ -362,27 +399,16 @@ app.updateVoiceButton = () => {
     }
 };
 
+
 app.updateModules = () => {
-    const buttons = document.querySelectorAll(".module-card");
-    buttons.forEach((button) => {
-        const label = button.querySelector("span:not(.badge)").textContent.toLowerCase();
-        if (label.includes("core")) {
-            // Check if the neural engine is in a state that indicates connection
-            // For demo, we consider it connected if it's not IDLE? Or we can use a flag.
-            // We'll say it's connected if the neural engine is not in IDLE state.
-            if (app.neuralEngine && app.neuralEngine.state !== "IDLE") {
-                button.querySelector(".badge").textContent = "Connected";
-                button.classList.remove("disabled");
-            } else {
-                button.querySelector(".badge").textContent = "Not Connected";
-                button.classList.add("disabled");
-            }
-        } else {
-            button.querySelector(".badge").textContent = "Coming Soon";
-            button.classList.add("disabled");
-        }
+    document.querySelectorAll(".module-card").forEach((card) => {
+        const name = card.querySelector(".module-name")?.textContent.trim().toLowerCase();
+        const badge = card.querySelector(".badge");
+        if (!name || !badge) return;
+        badge.textContent = name.includes("peter core") ? "Visual only" : "Coming soon";
     });
 };
+
 
 app.logActivity = (text, type) => {
     const list = document.getElementById("activityList");
@@ -392,7 +418,7 @@ app.logActivity = (text, type) => {
     node.textContent = text;
     list.appendChild(node);
     requestAnimationFrame(() => {
-        list.lastElementChild.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        list.scrollTop = list.scrollHeight;
     });
     const counter = document.getElementById("activityCount");
     if (counter) {
@@ -408,4 +434,10 @@ function escapeHtml(value) {
 }
 
 // Export for use in other modules if needed
-export const app = app;
+window.app = app;
+
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", app.init, { once: true });
+} else {
+    app.init();
+}

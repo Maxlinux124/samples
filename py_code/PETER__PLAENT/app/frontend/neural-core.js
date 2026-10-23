@@ -1,4 +1,4 @@
-﻿const NEURON_COLORS = [
+const NEURON_COLORS = [
     "#3b82f6",
     "#22d3ee",
     "#a5f3fc",
@@ -16,8 +16,8 @@ class NeuralEngine {
         this.particles = [];
         this.connections = [];
 
-        this.maxNodes = 180;
-        this.maxParticles = 300;
+        this.maxNodes = 58;
+        this.maxParticles = 170;
         this.maxThreads = 360;
 
         this.pause = false;
@@ -47,6 +47,9 @@ class NeuralEngine {
     init() {
         const rect = this.canvas.getBoundingClientRect();
         this.resize(rect.width, rect.height);
+        for (let i = 0; i < 22; i++) {
+            this.addNode();
+        }
 
         this.state = "IDLE";
         this.updateCoreText();
@@ -118,13 +121,13 @@ class NeuralEngine {
         this.lastTime = now;
 
         if (this.pause) {
-            this.render(dt);
+            this.render(dt, now);
             this.animId = requestAnimationFrame((t) => this.loop(t));
             return;
         }
 
         if (document.hidden) {
-            this.render(dt);
+            this.render(dt, now);
             this.animId = requestAnimationFrame((t) => this.loop(t));
             return;
         }
@@ -135,15 +138,15 @@ class NeuralEngine {
 
         this.micLevel = Math.max(0, Math.min(0.9, this.micLevel + (statePulse * 0.06)));
 
-        this.updateCorePulse(dt, statePulse);
+        this.updateCorePulse(dt, now, statePulse);
         this.buildGraph();
         this.updateParticles(dt);
-        this.render(dt);
+        this.render(dt, now);
 
         this.animId = requestAnimationFrame((t) => this.loop(t));
     }
 
-    updateCorePulse(dt, base) {
+    updateCorePulse(dt, now, base) {
         this.coreVelX += (Math.random() - 0.5) * 0.002;
         this.coreVelY += (Math.random() - 0.5) * 0.002;
         this.coreVelX = Math.max(-0.01, Math.min(0.01, this.coreVelX));
@@ -179,7 +182,7 @@ class NeuralEngine {
                 this.trail.push({ x: point.x, y: point.y, ring: 0, distance: 0 });
             }
 
-            const nearby = this.findNear(point, this.nodes, 80, 480);
+            const nearby = this.findNear(point, this.nodes, 80, 230);
 
             for (let j = 0; j < nearby.length; j++) {
                 const target = nearby[j];
@@ -189,7 +192,7 @@ class NeuralEngine {
                 const distance = Math.hypot(point.x - target.x, point.y - target.y);
                 const weight = 1 - Math.min(distance / 260, 1);
 
-                if (weight > 0.18) {
+                if (weight > 0.48) {
                     connections.push({ from: point, to: target, weight, distance });
                     seen.add(point.id + "-" + target.id);
                 }
@@ -218,7 +221,7 @@ class NeuralEngine {
         const y = this.height * 0.05 + Math.random() * this.height * 0.9;
         const id = Date.now() + "-" + Math.random().toString(16).slice(2, 8);
 
-        this.nodes.push({ id, x, y, hue: Math.random() * 60 + 200, alpha: 0.7 + Math.random() * 0.3 });
+        this.nodes.push({ id, x, y, hue: Math.random() * 38 + 190, alpha: 0.7 + Math.random() * 0.3 });
     }
 
     updateParticles(dt) {
@@ -251,12 +254,12 @@ class NeuralEngine {
             size: 1.2 + Math.random() * 2.4,
             phase: Math.random() * Math.PI * 2,
             life: 0.2 + Math.random() * 0.3,
-            hue: Math.random() * 60 + 200,
+            hue: Math.random() * 42 + 185,
             alpha: 0.5 + Math.random() * 0.5
         };
     }
 
-    render(dt) {
+    render(dt, now) {
         const ctx = this.ctx;
         const w = this.width;
         const h = this.height;
@@ -288,7 +291,7 @@ class NeuralEngine {
             ctx.fill();
         }
 
-        const activeConnections = this.connections.filter((c) => c.weight > 0.35);
+        const activeConnections = this.connections.filter((c) => c.weight > 0.56);
 
         for (const connection of activeConnections) {
             const alpha = connection.weight * 0.5 * (0.5 + Math.sin(now * 0.006) * 0.5);
@@ -364,3 +367,5 @@ class NeuralEngine {
         ];
     }
 }
+
+export { NeuralEngine };
