@@ -16,12 +16,12 @@ class NeuralEngine {
         this.particles = [];
         this.connections = [];
 
-        this.maxNodes = 58;
-        this.maxParticles = 170;
-        this.maxThreads = 360;
-
+        this.maxNodes = 42;
+        this.maxParticles = 96;
         this.pause = false;
         this.lastTime = 0;
+        this.lastFrameTime = 0;
+        this.frameInterval = 1000 / 30;
         this.animId = 0;
 
         this.state = "IDLE";
@@ -47,29 +47,48 @@ class NeuralEngine {
     init() {
         const rect = this.canvas.getBoundingClientRect();
         this.resize(rect.width, rect.height);
+        this.resizeObserver = new ResizeObserver((entries) => {
+            const { width, height } = entries[0].contentRect;
+            this.resize(width, height);
+        });
+        this.resizeObserver.observe(this.canvas.parentElement || this.canvas);
+        this.handleVisibilityChange = () => {
+            if (document.hidden) {
+                cancelAnimationFrame(this.animId);
+                this.animId = 0;
+            } else {
+                this.start();
+            }
+        };
+        document.addEventListener("visibilitychange", this.handleVisibilityChange);
         for (let i = 0; i < 22; i++) {
             this.addNode();
         }
 
         this.state = "IDLE";
         this.updateCoreText();
-
-        this.canvas.addEventListener("click", (e) => {
-            if (this.state === "IDLE") {
-                this.setState("LISTENING");
-            }
-        });
     }
 
     resize(width, height) {
+        const previousWidth = this.width;
+        const previousHeight = this.height;
         this.width = width || this.canvas.clientWidth || 800;
         this.height = height || this.canvas.clientHeight || 600;
-        this.dpr = window.devicePixelRatio || 1;
+        this.dpr = Math.min(window.devicePixelRatio || 1, 1.25);
+
+        if (previousWidth && previousHeight) {
+            const scaleX = this.width / previousWidth;
+            const scaleY = this.height / previousHeight;
+            for (const point of [...this.nodes, ...this.particles]) {
+                point.x *= scaleX;
+                point.y *= scaleY;
+            }
+        }
 
         this.canvas.width = Math.max(1, Math.round(this.width * this.dpr));
         this.canvas.height = Math.max(1, Math.round(this.height * this.dpr));
 
-        this.ctx.scale(this.dpr, this.dpr);
+        this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
         this.canvas.style.width = this.width + "px";
         this.canvas.style.height = this.height + "px";
 
@@ -77,8 +96,9 @@ class NeuralEngine {
     }
 
     start() {
-        if (this.animId) return;
+        if (this.animId || document.hidden) return;
         this.lastTime = performance.now();
+        this.lastFrameTime = 0;
         this.animId = requestAnimationFrame((now) => this.loop(now));
     }
 
@@ -87,6 +107,8 @@ class NeuralEngine {
             cancelAnimationFrame(this.animId);
             this.animId = 0;
         }
+        document.removeEventListener("visibilitychange", this.handleVisibilityChange);
+        this.resizeObserver.disconnect();
         this.nodes = [];
         this.particles = [];
         this.connections = [];
@@ -117,8 +139,18 @@ class NeuralEngine {
     }
 
     loop(now) {
+        if (document.hidden) {
+            this.animId = 0;
+            return;
+        }
+        if (now - this.lastFrameTime < this.frameInterval) {
+            this.animId = requestAnimationFrame((t) => this.loop(t));
+            return;
+        }
+
         const dt = Math.min(0.05, (now - this.lastTime) / 1000);
         this.lastTime = now;
+        this.lastFrameTime = now;
 
         if (this.pause) {
             this.render(dt, now);

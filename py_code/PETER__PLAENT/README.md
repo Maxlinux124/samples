@@ -18,6 +18,11 @@ This is a **local-first** personal assistant project. It starts with a command-l
 
 You should see a Python version message. Later, you will create a virtual environment and install packages.
 
+
+## Frontend interface
+From the project root, run `.\.venv\Scripts\python.exe app\backend\server.py` to start the local backend, then open `http://127.0.0.1:8000/`. The immersive galaxy interface loads its Three.js module from `app/frontend/vendor`, with no CDN dependency.
+Chat is labeled Demo Mode when the backend reports canned responses. Optional panels expose verified service status, session activity and modules marked Coming Soon. The Three.js scene caps canvas resolution and animation rate, pauses while the tab is hidden, and has a CSS visual fallback if WebGL initialization fails.
+
 ## Project structure
 
 PETER__PLAENT/

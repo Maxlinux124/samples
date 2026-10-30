@@ -3,171 +3,158 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Peter Planet - Neural Assistant</title>
-    <link rel="stylesheet" href="styles.css" />
+    <meta name="theme-color" content="#030817" />
+    <title>Peter Planet | Immersive AI Universe</title>
+    <link rel="stylesheet" href="immersive.css" />
 </head>
 <body>
-    <div class="app" id="app">
-        <aside class="sidebar" aria-label="Primary navigation">
-            <a class="brand" href="#home" aria-label="Peter Planet home">
-                <span class="logo" aria-hidden="true"></span>
-                <span class="brand-copy">
-                    <strong>Peter Planet</strong>
-                    <small>Personal AI environment</small>
-                </span>
+    <div class="app immersive-app" id="app">
+        <header class="universe-header">
+            <button class="orbit-menu-button" id="navToggle" type="button" aria-label="Open navigation" aria-expanded="false" aria-controls="navPanel">
+                <span></span><span></span><span></span>
+            </button>
+            <a class="universe-brand" href="#home" aria-label="Peter Planet home">
+                <span class="brand-orbit" aria-hidden="true"><span>P</span></span>
+                <span class="brand-copy"><strong>Peter Planet</strong><small>PERSONAL AI UNIVERSE</small></span>
             </a>
+            <div class="universe-meta">
+                <span class="local-indicator"><span id="connectionIndicator" class="connection-indicator" role="status" aria-live="polite"><span class="dot" aria-hidden="true"></span><span>Checking local connection</span></span></span>
+                <span class="header-separator" aria-hidden="true"></span>
+                <time class="clock" id="clock">--:--:--</time>
+                <span class="header-date" id="headerDate"></span>
+                <button class="header-settings" id="settingsBtn" type="button" aria-label="Open voice settings" title="Voice settings">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="m19.4 15 .1.1 1.4 1.1-1.4 2.4-1.7-.7a8 8 0 0 1-1.7 1l-.3 1.8h-2.8l-.3-1.8a8 8 0 0 1-1.7-1l-1.7.7-1.4-2.4 1.4-1.1a7 7 0 0 1 0-2l-1.4-1.1 1.4-2.4 1.7.7a8 8 0 0 1 1.7-1l.3-1.8h2.8l.3 1.8a8 8 0 0 1 1.7 1l1.7-.7 1.4 2.4-1.4 1.1a7 7 0 0 1 0 2Z" transform="translate(-1 -1)"></path></svg>
+                </button>
+            </div>
+        </header>
 
-            <p class="sidebar-label">Workspace</p>
-            <nav class="primary-nav" aria-label="Workspace">
-                <a class="nav-link active" href="#home"><span class="nav-icon" aria-hidden="true">⌂</span><span>Home</span></a>
-                <a class="nav-link" href="#neuralField"><span class="nav-icon" aria-hidden="true">◉</span><span>Neural Core</span></a>
-                <a class="nav-link" href="#chatPanel"><span class="nav-icon" aria-hidden="true">▤</span><span>Chat</span></a>
-                <a class="nav-link" href="#modulesPanel"><span class="nav-icon" aria-hidden="true">◫</span><span>Modules</span></a>
-                <button class="nav-link coming-soon" type="button" disabled aria-disabled="true"><span class="nav-icon" aria-hidden="true">▧</span><span>Files</span><small>Soon</small></button>
-                <a class="nav-link" href="#systemPanel"><span class="nav-icon" aria-hidden="true">⌁</span><span>System</span></a>
-                <button class="nav-link" id="settingsBtn" type="button"><span class="nav-icon" aria-hidden="true">⚙</span><span>Settings</span></button>
-            </nav>
+        <nav class="universe-nav" id="navPanel" aria-label="Universe navigation" hidden>
+            <p class="nav-overline">YOUR SPACE</p>
+            <a class="nav-link active" href="#home" data-view="home"><span aria-hidden="true">⌂</span>Home</a>
+            <a class="nav-link" href="#neuralField" data-view="home"><span aria-hidden="true">◉</span>Neural Core</a>
+            <button class="nav-link" id="openChatNav" type="button"><span aria-hidden="true">◌</span>Chat history</button>
+            <button class="nav-link" id="openModulesNav" type="button"><span aria-hidden="true">✧</span>Modules</button>
+            <button class="nav-link" id="openSystemNav" type="button"><span aria-hidden="true">⌁</span>System status</button>
+            <button class="nav-link" id="openSettingsNav" type="button"><span aria-hidden="true">⚙</span>Voice settings</button>
+            <div class="nav-divider"></div>
+            <div class="nav-core-status"><span class="core-status-dot" aria-hidden="true"></span><span><strong>Peter Core</strong><small id="sidebarCoreStatus">Standby</small></span></div>
+            <p class="nav-local-note">Local workspace · visual only</p>
+        </nav>
+        <button class="panel-scrim" id="navScrim" type="button" tabindex="-1" aria-label="Close navigation" hidden></button>
 
-            <div class="sidebar-footer">
-                <span class="local-mark" aria-hidden="true"></span>
-                <span>Local-first workspace</span>
-                <small>v0.1.0</small>
+        <main class="universe-stage" id="home">
+            <div class="galaxy-atmosphere" aria-hidden="true"><span class="nebula-cloud cloud-one"></span><span class="nebula-cloud cloud-two"></span><span class="nebula-cloud cloud-three"></span><span class="galaxy-dust"></span></div>
+            <section class="neural-field" id="neuralField" data-state="idle" aria-label="Peter Core visual environment">
+                <div class="peter-core-3d" id="peterCore3d" aria-label="Interactive three-dimensional Peter Core. Move the pointer or use the arrow keys to shift the view."></div>
+                <div class="core-ring" aria-hidden="true">
+                    <div class="core" id="core">
+                        <span class="core-label" id="coreLabel">PETER CORE</span>
+                        <span class="core-sub" id="coreSub">STANDBY</span>
+                    </div>
+                </div>
+                <div class="core-caption" aria-live="polite">
+                    <span class="core-caption-kicker">PETER CORE</span>
+                    <span class="core-caption-state" id="coreStateLabel">STANDBY</span>
+                    <p class="greeting" id="greeting">A quiet place in your local universe.</p>
+                </div>
+                <p class="core-fallback" id="coreFallback" role="status" aria-live="polite" hidden></p>
+                <span class="visual-disclaimer">A local visual experience · not AI telemetry</span>
+            </section>
+
+            <button class="utility-trigger" id="utilityToggle" type="button" aria-label="Open system, module and activity details" aria-expanded="false" aria-controls="utilityPanel">
+                <span class="utility-trigger-icon" aria-hidden="true">✧</span><span>Explore</span>
+            </button>
+            <button class="history-trigger" id="chatToggle" type="button" aria-label="Open chat history" aria-expanded="false" aria-controls="chatPanel">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8A8.5 8.5 0 0 1 8.7 3.9a8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8v.5Z"></path></svg>
+                <span>Conversation</span>
+            </button>
+        </main>
+
+        <aside class="utility-panel" id="utilityPanel" aria-label="Optional workspace details" hidden>
+            <div class="panel-heading">
+                <span><small id="utilityEyebrow">YOUR SPACE</small><strong id="utilityTitle">Modules</strong></span>
+                <button class="panel-close" id="utilityClose" type="button" aria-label="Close workspace details">×</button>
+            </div>
+            <section class="utility-section" id="modulesPanel" aria-labelledby="modulesTitle">
+                <p class="section-caption" id="modulesTitle">AVAILABLE MODULES</p>
+                <div class="module-grid">
+                    <div class="module-card active-module"><span class="module-icon" aria-hidden="true">◉</span><span class="module-name">Peter Core</span><span class="badge">Visual only</span></div>
+                    <div class="module-card disabled"><span class="module-icon" aria-hidden="true">⌕</span><span class="module-name">Business Research</span><span class="badge">Coming Soon</span></div>
+                    <div class="module-card disabled"><span class="module-icon" aria-hidden="true">⌘</span><span class="module-name">Website Development</span><span class="badge">Coming Soon</span></div>
+                    <div class="module-card disabled"><span class="module-icon" aria-hidden="true">↗</span><span class="module-name">SEO Assistant</span><span class="badge">Coming Soon</span></div>
+                    <div class="module-card disabled"><span class="module-icon" aria-hidden="true">◷</span><span class="module-name">Project Manager</span><span class="badge">Coming Soon</span></div>
+                    <div class="module-card disabled"><span class="module-icon" aria-hidden="true">▧</span><span class="module-name">File Assistant</span><span class="badge">Coming Soon</span></div>
+                </div>
+            </section>
+            <section class="utility-section" id="systemPanel" aria-labelledby="systemTitle" hidden>
+                <p class="section-caption" id="systemTitle">VERIFIED SERVICE STATUS</p>
+                <ul class="status-list">
+                    <li><span>Backend</span><span id="backendSystemStatus" class="status-value checking">Checking</span></li>
+                    <li><span>API</span><span id="apiStatus" class="status-value checking">Checking</span></li>
+                    <li><span>Database</span><span id="databaseStatus" class="status-value checking">Checking</span></li>
+                    <li><span>Speech input support</span><span id="speechRecognitionStatus" class="status-value checking">Checking</span></li>
+                    <li><span>Speech output support</span><span id="speechSynthesisStatus" class="status-value checking">Checking</span></li>
+                    <li><span>Chat mode</span><span id="aiEngineStatus" class="status-value checking">Checking</span></li>
+                </ul>
+                <p class="panel-footnote">Speech support is browser capability, not a microphone permission check. No hardware metrics are collected.</p>
+            </section>
+            <section class="utility-section activity-section" id="activityPanel" aria-labelledby="activityTitle" hidden>
+                <div class="section-caption-row"><p class="section-caption" id="activityTitle">THIS SESSION</p><span class="activity-count" id="activityCount">0 events</span></div>
+                <div class="activity-list" id="activityList" aria-live="polite"><p class="activity-empty" id="activityEmpty">Activity will appear as you use the workspace.</p></div>
+            </section>
+            <div class="utility-tabs" aria-label="Workspace details">
+                <button class="utility-tab active" type="button" data-panel="modulesPanel" data-title="Modules">Modules</button>
+                <button class="utility-tab" type="button" data-panel="systemPanel" data-title="System">System</button>
+                <button class="utility-tab" type="button" data-panel="activityPanel" data-title="Activity">Activity</button>
             </div>
         </aside>
 
-        <div class="app-main">
-            <header class="topbar">
-                <div class="page-heading">
-                    <p class="eyebrow">PETER PLANET <span>/</span> WORKSPACE</p>
-                    <h1>Command Center</h1>
-                </div>
-                <div class="topbar-right">
-                    <div class="clock" id="clock">--:--:--</div>
-                    <div class="connection-indicator" id="connectionIndicator" role="status" aria-live="polite">
-                        <span class="dot" aria-hidden="true"></span>
-                        <span>Checking backend</span>
-                    </div>
-                </div>
-            </header>
+        <section class="chat-panel" id="chatPanel" aria-labelledby="chatTitle" aria-modal="false" role="dialog" hidden>
+            <div class="panel-heading chat-panel-heading">
+                <span><small>YOUR CONVERSATION</small><strong id="chatTitle">Chat with Peter</strong></span>
+                <span class="mode-badge" id="chatMode">Checking mode</span>
+                <button class="panel-close" id="clearChatBtn" type="button" aria-label="Clear conversation" title="Clear conversation">↺</button>
+                <button class="panel-close" id="chatClose" type="button" aria-label="Close conversation">×</button>
+            </div>
+            <p class="chat-mode-note" id="chatModeNote" hidden></p>
+            <div class="chat-messages" id="chatMessages" aria-live="polite" aria-label="Conversation">
+                <div class="message demo"><div class="message-avatar">P</div><div class="message-bubble">Hello! I am Peter. Type a message to try the local demo chat.</div></div>
+            </div>
+            <button class="text-entry-link" id="keyboardInputBtn" type="button">⌨ <span>Focus the message box</span></button>
+        </section>
 
-            <main class="layout" id="home">
-                <section class="workspace" aria-label="Peter Planet workspace">
-                    <section class="neural-field" id="neuralField" aria-labelledby="coreLabel">
-                        <canvas id="neuralCanvas" aria-hidden="true"></canvas>
-                        <div class="core-ring" aria-hidden="true">
-                            <div class="core" id="core">
-                                <div class="core-label" id="coreLabel">PETER CORE</div>
-                                <div class="core-sub" id="coreSub">STANDBY</div>
-                            </div>
-                        </div>
-                        <div class="core-caption">
-                            <p class="eyebrow">LOCAL VISUAL CORE</p>
-                            <p class="greeting" id="greeting">Neural visualization ready. Chat service status is being checked.</p>
-                        </div>
-                        <span class="field-tag"><span class="field-dot"></span> Live visualization</span>
-                    </section>
+        <footer class="conversation-dock" aria-label="Chat and voice controls">
+            <span class="dock-core-mark" aria-hidden="true"><i></i></span>
+            <div class="dock-status"><span class="dock-status-title" id="dockMode">Checking mode</span><span class="dock-status-sub" id="voiceAssistantStatus" role="status">Voice support is optional</span></div>
+            <div class="voice-activity" id="voiceActivity" data-state="idle" role="img" aria-label="Voice activity visualization is idle"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+            <button class="dock-icon-button microphone-button" id="voiceButton" type="button" aria-label="Start voice input" title="Optional voice input">
+                <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line></svg>
+            </button>
+            <button class="dock-icon-button speaker-button" id="speakerButton" type="button" aria-label="Mute spoken responses" aria-pressed="true" disabled title="Toggle spoken responses">
+                <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5Z"></path><path d="M15.5 8.5a5 5 0 0 1 0 7"></path><path d="M19 5a10 10 0 0 1 0 14"></path></svg>
+                <span id="speakerStatus" class="visually-hidden">Checking</span>
+            </button>
+            <div class="composer">
+                <label class="visually-hidden" for="messageInput">Message Peter</label>
+                <span class="composer-label" aria-hidden="true">Message Peter</span>
+                <textarea id="messageInput" placeholder="Ask Peter or try “Open YouTube”..." rows="1" aria-describedby="composerHint"></textarea>
+                <span class="composer-hint" id="composerHint">Try “Open YouTube” · Enter to send · Shift + Enter for a new line</span>
+            </div>
+            <button class="send-button" id="sendBtn" type="button" aria-label="Send message" title="Send message">
+                <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+            </button>
+        </footer>
 
-                    <section class="quick-actions" aria-labelledby="quickActionsTitle">
-                        <div class="section-heading">
-                            <div><p class="eyebrow">EXTEND YOUR WORKSPACE</p><h2 id="quickActionsTitle">Quick actions</h2></div>
-                            <span class="coming-label">Coming soon</span>
-                        </div>
-                        <div class="quick-action-list">
-                            <button class="quick-action" type="button" disabled><span class="action-glyph">⌕</span><span>Research brief</span><small>Coming soon</small></button>
-                            <button class="quick-action" type="button" disabled><span class="action-glyph">⌘</span><span>Build a website</span><small>Coming soon</small></button>
-                            <button class="quick-action" type="button" disabled><span class="action-glyph">◷</span><span>Plan a project</span><small>Coming soon</small></button>
-                        </div>
-                    </section>
-
-                    <section class="chat-container" id="chatPanel" aria-labelledby="chatTitle">
-                        <div class="chat-header">
-                            <div class="chat-title-group">
-                                <span class="chat-avatar" aria-hidden="true">P</span>
-                                <div><h2 id="chatTitle">Peter Chat</h2><span id="chatMode" class="mode-badge">Checking mode</span></div>
-                            </div>
-                            <button class="icon-button" id="clearChatBtn" type="button" aria-label="Clear chat" title="Clear conversation">
-                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                    <path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14"></path>
-                                </svg>
-                            </button>
-                        </div>
-                        <div class="chat-messages" id="chatMessages" aria-live="polite" aria-label="Conversation">
-                            <div class="message demo"><div class="message-avatar">P</div><div class="message-bubble">Hello! I am Peter. Type a message to try the local demo chat.</div></div>
-                        </div>
-                        <div class="chat-input-row">
-                            <label class="visually-hidden" for="messageInput">Message Peter</label>
-                            <textarea id="messageInput" placeholder="Write a message..." rows="1"></textarea>
-                            <button class="send-button" id="sendBtn" type="button" aria-label="Send message" title="Send message">
-                                <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                    <line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                                </svg>
-                            </button>
-                            <button class="voice-button" id="voiceButton" type="button" aria-label="Start voice input" title="Voice input (optional)">
-                                <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line>
-                                </svg>
-                            </button>
-                        </div>
-                    </section>
-                </section>
-
-                <aside class="side-panel" aria-label="System information">
-                    <section class="panel status-panel" id="systemPanel" aria-labelledby="systemTitle">
-                        <div class="section-heading compact"><div><p class="eyebrow">REAL-TIME CHECKS</p><h2 id="systemTitle">System status</h2></div></div>
-                        <ul class="status-list">
-                            <li><span>Python backend</span><span id="backendStatus" class="status-value checking">Checking</span></li>
-                            <li><span>Chat engine</span><span id="aiEngineStatus" class="status-value checking">Checking</span></li>
-                            <li><span>Database</span><span id="databaseStatus" class="status-value checking">Checking</span></li>
-                            <li><span>Speech recognition</span><span id="speechRecognitionStatus" class="status-value checking">Checking</span></li>
-                            <li><span>Speech synthesis</span><span id="speechSynthesisStatus" class="status-value checking">Checking</span></li>
-                        </ul>
-                        <p class="status-note">Voice is optional. Text chat works without microphone access.</p>
-                    </section>
-
-                    <section class="panel module-panel" id="modulesPanel" aria-labelledby="modulesTitle">
-                        <div class="section-heading compact"><div><p class="eyebrow">AVAILABLE CAPABILITIES</p><h2 id="modulesTitle">Modules</h2></div></div>
-                        <div class="module-grid">
-                            <div class="module-card" id="module-core"><span class="module-icon" aria-hidden="true">◉</span><span class="module-name">Peter Core</span><span class="badge">Visual only</span></div>
-                            <div class="module-card disabled" id="module-research"><span class="module-icon" aria-hidden="true">⌕</span><span class="module-name">Business Research</span><span class="badge">Coming soon</span></div>
-                            <div class="module-card disabled" id="module-website"><span class="module-icon" aria-hidden="true">⌘</span><span class="module-name">Website Development</span><span class="badge">Coming soon</span></div>
-                            <div class="module-card disabled" id="module-seo"><span class="module-icon" aria-hidden="true">↗</span><span class="module-name">SEO Assistant</span><span class="badge">Coming soon</span></div>
-                            <div class="module-card disabled" id="module-project"><span class="module-icon" aria-hidden="true">◷</span><span class="module-name">Project Manager</span><span class="badge">Coming soon</span></div>
-                            <div class="module-card disabled" id="module-files"><span class="module-icon" aria-hidden="true">▧</span><span class="module-name">File Assistant</span><span class="badge">Coming soon</span></div>
-                        </div>
-                    </section>
-
-                    <section class="panel activity-panel" aria-labelledby="activityTitle">
-                        <div class="activity-header"><div><p class="eyebrow">SESSION EVENTS</p><h2 id="activityTitle">Recent activity</h2></div><span class="activity-count" id="activityCount">0 events</span></div>
-                        <div class="activity-list" id="activityList" aria-live="polite"></div>
-                    </section>
-                </aside>
-            </main>
-        </div>
-    </div>
-    <div class="modal-backdrop" id="modalBackdrop" hidden></div>
-    <div class="modal" id="settingsModal" hidden>
-        <div class="modal-card">
-            <h2>Voice Settings</h2>
-            <label class="field">
-                <span>Microphone</span>
-                <span id="micPermissionText">Not requested</span>
-            </label>
-            <label class="field">
-                <span>Speech recognition</span>
-                <span id="recognitionStatusText">Checking...</span>
-            </label>
-            <label class="field">
-                <span>Speech synthesis</span>
-                <span id="synthesisStatusText">Checking...</span>
-            </label>
-            <div class="modal-actions">
-                <button class="primary" id="closeSettingsBtn">Close</button>
+        <div class="modal-backdrop" id="modalBackdrop" hidden></div>
+        <div class="modal" id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle" hidden>
+            <div class="modal-card">
+                <div class="panel-heading"><span><small>LOCAL BROWSER CAPABILITIES</small><strong id="settingsTitle">Voice settings</strong></span><button class="panel-close" id="closeSettingsBtn" type="button" aria-label="Close voice settings">×</button></div>
+                <label class="field"><span>Microphone permission</span><span id="micPermissionText">Not requested</span></label>
+                <label class="field"><span>Speech recognition</span><span id="recognitionStatusText">Checking…</span></label>
+                <label class="field"><span>Speech synthesis</span><span id="synthesisStatusText">Checking…</span></label>
             </div>
         </div>
     </div>
-
     <script type="module" src="app.js"></script>
-    <script type="module" src="neural-canvas.js"></script>
-    <script type="module" src="voice.js"></script>
 </body>
 </html>

@@ -1,0 +1,419 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title description">
+  <title id="title">PETER PLANET — cinematic personal AI operating environment</title>
+  <desc id="description">A 16:9 desktop interface concept with a black and crimson galaxy, a red and blue neural energy sphere, compact system indicators, floating message cards, and a glass chat composer.</desc>
+  <defs>
+    <radialGradient id="space" cx="50%" cy="47%" r="74%">
+      <stop offset="0" stop-color="#10121b"/>
+      <stop offset=".48" stop-color="#08090d"/>
+      <stop offset="1" stop-color="#030303"/>
+    </radialGradient>
+    <radialGradient id="redNebula">
+      <stop stop-color="#b50926" stop-opacity=".38"/>
+      <stop offset=".44" stop-color="#760c22" stop-opacity=".19"/>
+      <stop offset="1" stop-color="#3b0714" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="blueNebula">
+      <stop stop-color="#087bff" stop-opacity=".28"/>
+      <stop offset=".52" stop-color="#071a38" stop-opacity=".22"/>
+      <stop offset="1" stop-color="#071a38" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="orb" cx="35%" cy="28%" r="78%">
+      <stop offset="0" stop-color="#293548"/>
+      <stop offset=".24" stop-color="#10151f"/>
+      <stop offset=".61" stop-color="#08090d"/>
+      <stop offset=".84" stop-color="#06172d"/>
+      <stop offset=".94" stop-color="#641326"/>
+      <stop offset="1" stop-color="#030303"/>
+    </radialGradient>
+    <radialGradient id="coreHeart" cx="45%" cy="45%" r="60%">
+      <stop stop-color="#fff"/>
+      <stop offset=".16" stop-color="#eaf6ff"/>
+      <stop offset=".32" stop-color="#00d9ff"/>
+      <stop offset=".55" stop-color="#087bff" stop-opacity=".72"/>
+      <stop offset=".76" stop-color="#ff1744" stop-opacity=".28"/>
+      <stop offset="1" stop-color="#ff1744" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="aura">
+      <stop stop-color="#087bff" stop-opacity=".22"/>
+      <stop offset=".44" stop-color="#b50926" stop-opacity=".13"/>
+      <stop offset="1" stop-color="#030303" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="redHalo">
+      <stop stop-color="#ff1744" stop-opacity=".2"/>
+      <stop offset=".42" stop-color="#b50926" stop-opacity=".14"/>
+      <stop offset="1" stop-color="#b50926" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="blueHalo">
+      <stop stop-color="#087bff" stop-opacity=".22"/>
+      <stop offset=".46" stop-color="#071a38" stop-opacity=".14"/>
+      <stop offset="1" stop-color="#071a38" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="orbBlueLight" cx="30%" cy="59%" r="62%">
+      <stop stop-color="#00d9ff" stop-opacity=".38"/>
+      <stop offset=".32" stop-color="#087bff" stop-opacity=".2"/>
+      <stop offset="1" stop-color="#087bff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="orbRedLight" cx="74%" cy="51%" r="61%">
+      <stop stop-color="#ff1744" stop-opacity=".31"/>
+      <stop offset=".36" stop-color="#b50926" stop-opacity=".18"/>
+      <stop offset="1" stop-color="#b50926" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="orbWhiteLight" cx="45%" cy="43%" r="52%">
+      <stop stop-color="#fff" stop-opacity=".56"/>
+      <stop offset=".13" stop-color="#eaf6ff" stop-opacity=".3"/>
+      <stop offset=".5" stop-color="#00d9ff" stop-opacity=".09"/>
+      <stop offset="1" stop-color="#00d9ff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#172033" stop-opacity=".88"/>
+      <stop offset=".55" stop-color="#0a0c12" stop-opacity=".82"/>
+      <stop offset="1" stop-color="#11131b" stop-opacity=".76"/>
+    </linearGradient>
+    <linearGradient id="redBlueEdge">
+      <stop stop-color="#ff1744" stop-opacity=".72"/>
+      <stop offset=".48" stop-color="#eaf6ff" stop-opacity=".23"/>
+      <stop offset="1" stop-color="#087bff" stop-opacity=".74"/>
+    </linearGradient>
+    <linearGradient id="fiberBlue">
+      <stop stop-color="#eaf6ff" stop-opacity=".88"/>
+      <stop offset=".28" stop-color="#00d9ff" stop-opacity=".82"/>
+      <stop offset=".72" stop-color="#087bff" stop-opacity=".52"/>
+      <stop offset="1" stop-color="#087bff" stop-opacity=".12"/>
+    </linearGradient>
+    <linearGradient id="fiberRed">
+      <stop stop-color="#eaf6ff" stop-opacity=".7"/>
+      <stop offset=".32" stop-color="#ff1744" stop-opacity=".78"/>
+      <stop offset="1" stop-color="#b50926" stop-opacity=".16"/>
+    </linearGradient>
+    <linearGradient id="fiberCyan">
+      <stop stop-color="#eaf6ff" stop-opacity=".76"/>
+      <stop offset=".38" stop-color="#00d9ff" stop-opacity=".76"/>
+      <stop offset="1" stop-color="#087bff" stop-opacity=".14"/>
+    </linearGradient>
+    <filter id="blur36" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="36"/>
+    </filter>
+    <filter id="blur16" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="16"/>
+    </filter>
+    <filter id="glow8" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glow3" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glow6" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <clipPath id="orbClip">
+      <circle cx="800" cy="438" r="97"/>
+    </clipPath>
+    <pattern id="microGrid" width="42" height="42" patternUnits="userSpaceOnUse">
+      <path d="M42 0H0V42" fill="none" stroke="#bfd8ff" stroke-opacity=".025" stroke-width="1"/>
+      <circle cx="1" cy="1" r="1" fill="#d9eaff" fill-opacity=".09"/>
+    </pattern>
+    <g id="fiberBundle" fill="none" stroke-linecap="round">
+      <path d="M893 409 C963 374 1000 324 1080 290" stroke="url(#fiberBlue)" stroke-width="1.15" opacity=".78"/>
+      <path d="M896 416 C974 394 1012 361 1125 347" stroke="url(#fiberCyan)" stroke-width=".8" opacity=".72"/>
+      <path d="M897 423 C958 422 1044 398 1138 401" stroke="url(#fiberBlue)" stroke-width=".65" opacity=".66"/>
+      <path d="M898 430 C972 444 1038 430 1120 447" stroke="url(#fiberCyan)" stroke-width="1" opacity=".66"/>
+      <path d="M895 438 C960 473 1012 490 1097 513" stroke="url(#fiberBlue)" stroke-width=".7" opacity=".7"/>
+      <path d="M891 446 C938 489 981 530 1061 563" stroke="url(#fiberRed)" stroke-width=".75" opacity=".66"/>
+      <path d="M890 401 C959 351 1021 319 1094 310" stroke="url(#fiberCyan)" stroke-width=".55" opacity=".72"/>
+      <path d="M900 419 C968 382 1033 379 1106 370" stroke="url(#fiberRed)" stroke-width=".55" opacity=".7"/>
+      <path d="M900 427 C970 408 1037 418 1129 425" stroke="url(#fiberBlue)" stroke-width=".55" opacity=".68"/>
+      <path d="M897 435 C954 456 1030 462 1110 484" stroke="url(#fiberCyan)" stroke-width=".6" opacity=".62"/>
+      <path d="M893 444 C951 489 1001 506 1084 540" stroke="url(#fiberBlue)" stroke-width=".55" opacity=".68"/>
+      <path d="M888 408 C954 400 1000 338 1074 327" stroke="none"/>
+      <path d="M892 410 C949 392 1005 343 1074 327" stroke="#eaf6ff" stroke-width=".48" opacity=".42"/>
+      <path d="M896 416 C953 428 1015 372 1125 347" stroke="#00d9ff" stroke-width=".42" opacity=".52"/>
+      <path d="M897 423 C956 388 1023 426 1138 401" stroke="#087bff" stroke-width=".5" opacity=".58"/>
+      <path d="M898 430 C956 405 1013 461 1120 447" stroke="#eaf6ff" stroke-width=".42" opacity=".36"/>
+      <path d="M895 438 C954 428 1007 505 1097 513" stroke="#00d9ff" stroke-width=".42" opacity=".43"/>
+      <path d="M891 446 C950 440 1003 548 1061 563" stroke="#ff1744" stroke-width=".42" opacity=".4"/>
+      <path d="M893 409 C947 445 1011 352 1080 290" stroke="#087bff" stroke-width=".42" opacity=".52"/>
+      <path d="M900 419 C950 460 1042 360 1106 370" stroke="#00d9ff" stroke-width=".42" opacity=".45"/>
+      <path d="M900 427 C957 468 1028 405 1129 425" stroke="#ff4d67" stroke-width=".38" opacity=".48"/>
+      <path d="M897 435 C955 475 1021 438 1110 484" stroke="#087bff" stroke-width=".4" opacity=".54"/>
+      <path d="M893 444 C944 476 1017 474 1084 540" stroke="#00d9ff" stroke-width=".42" opacity=".43"/>
+    </g>
+    <g id="ringNode">
+      <circle cx="1131" cy="438" r="2.1" fill="#eaf6ff" opacity=".84"/>
+      <circle cx="1131" cy="438" r="8" fill="#087bff" opacity=".09" filter="url(#glow6)"/>
+      <circle cx="1131" cy="438" r="5.2" fill="#00d9ff" opacity=".14" filter="url(#glow3)"/>
+    </g>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#space)"/>
+  <rect width="1600" height="900" fill="url(#microGrid)" opacity=".55"/>
+  <ellipse cx="820" cy="424" rx="540" ry="380" fill="url(#blueNebula)" filter="url(#blur36)"/>
+  <ellipse cx="818" cy="434" rx="420" ry="290" fill="url(#redNebula)" filter="url(#blur36)"/>
+  <ellipse cx="825" cy="442" rx="340" ry="275" fill="url(#aura)" filter="url(#blur36)"/>
+
+  <g fill="#eaf6ff">
+    <circle cx="151" cy="142" r="1.1" opacity=".55"/><circle cx="244" cy="239" r=".8" opacity=".32"/>
+    <circle cx="370" cy="104" r=".9" opacity=".58"/><circle cx="501" cy="185" r=".7" opacity=".34"/>
+    <circle cx="609" cy="94" r="1" opacity=".6"/><circle cx="734" cy="121" r=".8" opacity=".36"/>
+    <circle cx="931" cy="96" r=".9" opacity=".45"/><circle cx="1087" cy="142" r=".7" opacity=".38"/>
+    <circle cx="1254" cy="105" r="1.1" opacity=".58"/><circle cx="1391" cy="193" r=".8" opacity=".38"/>
+    <circle cx="1490" cy="121" r=".9" opacity=".48"/><circle cx="129" cy="382" r=".8" opacity=".45"/>
+    <circle cx="273" cy="502" r=".9" opacity=".32"/><circle cx="401" cy="683" r=".8" opacity=".42"/>
+    <circle cx="553" cy="744" r=".9" opacity=".4"/><circle cx="1035" cy="720" r=".8" opacity=".4"/>
+    <circle cx="1225" cy="682" r="1" opacity=".5"/><circle cx="1439" cy="553" r=".8" opacity=".4"/>
+    <circle cx="1512" cy="748" r=".9" opacity=".42"/><circle cx="88" cy="771" r=".8" opacity=".34"/>
+    <circle cx="1193" cy="309" r=".7" opacity=".42"/><circle cx="1350" cy="378" r=".9" opacity=".48"/>
+    <circle cx="324" cy="343" r=".8" opacity=".36"/><circle cx="103" cy="596" r=".9" opacity=".46"/>
+    <circle cx="1461" cy="302" r=".8" opacity=".42"/><circle cx="711" cy="697" r=".7" opacity=".4"/>
+  </g>
+
+  <g font-family="Segoe UI, Arial, sans-serif">
+    <rect x="0" y="0" width="1600" height="78" fill="#050609" fill-opacity=".7"/>
+    <path d="M0 78H1600" stroke="#eaf6ff" stroke-opacity=".08"/>
+    <g transform="translate(52 27)">
+      <circle cx="12" cy="12" r="11" fill="none" stroke="#ff1744" stroke-width="1.4"/>
+      <circle cx="12" cy="12" r="5" fill="#087bff" opacity=".8" filter="url(#glow3)"/>
+      <path d="M12 1V23M1 12H23" stroke="#eaf6ff" stroke-opacity=".42" stroke-width=".7"/>
+      <text x="35" y="10" fill="#eaf6ff" font-size="12" font-weight="600" letter-spacing="3.1">PETER PLANET</text>
+      <text x="35" y="25" fill="#758093" font-size="7" letter-spacing="2.25">PERSONAL INTELLIGENCE ENVIRONMENT</text>
+    </g>
+    <g transform="translate(440 28)">
+      <circle cx="4" cy="8" r="3" fill="#ff1744" filter="url(#glow3)"/>
+      <text x="15" y="11" fill="#a8afbb" font-size="9" letter-spacing="1.5">LOCAL SYSTEM</text>
+      <path d="M125 0V22" stroke="#eaf6ff" stroke-opacity=".13"/>
+      <circle cx="145" cy="8" r="3" fill="#087bff" filter="url(#glow3)"/>
+      <text x="156" y="11" fill="#a8afbb" font-size="9" letter-spacing="1.5">NEURAL ACTIVITY</text>
+      <path d="M286 0V22" stroke="#eaf6ff" stroke-opacity=".13"/>
+      <circle cx="306" cy="8" r="3" fill="#eaf6ff" opacity=".82"/>
+      <text x="317" y="11" fill="#a8afbb" font-size="9" letter-spacing="1.5">VOICE ENGINE</text>
+    </g>
+    <g transform="translate(1358 26)">
+      <text x="0" y="12" fill="#717c8c" font-size="8" letter-spacing="1.6">PRIVATE SESSION</text>
+      <circle cx="154" cy="8" r="12" fill="#141820" stroke="#eaf6ff" stroke-opacity=".2"/>
+      <path d="M149 8h10M154 3v10" stroke="#eaf6ff" stroke-opacity=".68" stroke-width="1"/>
+    </g>
+  </g>
+
+  <g transform="translate(28 397)" font-family="Segoe UI, Arial, sans-serif">
+    <rect x="0" y="0" width="46" height="210" rx="23" fill="url(#glass)" stroke="#d4e4ff" stroke-opacity=".13"/>
+    <circle cx="23" cy="28" r="13" fill="#ff1744" fill-opacity=".1"/>
+    <path d="M17 28h12M23 22v12" stroke="#ff7a91" stroke-width="1.2"/>
+    <path d="M17 74h12l-6-7zM17 120h12M17 166h12" fill="none" stroke="#9ba8ba" stroke-opacity=".7" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="23" cy="120" r="16" fill="none" stroke="#087bff" stroke-opacity=".35"/>
+    <text x="23" y="238" text-anchor="middle" fill="#697588" font-size="7" letter-spacing="1.3">NAV</text>
+  </g>
+
+  <g font-family="Segoe UI, Arial, sans-serif">
+    <g transform="translate(111 211)">
+      <rect width="195" height="76" rx="16" fill="url(#glass)" stroke="#d5e5ff" stroke-opacity=".15"/>
+      <text x="17" y="22" fill="#8792a3" font-size="8" letter-spacing="1.6">SYSTEM STATUS</text>
+      <circle cx="19" cy="47" r="3" fill="#ff1744" filter="url(#glow3)"/>
+      <text x="30" y="50" fill="#dbe5f1" font-size="10">Local connection</text>
+      <text x="174" y="50" text-anchor="end" fill="#aab7c8" font-size="9">READY</text>
+      <path d="M17 61H178" stroke="#eaf6ff" stroke-opacity=".08"/>
+      <text x="18" y="72" fill="#667184" font-size="7" letter-spacing=".8">VISUAL ONLY · NO AI TELEMETRY</text>
+    </g>
+    <g transform="translate(1291 223)">
+      <rect width="201" height="92" rx="16" fill="url(#glass)" stroke="#d5e5ff" stroke-opacity=".15"/>
+      <text x="17" y="23" fill="#8792a3" font-size="8" letter-spacing="1.6">NEURAL ACTIVITY</text>
+      <text x="17" y="47" fill="#eaf6ff" font-size="13" letter-spacing=".8">STANDBY</text>
+      <path d="M17 69h8l5-8 7 15 7-11 5 4h9l5-8 7 13 6-7h9l7-5 5 10 5-6h10" fill="none" stroke="#087bff" stroke-width="1.35" opacity=".8"/>
+      <path d="M17 69h8l5-8 7 15 7-11 5 4h9l5-8 7 13 6-7h9l7-5 5 10 5-6h10" fill="none" stroke="#00d9ff" stroke-width="4" opacity=".13" filter="url(#blur16)"/>
+      <circle cx="179" cy="68" r="3" fill="#087bff" filter="url(#glow3)"/>
+      <text x="17" y="84" fill="#687588" font-size="7" letter-spacing="1">LOCAL VISUAL SYSTEM</text>
+    </g>
+    <g transform="translate(1322 624)">
+      <rect width="170" height="76" rx="15" fill="url(#glass)" stroke="#d5e5ff" stroke-opacity=".12"/>
+      <text x="15" y="22" fill="#8792a3" font-size="8" letter-spacing="1.5">VOICE ENGINE</text>
+      <circle cx="19" cy="46" r="3" fill="#647084"/>
+      <text x="30" y="49" fill="#b9c5d5" font-size="9">Browser support</text>
+      <text x="151" y="49" fill="#7f8999" font-size="8" text-anchor="end">OPTIONAL</text>
+      <path d="M15 61H155" stroke="#eaf6ff" stroke-opacity=".07"/>
+      <text x="15" y="72" fill="#657184" font-size="7">NO CLOUD AUDIO</text>
+    </g>
+  </g>
+
+  <g>
+    <ellipse cx="812" cy="441" rx="382" ry="337" fill="url(#aura)" filter="url(#blur36)"/>
+    <ellipse cx="783" cy="434" rx="300" ry="286" fill="url(#blueHalo)" opacity=".72"/>
+    <ellipse cx="828" cy="442" rx="278" ry="300" fill="url(#redHalo)" opacity=".62"/>
+    <ellipse cx="800" cy="438" rx="205" ry="194" fill="url(#blueHalo)" opacity=".52"/>
+    <ellipse cx="812" cy="441" rx="340" ry="330" fill="none" stroke="#087bff" stroke-opacity=".09" stroke-width="1"/>
+    <ellipse cx="812" cy="441" rx="326" ry="315" fill="none" stroke="#eaf6ff" stroke-opacity=".065" stroke-width=".8" stroke-dasharray="1 9"/>
+    <ellipse cx="812" cy="441" rx="343" ry="327" fill="none" stroke="#ff1744" stroke-opacity=".08" stroke-width=".8" stroke-dasharray="2 13" transform="rotate(-16 812 441)"/>
+    <g opacity=".95">
+      <use href="#fiberBundle"/>
+      <use href="#fiberBundle" transform="rotate(15 800 438)"/>
+      <use href="#fiberBundle" transform="rotate(30 800 438)"/>
+      <use href="#fiberBundle" transform="rotate(45 800 438)"/>
+      <use href="#fiberBundle" transform="rotate(60 800 438)"/>
+      <use href="#fiberBundle" transform="rotate(75 800 438)"/>
+      <use href="#fiberBundle" transform="rotate(90 800 438)"/>
+      <use href="#fiberBundle" transform="rotate(105 800 438)"/>
+      <use href="#fiberBundle" transform="rotate(120 800 438)"/>
+      <use href="#fiberBundle" transform="rotate(135 800 438)"/>
+      <use href="#fiberBundle" transform="rotate(150 800 438)"/>
+      <use href="#fiberBundle" transform="rotate(165 800 438)"/>
+      <use href="#fiberBundle" transform="rotate(180 800 438)"/>
+      <use href="#fiberBundle" transform="rotate(195 800 438)"/>
+      <use href="#fiberBundle" transform="rotate(210 800 438)"/>
+      <use href="#fiberBundle" transform="rotate(225 800 438)"/>
+      <use href="#fiberBundle" transform="rotate(240 800 438)"/>
+      <use href="#fiberBundle" transform="rotate(255 800 438)"/>
+      <use href="#fiberBundle" transform="rotate(270 800 438)"/>
+      <use href="#fiberBundle" transform="rotate(285 800 438)"/>
+      <use href="#fiberBundle" transform="rotate(300 800 438)"/>
+      <use href="#fiberBundle" transform="rotate(315 800 438)"/>
+      <use href="#fiberBundle" transform="rotate(330 800 438)"/>
+      <use href="#fiberBundle" transform="rotate(345 800 438)"/>
+    </g>
+    <g fill="none" stroke-linecap="round">
+      <g filter="url(#glow6)" opacity=".56">
+        <path d="M893 409 C963 374 1000 324 1080 290" stroke="#087bff" stroke-width="3"/>
+        <path d="M896 423 C958 422 1044 398 1138 401" stroke="#00d9ff" stroke-width="2.4"/>
+        <path d="M891 446 C938 489 981 530 1061 563" stroke="#ff1744" stroke-width="2.1"/>
+      </g>
+      <g opacity=".8">
+        <path d="M893 409 C963 374 1000 324 1080 290" stroke="url(#fiberBlue)" stroke-width="1.25"/>
+        <path d="M896 423 C958 422 1044 398 1138 401" stroke="url(#fiberCyan)" stroke-width="1.05"/>
+        <path d="M891 446 C938 489 981 530 1061 563" stroke="url(#fiberRed)" stroke-width=".9"/>
+      </g>
+      <g transform="rotate(90 800 438)" fill="#eaf6ff" filter="url(#glow3)">
+        <circle cx="956" cy="378" r="2.1"/>
+        <circle cx="1020" cy="354" r="1.5" fill="#00d9ff"/>
+        <circle cx="987" cy="510" r="1.6" fill="#ff1744"/>
+      </g>
+      <g transform="rotate(210 800 438)" fill="#eaf6ff" filter="url(#glow3)">
+        <circle cx="946" cy="383" r="1.8"/>
+        <circle cx="1028" cy="350" r="1.5" fill="#00d9ff"/>
+        <circle cx="1003" cy="519" r="1.7" fill="#ff1744"/>
+      </g>
+      <g transform="rotate(330 800 438)" fill="#eaf6ff" filter="url(#glow3)">
+        <circle cx="974" cy="369" r="1.8"/>
+        <circle cx="1051" cy="340" r="1.4" fill="#00d9ff"/>
+        <circle cx="1020" cy="536" r="1.5" fill="#ff1744"/>
+      </g>
+    </g>
+    <g fill="none" stroke-linecap="round">
+      <path d="M486 438 C535 330 655 276 800 274 C946 273 1068 331 1118 438 C1070 548 945 605 800 606 C657 604 534 549 486 438Z" stroke="#087bff" stroke-opacity=".28" stroke-width="1"/>
+      <path d="M503 438 C563 347 675 300 800 298 C926 299 1039 350 1098 438 C1040 527 926 579 800 579 C675 578 562 530 503 438Z" stroke="#00d9ff" stroke-opacity=".18" stroke-width=".8"/>
+      <path d="M523 438 C602 504 683 537 800 542 C917 538 1001 502 1078 438" stroke="#ff1744" stroke-opacity=".28" stroke-width=".75"/>
+      <path d="M520 438 C602 369 689 338 800 334 C911 337 1000 371 1080 438" stroke="#eaf6ff" stroke-opacity=".2" stroke-width=".65"/>
+    </g>
+    <g>
+      <use href="#ringNode"/>
+      <use href="#ringNode" transform="rotate(15 800 438)"/>
+      <use href="#ringNode" transform="rotate(30 800 438)"/>
+      <use href="#ringNode" transform="rotate(45 800 438)"/>
+      <use href="#ringNode" transform="rotate(60 800 438)"/>
+      <use href="#ringNode" transform="rotate(75 800 438)"/>
+      <use href="#ringNode" transform="rotate(90 800 438)"/>
+      <use href="#ringNode" transform="rotate(105 800 438)"/>
+      <use href="#ringNode" transform="rotate(120 800 438)"/>
+      <use href="#ringNode" transform="rotate(135 800 438)"/>
+      <use href="#ringNode" transform="rotate(150 800 438)"/>
+      <use href="#ringNode" transform="rotate(165 800 438)"/>
+      <use href="#ringNode" transform="rotate(180 800 438)"/>
+      <use href="#ringNode" transform="rotate(195 800 438)"/>
+      <use href="#ringNode" transform="rotate(210 800 438)"/>
+      <use href="#ringNode" transform="rotate(225 800 438)"/>
+      <use href="#ringNode" transform="rotate(240 800 438)"/>
+      <use href="#ringNode" transform="rotate(255 800 438)"/>
+      <use href="#ringNode" transform="rotate(270 800 438)"/>
+      <use href="#ringNode" transform="rotate(285 800 438)"/>
+      <use href="#ringNode" transform="rotate(300 800 438)"/>
+      <use href="#ringNode" transform="rotate(315 800 438)"/>
+      <use href="#ringNode" transform="rotate(330 800 438)"/>
+      <use href="#ringNode" transform="rotate(345 800 438)"/>
+    </g>
+  </g>
+
+  <g>
+    <circle cx="800" cy="438" r="155" fill="url(#aura)" filter="url(#blur16)"/>
+    <circle cx="800" cy="438" r="137" fill="url(#blueHalo)" opacity=".76"/>
+    <circle cx="800" cy="438" r="129" fill="url(#redHalo)" opacity=".68"/>
+    <circle cx="800" cy="438" r="113" fill="none" stroke="#ff1744" stroke-opacity=".38" stroke-width="1.2" filter="url(#glow3)"/>
+    <circle cx="800" cy="438" r="105" fill="none" stroke="#087bff" stroke-opacity=".5" stroke-width="1.3"/>
+    <circle cx="800" cy="438" r="98" fill="url(#orb)" stroke="#d9eaff" stroke-opacity=".31" stroke-width="1.2"/>
+    <g clip-path="url(#orbClip)">
+      <circle cx="770" cy="458" r="82" fill="url(#orbBlueLight)"/>
+      <circle cx="833" cy="425" r="76" fill="url(#orbRedLight)"/>
+      <circle cx="789" cy="416" r="58" fill="url(#orbWhiteLight)" opacity=".72"/>
+    </g>
+    <circle cx="800" cy="438" r="93" fill="none" stroke="#eaf6ff" stroke-opacity=".08" stroke-width=".7"/>
+    <circle cx="800" cy="438" r="74" fill="url(#coreHeart)" opacity=".78" filter="url(#blur16)"/>
+    <path d="M740 381 C761 347 819 338 858 361" fill="none" stroke="#eaf6ff" stroke-opacity=".34" stroke-width="2" stroke-linecap="round" filter="url(#glow3)"/>
+    <path d="M744 487 C778 512 832 516 864 486" fill="none" stroke="#087bff" stroke-opacity=".45" stroke-width="1.1"/>
+    <path d="M738 431 C765 401 789 402 805 425 S838 458 865 430" fill="none" stroke="#00d9ff" stroke-opacity=".72" stroke-width="1.2" filter="url(#glow3)"/>
+    <path d="M746 455 C775 427 787 445 803 457 S831 468 852 446" fill="none" stroke="#ff1744" stroke-opacity=".72" stroke-width="1.15" filter="url(#glow3)"/>
+    <circle cx="800" cy="438" r="23" fill="url(#coreHeart)" opacity=".95" filter="url(#glow8)"/>
+    <circle cx="800" cy="438" r="6.5" fill="#fff" filter="url(#glow8)"/>
+    <circle cx="800" cy="438" r="2.3" fill="#fff"/>
+    <circle cx="765" cy="405" r="2" fill="#eaf6ff" filter="url(#glow3)"/>
+    <circle cx="833" cy="466" r="1.8" fill="#00d9ff" filter="url(#glow3)"/>
+    <circle cx="840" cy="409" r="1.6" fill="#ff1744" filter="url(#glow3)"/>
+  </g>
+
+  <g fill="#eaf6ff" filter="url(#glow3)">
+    <circle cx="1003" cy="330" r="2.3"/><circle cx="1067" cy="480" r="1.8"/>
+    <circle cx="946" cy="581" r="1.8"/><circle cx="566" cy="345" r="1.6"/>
+    <circle cx="652" cy="555" r="2"/><circle cx="1105" cy="393" r="1.6"/>
+    <circle cx="692" cy="298" r="1.5"/><circle cx="1017" cy="536" r="1.8"/>
+  </g>
+
+  <g font-family="Segoe UI, Arial, sans-serif">
+    <g transform="translate(752 246)">
+      <rect width="96" height="23" rx="11.5" fill="#080a0f" fill-opacity=".86" stroke="#eaf6ff" stroke-opacity=".15"/>
+      <circle cx="13" cy="11.5" r="2.3" fill="#ff1744"/>
+      <text x="23" y="15" fill="#dce8f4" font-size="8" letter-spacing="1.55">PETER CORE</text>
+    </g>
+    <g transform="translate(477 604)">
+      <circle cx="3" cy="3" r="2.2" fill="#087bff" filter="url(#glow3)"/>
+      <text x="13" y="6" fill="#8b9bb1" font-size="8" letter-spacing="1.5">NEURAL FIELD · ACTIVE VISUALIZATION</text>
+    </g>
+    <g transform="translate(1033 607)">
+      <text x="0" y="6" fill="#667386" font-size="7" letter-spacing="1.4">LOCAL VISUAL SYSTEM · NOT AI TELEMETRY</text>
+    </g>
+  </g>
+
+  <g font-family="Segoe UI, Arial, sans-serif">
+    <g transform="translate(1114 354)">
+      <rect width="176" height="62" rx="14" fill="url(#glass)" stroke="url(#redBlueEdge)" stroke-opacity=".55"/>
+      <circle cx="18" cy="21" r="4" fill="#ff1744" opacity=".85" filter="url(#glow3)"/>
+      <text x="31" y="24" fill="#e7edf6" font-size="9" letter-spacing="1.3">ENERGY RESPONSE</text>
+      <text x="17" y="45" fill="#758399" font-size="8">A visual state, not a live metric</text>
+      <path d="M145 39v-7m6 7V26m6 13V22" stroke="#087bff" stroke-width="1.2" stroke-linecap="round" opacity=".8"/>
+    </g>
+    <path d="M1113 385 C1086 387 1070 407 1055 424" fill="none" stroke="#ff1744" stroke-opacity=".3" stroke-width=".8" stroke-dasharray="2 5"/>
+  </g>
+
+  <g font-family="Segoe UI, Arial, sans-serif">
+    <g transform="translate(403 682)">
+      <rect width="794" height="112" rx="25" fill="url(#glass)" stroke="url(#redBlueEdge)" stroke-width="1.1"/>
+      <rect x="1" y="1" width="792" height="110" rx="24" fill="none" stroke="#eaf6ff" stroke-opacity=".08"/>
+      <circle cx="39" cy="56" r="18" fill="#101722" stroke="#ff1744" stroke-opacity=".4"/>
+      <path d="M39 47v18M31 56h16M34 51l10 10M44 51 34 61" stroke="#ff526d" stroke-width="1" stroke-linecap="round" opacity=".9"/>
+      <text x="72" y="43" fill="#eaf6ff" font-size="10" font-weight="600" letter-spacing="1.2">MESSAGE PETER</text>
+      <text x="72" y="65" fill="#9ba9bc" font-size="13">Ask Peter anything...</text>
+      <text x="72" y="88" fill="#667487" font-size="8">Local demo responses · Enter to send · Shift + Enter for a new line</text>
+      <path d="M668 31V81" stroke="#eaf6ff" stroke-opacity=".09"/>
+      <circle cx="706" cy="56" r="18" fill="#0b1725" stroke="#087bff" stroke-opacity=".45"/>
+      <path d="M706 46v13m-5-8a5 5 0 0 0 10 0m-5 11v4m-5 0h10" fill="none" stroke="#9beeff" stroke-width="1.35" stroke-linecap="round"/>
+      <circle cx="756" cy="56" r="21" fill="#d9faff" fill-opacity=".94" filter="url(#glow3)"/>
+      <path d="M746 56 765 47 759 66 755 58 746 56Z" fill="#071326"/>
+      <path d="m755 58 10-11" stroke="#087bff" stroke-width="1"/>
+    </g>
+    <text x="800" y="820" text-anchor="middle" fill="#68768b" font-size="7" letter-spacing="1.3">PRIVATE BY DESIGN · LOCAL-FIRST PERSONAL AI</text>
+    <g transform="translate(1250 741)">
+      <rect width="235" height="52" rx="15" fill="#080a0f" fill-opacity=".77" stroke="#eaf6ff" stroke-opacity=".11"/>
+      <circle cx="19" cy="26" r="3" fill="#087bff" filter="url(#glow3)"/>
+      <text x="31" y="24" fill="#bcc8d8" font-size="8" letter-spacing="1">CORE STATE</text>
+      <text x="31" y="37" fill="#78869a" font-size="8">Standby · awaiting your prompt</text>
+      <path d="M202 17v18m6-12v12m6-16v16" stroke="#596578" stroke-width="1.2" stroke-linecap="round"/>
+    </g>
+  </g>
+
+  <rect x="8" y="8" width="1584" height="884" rx="8" fill="none" stroke="#dce8ff" stroke-opacity=".055"/>
+</svg>

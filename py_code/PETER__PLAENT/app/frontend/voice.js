@@ -24,6 +24,8 @@ function getActivityCountText() {
 function logActivity(text, type) {
     const list = getActivityLog();
     if (!list) return;
+    const emptyState = document.getElementById("activityEmpty");
+    if (emptyState) emptyState.hidden = true;
     const node = document.createElement("div");
     node.className = "activity-item" + (type ? " " + type : "");
     node.textContent = text;
