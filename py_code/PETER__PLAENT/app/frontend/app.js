@@ -2,7 +2,77 @@ import { initPeterCore3D } from "./peter-core-3d.js";
 
 const app = window.app || {};
 const YOUTUBE_TASK_URL = "https://www.youtube.com/";
+const PETER_USER_NAME = "Max";
+const WELCOME_GREETING = `Hello, ${PETER_USER_NAME}! how are you ? i like your voise max ?`;
+const SPEECH_VOICE_PREFERENCE = "peterPlanetVoiceURI";
+const SPEECH_LANGUAGE_PREFERENCE = "peterPlanetSpeechLanguage";
+const STARTUP_SOUND_PREFERENCE = "peterPlanetStartupSound";
+let startupAudioContext = null;
+let startupSoundEnabled = readStartupSoundPreference();
+let startupSoundPlayed = false;
 let isInitialized = false;
+
+function readStartupSoundPreference() {
+    try {
+        return window.localStorage.getItem(STARTUP_SOUND_PREFERENCE) !== "off";
+    } catch {
+        return true;
+    }
+}
+
+function includeUserNameOnce(text) {
+    const reply = String(text ?? "").trim();
+    const namePattern = new RegExp(`\\b${PETER_USER_NAME}\\b`, "gi");
+    const matches = [...reply.matchAll(namePattern)];
+    if (!matches.length) return `${PETER_USER_NAME}, ${reply}`;
+
+    const first = matches[0];
+    const prefix = reply.slice(0, first.index);
+    let suffix = reply.slice(first.index + first[0].length).replace(namePattern, "");
+    suffix = suffix.replace(/\s+([,.;:!?])/g, "$1");
+    suffix = suffix.replace(/[,;:]\s*([.!?])/g, "$1");
+    suffix = suffix.replace(/([,.;:!?])\s*([,.;:!?])/g, "$1");
+    suffix = suffix.replace(/\s{2,}/g, " ");
+    return `${prefix}${PETER_USER_NAME}${suffix}`.trim();
+}
+
+function playStartupSound(fromUserGesture = false) {
+    if (!startupSoundEnabled || startupSoundPlayed) return;
+
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return;
+
+    try {
+        startupAudioContext ??= new AudioContextClass();
+        if (startupAudioContext.state !== "running") {
+            if (fromUserGesture && startupAudioContext.state === "suspended") {
+                startupAudioContext.resume()
+                    .then(() => playStartupSound())
+                    .catch(() => {});
+            }
+            return;
+        }
+
+        const now = startupAudioContext.currentTime;
+        [523.25, 659.25, 783.99].forEach((frequency, index) => {
+            const startAt = now + index * 0.12;
+            const oscillator = startupAudioContext.createOscillator();
+            const envelope = startupAudioContext.createGain();
+            oscillator.type = "sine";
+            oscillator.frequency.setValueAtTime(frequency, startAt);
+            envelope.gain.setValueAtTime(0.0001, startAt);
+            envelope.gain.exponentialRampToValueAtTime(0.028, startAt + 0.035);
+            envelope.gain.exponentialRampToValueAtTime(0.0001, startAt + 0.42);
+            oscillator.connect(envelope);
+            envelope.connect(startupAudioContext.destination);
+            oscillator.start(startAt);
+            oscillator.stop(startAt + 0.44);
+        });
+        startupSoundPlayed = true;
+    } catch {
+        // Audio is optional; the interface should still start without it.
+    }
+}
 
 function isYouTubeTaskRequest(message) {
     const request = message.trim().toLowerCase()
@@ -25,6 +95,39 @@ app.hasBackendError = false;
 
 app.init = () => {
     if (isInitialized) return;
+    const startupSoundButton = document.getElementById("startupSoundButton");
+    const updateStartupSoundButton = () => {
+        if (!startupSoundButton) return;
+        startupSoundButton.setAttribute("aria-pressed", String(startupSoundEnabled));
+        startupSoundButton.setAttribute("aria-label", startupSoundEnabled ? "Mute startup sound" : "Enable startup sound");
+        startupSoundButton.title = startupSoundEnabled ? "Mute startup sound" : "Enable startup sound";
+        startupSoundButton.querySelector("[data-sound-muted-mark]")
+            ?.setAttribute("opacity", startupSoundEnabled ? "0" : "1");
+    };
+    updateStartupSoundButton();
+    startupSoundButton?.addEventListener("click", () => {
+        startupSoundEnabled = !startupSoundEnabled;
+        try {
+            window.localStorage.setItem(STARTUP_SOUND_PREFERENCE, startupSoundEnabled ? "on" : "off");
+        } catch {
+            // Keep the in-memory preference if storage is unavailable.
+        }
+        updateStartupSoundButton();
+        if (startupSoundEnabled) playStartupSound(true);
+    });
+
+    const retryStartupSound = (event) => {
+        if (event.target instanceof Element && event.target.closest("#startupSoundButton")) return;
+        playStartupSound(true);
+        if (startupSoundPlayed) {
+            document.removeEventListener("click", retryStartupSound);
+            document.removeEventListener("keydown", retryStartupSound);
+        }
+    };
+    document.addEventListener("click", retryStartupSound);
+    document.addEventListener("keydown", retryStartupSound);
+    playStartupSound();
+
     const updateVisibilityClass = () => {
         document.body.classList.toggle("tab-hidden", document.hidden);
     };
@@ -51,7 +154,7 @@ app.init = () => {
 
     const greeting = document.getElementById("greeting");
     if (greeting) {
-        greeting.textContent = "A quiet place in your local universe.";
+        greeting.textContent = WELCOME_GREETING;
     }
 
     app.logActivity("Application startup", "audit");
@@ -324,6 +427,7 @@ app.init = () => {
 
     // Initialize voice engine
     app.initVoiceEngine();
+    window.setTimeout(() => app.voiceEngine?.speak(WELCOME_GREETING), 700);
 
     // Start checking backend health
     app.startHealthChecks();
@@ -352,11 +456,12 @@ app.init = () => {
 app.addMessage = (from, text) => {
     const messages = document.getElementById("chatMessages");
     if (!messages) return;
+    const messageText = from === "Me" ? text : includeUserNameOnce(text);
     const message = document.createElement("div");
     message.className = `message ${from === "Me" ? "user" : "demo"}`;
     message.innerHTML = `
         <div class="message-avatar">${from === "Me" ? "Me" : "P"}</div>
-        <div class="message-bubble">${escapeHtml(text)}</div>
+        <div class="message-bubble">${escapeHtml(messageText)}${from === "Me" ? "" : '<span class="speech-wave" aria-hidden="true"><i></i><i></i><i></i></span>'}</div>
     `;
     messages.appendChild(message);
     messages.scrollTop = messages.scrollHeight;
@@ -366,7 +471,7 @@ app.addMessage = (from, text) => {
 app.setChatMode = (mode) => {
     app.chatMode = mode;
     const badge = document.getElementById("chatMode");
-    const label = mode ? (mode === "demo" ? "Demo Mode" : `${mode} mode`) : "Mode unavailable";
+    const label = mode ? (mode === "demo" ? "Demo Mode" : (mode === "ollama" ? "Local AI Mode" : `${mode} mode`)) : "Mode unavailable";
     if (badge) badge.textContent = label;
     const dockMode = document.getElementById("dockMode");
     if (dockMode) dockMode.textContent = label;
@@ -395,7 +500,17 @@ app.sendMessageToBackend = async (text) => {
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ message: text })
+            body: JSON.stringify({
+                message: text,
+                history: Array.from(document.querySelectorAll("#chatMessages .message"))
+                    .filter((message) => message.id !== "chatTypingIndicator")
+                    .map((message) => ({
+                        role: message.classList.contains("user") ? "user" : "assistant",
+                        content: message.querySelector(".message-bubble")?.textContent.trim() || "",
+                    }))
+                    .filter((message) => message.content)
+                    .slice(-12),
+            })
         });
 
         if (!response.ok) {
@@ -406,7 +521,7 @@ app.sendMessageToBackend = async (text) => {
         app.hasBackendError = false;
         app.isResponding = true;
         if (data.mode) app.setChatMode(data.mode);
-        const reply = data.reply || "Sorry, I didn't understand that.";
+        const reply = includeUserNameOnce(data.reply || "Sorry, I didn't understand that.");
         document.getElementById("chatTypingIndicator")?.remove();
         app.addMessage("Peter", reply);
         app.logActivity("Backend response received", "audit");
@@ -463,6 +578,10 @@ app.updateNeuralEngineState = () => {
     app.peterCore3D?.setState(newState === "waiting" ? "processing" : newState);
     const composer = document.querySelector(".conversation-dock");
     if (composer) composer.dataset.state = newState;
+
+    const chatMessages = document.getElementById("chatMessages");
+    chatMessages?.querySelectorAll(".message.demo.is-speaking").forEach((message) => message.classList.remove("is-speaking"));
+    if (app.isSpeaking) chatMessages?.querySelector(".message.demo:last-child")?.classList.add("is-speaking");
 
     const voiceActivity = document.getElementById("voiceActivity");
     if (voiceActivity) {
@@ -545,11 +664,14 @@ app.checkBackendHealth = async () => {
             app.setStatusLabel("backendStatus", status.backend === "running" ? "Running" : "Unavailable", status.backend === "running" ? "ok" : "unavailable");
             app.setStatusLabel("backendSystemStatus", status.backend === "running" ? "Running" : "Unavailable", status.backend === "running" ? "ok" : "unavailable");
             app.setStatusLabel("apiStatus", services.api === "active" ? "Available" : "Unavailable", services.api === "active" ? "ok" : "unavailable");
-            app.setStatusLabel("aiEngineStatus", services.ai_engine === "demo" ? "Demo responses" : (services.ai_engine || "Unavailable"), services.ai_engine === "demo" ? "demo" : "unavailable");
+            const aiEngine = services.ai_engine || "unavailable";
+            const isDemo = aiEngine === "demo";
+            const isOllama = aiEngine === "ollama";
+            app.setStatusLabel("aiEngineStatus", isDemo ? "Demo responses" : (isOllama ? "Ollama local model" : aiEngine), isDemo ? "demo" : (isOllama ? "ok" : "unavailable"));
             app.setStatusLabel("databaseStatus", services.database === "disconnected" ? "Not connected" : (services.database || "Unavailable"), services.database === "disconnected" ? "off" : "unavailable");
-            app.setChatMode(services.ai_engine === "demo" ? "demo" : null);
+            app.setChatMode(isDemo ? "demo" : (isOllama ? "ollama" : null));
             const greeting = document.getElementById("greeting");
-            if (greeting) greeting.textContent = services.ai_engine === "demo" ? "Local Demo Mode · responses are canned." : "Local service status is available.";
+            if (greeting) greeting.textContent = WELCOME_GREETING;
             app.updateNeuralEngineState();
         } catch (statusError) {
             console.warn("Backend status check failed:", statusError);
@@ -558,7 +680,7 @@ app.checkBackendHealth = async () => {
             app.setStatusLabel("databaseStatus", "Unavailable", "unavailable");
             app.setChatMode(null);
             const greeting = document.getElementById("greeting");
-            if (greeting) greeting.textContent = "Backend is running, but service details are unavailable.";
+            if (greeting) greeting.textContent = WELCOME_GREETING;
         }
     } catch (error) {
         console.warn("Health check failed:", error);
@@ -571,7 +693,7 @@ app.checkBackendHealth = async () => {
         app.setStatusLabel("databaseStatus", "Unavailable", "unavailable");
         app.setChatMode(null);
         const greeting = document.getElementById("greeting");
-        if (greeting) greeting.textContent = "Backend unavailable. Chat requires the local server.";
+        if (greeting) greeting.textContent = WELCOME_GREETING;
         app.updateNeuralEngineState();
     }
 };
@@ -584,6 +706,60 @@ app.initVoiceEngine = () => {
 
     const recognitionAvailable = !!SpeechRecognition;
     const synthesisAvailable = !!speechSynthesis;
+        const voiceSelection = document.getElementById("voiceSelection");
+        const recognitionLanguage = document.getElementById("recognitionLanguage");
+        const previewVoiceButton = document.getElementById("previewVoiceButton");
+        const readPreference = (key, fallback) => {
+            try {
+                return window.localStorage.getItem(key) || fallback;
+            } catch {
+                return fallback;
+            }
+        };
+        const savePreference = (key, value) => {
+            try {
+                window.localStorage.setItem(key, value);
+            } catch {
+                // Voice controls continue to work if browser storage is disabled.
+            }
+        };
+        const populateVoices = () => {
+            if (!voiceSelection || !speechSynthesis) return;
+            const voices = speechSynthesis.getVoices();
+            if (!voices.length) {
+                voiceSelection.replaceChildren(new Option("No browser voices available", ""));
+                voiceSelection.disabled = true;
+                if (previewVoiceButton) previewVoiceButton.disabled = true;
+                return;
+            }
+
+            const savedVoice = readPreference(SPEECH_VOICE_PREFERENCE, "");
+            const preferredVoice = voices.find((voice) => /zira|heera|jenny|aria|sonia|neerja|swara|female/i.test(voice.name))
+                || voices.find((voice) => voice.default)
+                || voices[0];
+            voiceSelection.replaceChildren(...voices.map((voice) => new Option(`${voice.name} (${voice.lang})`, voice.voiceURI)));
+            voiceSelection.value = voices.some((voice) => voice.voiceURI === savedVoice) ? savedVoice : preferredVoice.voiceURI;
+            voiceSelection.disabled = false;
+            savePreference(SPEECH_VOICE_PREFERENCE, voiceSelection.value);
+            if (previewVoiceButton) previewVoiceButton.disabled = false;
+        };
+
+        const getRecognitionLanguage = () => recognitionLanguage?.value === "device"
+            ? (navigator.language || "en-US")
+            : (recognitionLanguage?.value || navigator.language || "en-US");
+
+        if (recognitionLanguage) {
+            const savedLanguage = readPreference(SPEECH_LANGUAGE_PREFERENCE, "hi-IN");
+            recognitionLanguage.value = Array.from(recognitionLanguage.options).some((option) => option.value === savedLanguage)
+                ? savedLanguage
+                : "hi-IN";
+            recognitionLanguage.addEventListener("change", () => {
+                savePreference(SPEECH_LANGUAGE_PREFERENCE, recognitionLanguage.value);
+                if (app.voiceEngine?.recognition) app.voiceEngine.recognition.lang = getRecognitionLanguage();
+            });
+        }
+        populateVoices();
+        speechSynthesis?.addEventListener("voiceschanged", populateVoices);
     app.setStatusLabel("speechRecognitionStatus", recognitionAvailable ? "Supported" : "Unavailable", recognitionAvailable ? "ok" : "off");
     app.setStatusLabel("speechSynthesisStatus", synthesisAvailable ? "Supported" : "Unavailable", synthesisAvailable ? "ok" : "off");
     const speakerStatus = document.getElementById("speakerStatus");
@@ -604,7 +780,7 @@ app.initVoiceEngine = () => {
                 app.voiceEngine.recognition = new SpeechRecognition();
                 app.voiceEngine.recognition.continuous = false;
                 app.voiceEngine.recognition.interimResults = false;
-                app.voiceEngine.recognition.lang = "en-US";
+                app.voiceEngine.recognition.lang = getRecognitionLanguage();
 
                 app.voiceEngine.recognition.onresult = (event) => {
                     const transcript = event.results[0][0].transcript;
@@ -666,11 +842,17 @@ app.initVoiceEngine = () => {
                 await app.voiceEngine.start();
             }
         },
-        speak: (text) => {
-            if (app.voiceEngine.synthesis && app.voiceEngine.speechSynthesisEnabled) {
+        speak: (text, force = false) => {
+            if (app.voiceEngine.synthesis && (app.voiceEngine.speechSynthesisEnabled || force)) {
                 // Cancel any ongoing speech
                 app.voiceEngine.synthesis.cancel();
                 const utterance = new SpeechSynthesisUtterance(text);
+                utterance.voice = app.voiceEngine.synthesis.getVoices()
+                    .find((voice) => voice.voiceURI === voiceSelection?.value) || null;
+                utterance.lang = utterance.voice?.lang || recognitionLanguage?.value || navigator.language || "en-US";
+                utterance.rate = 0.9;
+                utterance.pitch = 1;
+                utterance.volume = 1;
                 utterance.onend = () => {
                     app.isSpeaking = false;
                     app.updateNeuralEngineState();
@@ -693,6 +875,8 @@ app.initVoiceEngine = () => {
 
     app.voiceEngine.init();
     app.updateVoiceButton();
+    voiceSelection?.addEventListener("change", () => savePreference(SPEECH_VOICE_PREFERENCE, voiceSelection.value));
+    previewVoiceButton?.addEventListener("click", () => app.voiceEngine.speak(WELCOME_GREETING, true));
 };
 
 app.updateVoiceButton = () => {

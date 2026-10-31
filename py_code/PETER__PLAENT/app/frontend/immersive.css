@@ -1,3 +1,8 @@
+@@ .utility-panel, .chat-panel
+    animation: panel-appear 180ms ease-out both;
+.chat-panel { right: clamp(20px, 4vw, 48px); bottom: calc(clamp(24px, 6.2vh, 58px) + 90px); width: min(420px, calc(100vw - 32px)); max-height: min(48vh, 400px); padding: 15px; border-color: rgba(98, 194, 240, 0.22); background: rgba(5, 7, 12, 0.62); box-shadow: 0 18px 56px rgba(0, 0, 0, 0.28), 0 0 22px rgba(8, 123, 255, 0.05); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); transform: none; }
+.chat-panel::-webkit-scrollbar, .chat-messages::-webkit-scrollbar { display: none; }
+.chat-messages { display: grid; max-height: min(32vh, 250px); gap: 9px; overflow-y: auto; padding: 8px 2px; scrollbar-width: none; }
 :root {
     color-scheme: dark;
     font-family: "DM Sans", "Segoe UI", sans-serif;
@@ -249,7 +254,8 @@ button:focus-visible, a:focus-visible, textarea:focus-visible {
 .utility-trigger { right: 25px; bottom: 23px; }
 .utility-trigger-icon { color: #a9eaff; font-size: 16px; }
 .utility-trigger { width: 38px; height: 38px; justify-content: center; padding: 0; font-size: 0; }
-.utility-trigger-icon { font-size: 18px; }
+.utility-trigger-icon { display: grid; width: 23px; height: 23px; flex: 0 0 auto; place-items: center; border: 1px solid rgba(0, 217, 255, 0.48); border-radius: 50%; color: #b7edff; font: 600 12px/1 "Space Grotesk", sans-serif; text-shadow: 0 0 9px rgba(0, 217, 255, 0.58); animation: peter-mark-spin 7s linear infinite; }
+@keyframes peter-mark-spin { to { transform: rotate(360deg); } }
 .history-trigger { display: none; }
 .history-trigger svg { width: 15px; height: 15px; }
 
@@ -259,22 +265,22 @@ button:focus-visible, a:focus-visible, textarea:focus-visible {
     bottom: clamp(24px, 6.2vh, 58px);
     left: 50%;
     display: flex;
-    width: min(620px, calc(100vw - 40px));
-    min-height: 86px;
+    width: min(560px, calc(100vw - 40px));
+    min-height: 72px;
     align-items: center;
     gap: 7px;
     padding: 9px 11px 9px 14px;
-    border: 1px solid rgba(255, 23, 68, 0.3);
-    border-radius: 20px;
+    border: 0;
+    border-radius: 3px;
     background:
-        linear-gradient(115deg, rgba(10, 7, 12, 0.68), rgba(4, 9, 17, 0.68));
-    box-shadow: 0 10px 32px rgba(0, 0, 0, 0.28), 0 0 18px rgba(181, 9, 38, 0.06), 0 0 22px rgba(8, 123, 255, 0.06), inset 0 1px 0 rgba(226, 246, 255, 0.04);
+        linear-gradient(115deg, rgba(10, 7, 12, 0.2), rgba(4, 9, 17, 0.16));
+    box-shadow: 0 8px 26px rgba(0, 0, 0, 0.16);
     transform: translateX(-50%);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     transition: border-color var(--ease), box-shadow var(--ease);
 }
-.conversation-dock:focus-within { border-color: rgba(0, 217, 255, 0.56); background: linear-gradient(110deg, rgba(13, 8, 15, 0.76), rgba(5, 11, 22, 0.76)); box-shadow: 0 0 18px rgba(181, 9, 38, 0.12), 0 0 22px rgba(8, 123, 255, 0.12), 0 10px 32px rgba(0, 0, 0, 0.32), inset 0 0 14px rgba(54, 152, 218, 0.04); }
+.conversation-dock:focus-within { background: linear-gradient(110deg, rgba(13, 8, 15, 0.28), rgba(5, 11, 22, 0.24)); box-shadow: 0 0 18px rgba(8, 123, 255, 0.08); }
 .dock-core-mark { display: none; }
 .dock-status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
 .voice-activity { display: none; }
@@ -297,17 +303,15 @@ button:focus-visible, a:focus-visible, textarea:focus-visible {
 .microphone-button.active { background: rgba(66, 211, 238, 0.14); color: #9cf2ff; box-shadow: 0 0 20px rgba(65, 209, 255, 0.19); }
 .speaker-button { width: 30px; height: 30px; opacity: 0.7; }
 .speaker-button[aria-pressed="false"] { color: #5c7185; }
-.composer { position: relative; display: grid; min-width: 0; flex: 1; align-content: center; gap: 2px; padding: 4px 2px 4px 13px; }
-.composer::before { position: absolute; top: 8px; left: 0; color: #ff4968; content: ">"; font: 600 12px/1.2 "Cascadia Code", Consolas, monospace; text-shadow: 0 0 9px rgba(255, 23, 68, 0.55); }
-.composer-label { color: #92a9bd; font: 600 8px/1.3 "Cascadia Code", Consolas, monospace; letter-spacing: 0.1em; text-transform: uppercase; }
-.composer-label::after { margin-left: 4px; color: var(--cyan); content: "_"; animation: terminal-cursor 1.15s steps(2, start) infinite; }
+.composer { position: relative; display: grid; min-width: 0; flex: 1; align-content: center; gap: 2px; padding: 4px 2px; }
+.composer-label { color: #65d8ed; font: 500 9px/1.3 "Cascadia Code", Consolas, monospace; letter-spacing: 0; white-space: nowrap; }
 @keyframes terminal-cursor { to { visibility: hidden; } }
 .composer textarea { display: block; width: 100%; min-height: 24px; max-height: 110px; resize: none; padding: 1px 0; border: 0; outline: 0; background: transparent; color: #edf8ff; caret-color: var(--cyan); font: 13px/1.45 "Cascadia Code", Consolas, "Courier New", monospace; }
-.composer textarea::placeholder { color: #b2c2d1; opacity: 1; }
+.composer textarea::placeholder { color: #b2c2d1; opacity: 0.78; }
 .composer textarea:focus-visible { outline: none; }
-.composer-hint { display: block; color: #71889f; font: 8px/1.3 "Cascadia Code", Consolas, monospace; letter-spacing: 0.025em; white-space: nowrap; }
-.send-button { width: 37px; height: 37px; background: linear-gradient(145deg, #ff4968, #087bff); color: #fff; box-shadow: 0 0 18px rgba(181, 9, 38, 0.28), 0 0 15px rgba(8, 123, 255, 0.24); }
-.send-button:hover { background: linear-gradient(145deg, #ff7188, #4aa0ff); box-shadow: 0 0 24px rgba(255, 23, 68, 0.34), 0 0 20px rgba(8, 123, 255, 0.36); transform: translateY(-1px) scale(1.04); }
+.composer-hint { display: none; }
+.send-button { width: 37px; height: 37px; border: 0; border-radius: 3px; background: transparent; color: #a7eaff; box-shadow: none; }
+.send-button:hover { background: rgba(0, 217, 255, 0.08); color: #d7f8ff; box-shadow: 0 0 14px rgba(8, 123, 255, 0.12); transform: translateY(-1px); }
 .send-button:active { transform: scale(0.94); }
 .send-button:focus-visible, .dock-icon-button:focus-visible { outline: 2px solid #9deaff; outline-offset: 3px; }
 
@@ -328,7 +332,7 @@ button:focus-visible, a:focus-visible, textarea:focus-visible {
     -webkit-backdrop-filter: blur(14px);
     animation: panel-appear 180ms ease-out both;
 }
-.chat-panel { right: clamp(20px, 4vw, 48px); bottom: calc(clamp(24px, 6.2vh, 58px) + 90px); width: min(420px, calc(100vw - 32px)); max-height: min(48vh, 400px); padding: 15px; border-color: rgba(98, 194, 240, 0.22); background: rgba(5, 7, 12, 0.62); box-shadow: 0 18px 56px rgba(0, 0, 0, 0.28), 0 0 22px rgba(8, 123, 255, 0.05); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); transform: none; }
+.chat-panel { right: clamp(20px, 4vw, 48px); bottom: calc(clamp(24px, 6.2vh, 58px) + 78px); width: min(390px, calc(100vw - 32px)); max-height: min(44vh, 360px); padding: 13px; border: 0; border-radius: 3px; background: rgba(3, 7, 13, 0.24); box-shadow: none; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); scrollbar-width: none; transform: none; }
 @keyframes panel-appear { from { opacity: 0; translate: 0 6px; } to { opacity: 1; translate: 0 0; } }
 .panel-heading { display: flex; align-items: center; gap: 10px; }
 .panel-heading > span:first-child { display: grid; flex: 1; gap: 5px; }
@@ -363,17 +367,28 @@ button:focus-visible, a:focus-visible, textarea:focus-visible {
 .utility-tab.active, .utility-tab:hover { border-color: rgba(98, 194, 240, 0.2); background: rgba(79, 164, 220, 0.1); color: #bcecff; }
 
 .chat-panel-heading { margin-bottom: 10px; }
+.chat-panel .panel-heading strong { color: #d7f4ff; font: 500 13px/1.4 "Cascadia Code", Consolas, monospace; }
+.chat-panel .panel-close { border-radius: 2px; }
 .chat-mode-note { margin: 0 0 8px; color: #9bb9d0; font-size: 10px; line-height: 1.45; }
-.mode-badge { flex: 0 0 auto; padding: 5px 8px; border: 1px solid rgba(94, 178, 226, 0.18); border-radius: 999px; color: #87c8ec; font-size: 9px; }
-.chat-messages { display: grid; max-height: min(34vh, 280px); gap: 12px; overflow-y: auto; padding: 8px 2px; }
+.mode-badge { flex: 0 0 auto; padding: 5px 8px; border: 1px solid rgba(94, 178, 226, 0.18); border-radius: 2px; background: transparent; color: #87c8ec; font: 10px "Cascadia Code", Consolas, monospace; }
+.chat-messages { display: grid; max-height: min(32vh, 250px); gap: 9px; overflow-y: auto; padding: 8px 2px; }
 .message { display: flex; align-items: flex-start; gap: 8px; }
 .message { animation: message-enter 200ms ease-out both; }
 @keyframes message-enter { from { opacity: 0; translate: 0 5px; } to { opacity: 1; translate: 0 0; } }
 .message.user { flex-direction: row-reverse; }
-.message-avatar { display: grid; width: 25px; height: 25px; flex: 0 0 auto; place-items: center; border: 1px solid rgba(117, 200, 242, 0.22); border-radius: 50%; color: #8bdffc; font-size: 9px; }
+.message-avatar { display: grid; width: 20px; height: 20px; flex: 0 0 auto; place-items: center; border: 1px solid rgba(117, 200, 242, 0.22); border-radius: 2px; background: transparent; color: #8bdffc; font: 9px "Cascadia Code", Consolas, monospace; }
 .message.user .message-avatar { color: #c2d5e5; }
-.message-bubble { max-width: 84%; padding: 10px 13px; border: 1px solid rgba(8, 123, 255, 0.13); border-radius: 13px; background: rgba(12, 20, 33, 0.72); color: #d3e2ef; font-size: 13px; line-height: 1.6; overflow-wrap: anywhere; white-space: pre-wrap; }
-.message.user .message-bubble { border-color: rgba(255, 23, 68, 0.19); background: rgba(68, 16, 31, 0.56); color: #effaff; }
+.message-bubble { max-width: 91%; padding: 3px 0; border: 0; border-radius: 0; background: transparent; color: #d3e2ef; font: 12px/1.55 "Cascadia Code", Consolas, monospace; overflow-wrap: anywhere; white-space: pre-wrap; }
+.message.demo .message-bubble::before { color: #65d8ed; content: "peter: "; }
+.message.user .message-bubble { border: 0; background: transparent; color: #effaff; }
+.message.user .message-bubble::before { color: #ff7188; content: "user$ "; }
+.speech-wave { display: none; height: 12px; align-items: center; gap: 2px; margin-left: 7px; vertical-align: middle; }
+.speech-wave i { width: 2px; height: 3px; border-radius: 1px; background: #79e4f5; }
+.message.demo.is-speaking .speech-wave { display: inline-flex; }
+.message.demo.is-speaking .speech-wave i { animation: speech-wave 720ms ease-in-out infinite alternate; }
+.message.demo.is-speaking .speech-wave i:nth-child(2) { animation-delay: 180ms; }
+.message.demo.is-speaking .speech-wave i:nth-child(3) { animation-delay: 360ms; }
+@keyframes speech-wave { to { height: 11px; opacity: 0.65; } }
 .task-confirmation { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 11px; }
 .task-confirmation button { min-height: 34px; padding: 7px 11px; border: 1px solid rgba(0, 217, 255, 0.36); border-radius: 9px; background: rgba(8, 123, 255, 0.16); color: #eaf6ff; font: 600 11px "Cascadia Code", Consolas, monospace; cursor: pointer; transition: background var(--ease), border-color var(--ease), transform var(--ease); }
 .task-confirmation button:hover:not(:disabled) { border-color: rgba(0, 217, 255, 0.7); background: rgba(8, 123, 255, 0.28); transform: translateY(-1px); }
@@ -393,6 +408,11 @@ button:focus-visible, a:focus-visible, textarea:focus-visible {
 .modal { position: absolute; z-index: 40; inset: 0; display: grid; place-items: center; padding: 18px; }
 .modal-card { width: min(400px, 100%); padding: 20px; border: 1px solid var(--line); border-radius: 16px; background: rgba(6, 17, 33, 0.97); box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55); }
 .field { display: flex; justify-content: space-between; gap: 12px; padding: 13px 0; border-bottom: 1px solid rgba(130, 178, 213, 0.1); color: #9cb1c5; font-size: 12px; }
+.field-control select { max-width: 62%; min-width: 0; padding: 6px 8px; border: 1px solid rgba(117, 200, 242, 0.24); border-radius: 3px; background: rgba(3, 7, 13, 0.28); color: #d7f4ff; font: 11px "Cascadia Code", Consolas, monospace; }
+.field-control select option { background: #080f18; color: #e4f5ff; }
+.voice-preview { display: inline-flex; min-height: 34px; align-items: center; gap: 7px; padding: 6px 9px; border: 1px solid rgba(117, 200, 242, 0.24); border-radius: 3px; background: transparent; color: #bcecff; font: 11px "Cascadia Code", Consolas, monospace; cursor: pointer; }
+.voice-preview:disabled { opacity: 0.5; cursor: not-allowed; }
+.voice-note { margin: 10px 0 0; color: #8197ac; font-size: 10px; line-height: 1.5; }
 .field:first-of-type { margin-top: 16px; }
 .field span:last-child { color: #c6d9e8; text-align: right; }
 .visually-hidden { position: absolute !important; width: 1px !important; height: 1px !important; overflow: hidden !important; clip: rect(0, 0, 0, 0) !important; white-space: nowrap !important; }

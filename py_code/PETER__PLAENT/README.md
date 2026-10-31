@@ -20,8 +20,13 @@ You should see a Python version message. Later, you will create a virtual enviro
 
 
 ## Frontend interface
-From the project root, run `.\.venv\Scripts\python.exe app\backend\server.py` to start the local backend, then open `http://127.0.0.1:8000/`. The immersive galaxy interface loads its Three.js module from `app/frontend/vendor`, with no CDN dependency.
+From the project root, double-click `start_peter.bat` to start or reuse local Ollama and Peter's backend, then open `http://127.0.0.1:8000/`. Alternatively, run `\.venv\Scripts\python.exe app\backend\server.py` manually. The immersive galaxy interface loads its Three.js module from `app/frontend/vendor`, with no CDN dependency.
 Chat is labeled Demo Mode when the backend reports canned responses. Optional panels expose verified service status, session activity and modules marked Coming Soon. The Three.js scene caps canvas resolution and animation rate, pauses while the tab is hidden, and has a CSS visual fallback if WebGL initialization fails.
+
+### Optional local AI
+Peter uses Ollama on this computer when the configured model is installed; otherwise chat safely falls back to Demo Mode. Install Ollama, then run `ollama pull qwen2.5:0.5b` before starting the backend. The defaults are `PETER_OLLAMA_URL=http://127.0.0.1:11434` and `PETER_OLLAMA_MODEL=qwen2.5:0.5b`; override them with environment variables if needed. Recent chat turns are sent only to the local Ollama service and are not saved by the backend.
+
+Peter's editable brain lives in `app/backend/peter_profile.json`. Update its purpose, personality, languages, or reply rules there; changes apply to the next chat message without restarting. The default profile identifies `Sagar` as Peter's creator. The backend preserves that fact in its system prompt and answers common creator questions even in Demo Mode. Replies include the user's name once; set `PETER_USER_NAME` before starting the backend to change the default. Spoken replies use the selected browser voice at a slower rate for clarity.
 
 ## Project structure
 

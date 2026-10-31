@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#030817" />
     <title>Peter Planet | Immersive AI Universe</title>
-    <link rel="stylesheet" href="immersive.css" />
+    <link rel="stylesheet" href="immersive.css?v=chat-minimal" />
 </head>
 <body>
     <div class="app immersive-app" id="app">
@@ -55,14 +55,14 @@
                 <div class="core-caption" aria-live="polite">
                     <span class="core-caption-kicker">PETER CORE</span>
                     <span class="core-caption-state" id="coreStateLabel">STANDBY</span>
-                    <p class="greeting" id="greeting">A quiet place in your local universe.</p>
+                    <p class="greeting" id="greeting">Hello, Sagar! Kaisa haal hai? Aaj kya kar rahe ho?</p>
                 </div>
                 <p class="core-fallback" id="coreFallback" role="status" aria-live="polite" hidden></p>
                 <span class="visual-disclaimer">A local visual experience · not AI telemetry</span>
             </section>
 
-            <button class="utility-trigger" id="utilityToggle" type="button" aria-label="Open system, module and activity details" aria-expanded="false" aria-controls="utilityPanel">
-                <span class="utility-trigger-icon" aria-hidden="true">✧</span><span>Explore</span>
+            <button class="utility-trigger" id="utilityToggle" type="button" aria-label="Open system, module and activity details" title="Open system, module and activity details" aria-expanded="false" aria-controls="utilityPanel">
+                <span class="utility-trigger-icon" aria-hidden="true">P</span><span>Explore</span>
             </button>
             <button class="history-trigger" id="chatToggle" type="button" aria-label="Open chat history" aria-expanded="false" aria-controls="chatPanel">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8A8.5 8.5 0 0 1 8.7 3.9a8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8v.5Z"></path></svg>
@@ -118,7 +118,7 @@
             </div>
             <p class="chat-mode-note" id="chatModeNote" hidden></p>
             <div class="chat-messages" id="chatMessages" aria-live="polite" aria-label="Conversation">
-                <div class="message demo"><div class="message-avatar">P</div><div class="message-bubble">Hello! I am Peter. Type a message to try the local demo chat.</div></div>
+                <div class="message demo"><div class="message-avatar">P</div><div class="message-bubble">Sagar, hello! Peter here. Kaisa haal hai?</div></div>
             </div>
             <button class="text-entry-link" id="keyboardInputBtn" type="button">⌨ <span>Focus the message box</span></button>
         </section>
@@ -127,6 +127,9 @@
             <span class="dock-core-mark" aria-hidden="true"><i></i></span>
             <div class="dock-status"><span class="dock-status-title" id="dockMode">Checking mode</span><span class="dock-status-sub" id="voiceAssistantStatus" role="status">Voice support is optional</span></div>
             <div class="voice-activity" id="voiceActivity" data-state="idle" role="img" aria-label="Voice activity visualization is idle"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+            <button class="dock-icon-button startup-sound-button" id="startupSoundButton" type="button" aria-label="Mute startup sound" aria-pressed="true" title="Mute startup sound">
+                <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5Z"></path><path d="M15.5 8.5a5 5 0 0 1 0 7"></path><path data-sound-muted-mark d="m4 4 16 16" opacity="0"></path></svg>
+            </button>
             <button class="dock-icon-button microphone-button" id="voiceButton" type="button" aria-label="Start voice input" title="Optional voice input">
                 <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line></svg>
             </button>
@@ -136,8 +139,8 @@
             </button>
             <div class="composer">
                 <label class="visually-hidden" for="messageInput">Message Peter</label>
-                <span class="composer-label" aria-hidden="true">Message Peter</span>
-                <textarea id="messageInput" placeholder="Ask Peter or try “Open YouTube”..." rows="1" aria-describedby="composerHint"></textarea>
+                <span class="composer-label" aria-hidden="true">user@peter</span>
+                <textarea id="messageInput" placeholder="Type a message..." rows="1" aria-describedby="composerHint"></textarea>
                 <span class="composer-hint" id="composerHint">Try “Open YouTube” · Enter to send · Shift + Enter for a new line</span>
             </div>
             <button class="send-button" id="sendBtn" type="button" aria-label="Send message" title="Send message">
@@ -152,9 +155,15 @@
                 <label class="field"><span>Microphone permission</span><span id="micPermissionText">Not requested</span></label>
                 <label class="field"><span>Speech recognition</span><span id="recognitionStatusText">Checking…</span></label>
                 <label class="field"><span>Speech synthesis</span><span id="synthesisStatusText">Checking…</span></label>
+                <label class="field field-control" for="voiceSelection"><span>Peter's voice</span><select id="voiceSelection" aria-label="Peter's voice"><option value="">Loading voices…</option></select></label>
+                <button class="voice-preview" id="previewVoiceButton" type="button" title="Preview Peter's voice"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m8 5 11 7-11 7V5Z"></path></svg>Preview voice</button>
+                <label class="field field-control" for="recognitionLanguage"><span>Speech input language</span><select id="recognitionLanguage" aria-label="Speech input language">
+                    <option value="hi-IN">Hindi</option><option value="ur-PK">Urdu</option><option value="en-US">English (US)</option><option value="en-GB">English (UK)</option><option value="bn-IN">Bengali</option><option value="pa-IN">Punjabi</option><option value="ta-IN">Tamil</option><option value="te-IN">Telugu</option><option value="mr-IN">Marathi</option><option value="ar-SA">Arabic</option><option value="es-ES">Spanish</option><option value="fr-FR">French</option><option value="de-DE">German</option><option value="zh-CN">Chinese</option><option value="ja-JP">Japanese</option><option value="device">Device language</option>
+                </select></label>
+                <p class="voice-note">Voice and language choices depend on your browser. Typed chat can use any language the local model understands.</p>
             </div>
         </div>
     </div>
-    <script type="module" src="app.js"></script>
+    <script type="module" src="app.js?v=creator-profile"></script>
 </body>
 </html>
