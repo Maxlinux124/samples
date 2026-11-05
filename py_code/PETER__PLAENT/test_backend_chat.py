@@ -90,6 +90,16 @@ class TestBackendChat(unittest.TestCase):
         with patch.object(server.urllib.request, "urlopen", return_value=response):
             self.assertTrue(server.ollama_model_available())
 
+    def test_status_includes_configured_user_name(self):
+        handler = object.__new__(server.PeterPlanetHandler)
+        handler.path = "/api/status"
+
+        with patch.object(server.PeterPlanetHandler, "send_api_response") as send_response, \
+                patch.object(server, "ollama_model_available", return_value=False):
+            handler.do_GET()
+
+        self.assertEqual(send_response.call_args.args[0]["user_name"], server.PETER_USER_NAME)
+
     def test_user_name_is_included_exactly_once(self):
         self.assertEqual(
             server.include_user_name_once("Hello there."),

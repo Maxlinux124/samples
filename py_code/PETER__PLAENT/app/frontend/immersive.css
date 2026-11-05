@@ -379,6 +379,16 @@ button:focus-visible, a:focus-visible, textarea:focus-visible {
 .message-avatar { display: grid; width: 20px; height: 20px; flex: 0 0 auto; place-items: center; border: 1px solid rgba(117, 200, 242, 0.22); border-radius: 2px; background: transparent; color: #8bdffc; font: 9px "Cascadia Code", Consolas, monospace; }
 .message.user .message-avatar { color: #c2d5e5; }
 .message-bubble { max-width: 91%; padding: 3px 0; border: 0; border-radius: 0; background: transparent; color: #d3e2ef; font: 12px/1.55 "Cascadia Code", Consolas, monospace; overflow-wrap: anywhere; white-space: pre-wrap; }
+.response-word { transition: color 500ms ease, text-shadow 500ms ease; }
+.response-word.is-revealing { animation: response-word-glow 850ms ease-out both; }
+@keyframes response-word-glow {
+    0% { color: #d3e2ef; text-shadow: 0 0 2px rgba(101, 216, 237, 0.16); }
+    42% { color: #effaff; text-shadow: 0 0 9px rgba(101, 216, 237, 0.58); }
+    100% { color: #d3e2ef; text-shadow: 0 0 1px rgba(101, 216, 237, 0.08); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .response-word.is-revealing { animation: none; color: #effaff; text-shadow: none; }
+}
 .message.demo .message-bubble::before { color: #65d8ed; content: "peter: "; }
 .message.user .message-bubble { border: 0; background: transparent; color: #effaff; }
 .message.user .message-bubble::before { color: #ff7188; content: "user$ "; }

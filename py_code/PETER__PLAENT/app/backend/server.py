@@ -205,6 +205,7 @@ class PeterPlanetHandler(http.server.SimpleHTTPRequestHandler):
                 "status": "ok",
                 "backend": "running",
                 "version": "0.1.0",
+                "user_name": PETER_USER_NAME,
                 "services": {
                     "api": "active",
                     "ai_engine": "ollama" if ollama_model_available() else "demo",

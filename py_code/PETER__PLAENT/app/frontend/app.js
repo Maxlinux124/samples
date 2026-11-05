@@ -2,8 +2,8 @@ import { initPeterCore3D } from "./peter-core-3d.js";
 
 const app = window.app || {};
 const YOUTUBE_TASK_URL = "https://www.youtube.com/";
-const PETER_USER_NAME = "Max";
-const WELCOME_GREETING = `Hello, ${PETER_USER_NAME}! how are you ? i like your voise max ?`;
+let PETER_USER_NAME = "Sagar";
+const getWelcomeGreeting = () => `Hello, ${PETER_USER_NAME}! Kaisa haal hai? Aaj kya kar rahe ho?`;
 const SPEECH_VOICE_PREFERENCE = "peterPlanetVoiceURI";
 const SPEECH_LANGUAGE_PREFERENCE = "peterPlanetSpeechLanguage";
 const STARTUP_SOUND_PREFERENCE = "peterPlanetStartupSound";
@@ -11,6 +11,7 @@ let startupAudioContext = null;
 let startupSoundEnabled = readStartupSoundPreference();
 let startupSoundPlayed = false;
 let isInitialized = false;
+const messageAnimations = new WeakMap();
 
 function readStartupSoundPreference() {
     try {
@@ -34,6 +35,13 @@ function includeUserNameOnce(text) {
     suffix = suffix.replace(/([,.;:!?])\s*([,.;:!?])/g, "$1");
     suffix = suffix.replace(/\s{2,}/g, " ");
     return `${prefix}${PETER_USER_NAME}${suffix}`.trim();
+}
+
+function setUserName(userName) {
+    if (typeof userName !== "string" || !userName.trim()) return;
+    PETER_USER_NAME = userName.trim();
+    const greeting = document.getElementById("greeting");
+    if (greeting) greeting.textContent = getWelcomeGreeting();
 }
 
 function playStartupSound(fromUserGesture = false) {
@@ -154,7 +162,7 @@ app.init = () => {
 
     const greeting = document.getElementById("greeting");
     if (greeting) {
-        greeting.textContent = WELCOME_GREETING;
+        greeting.textContent = getWelcomeGreeting();
     }
 
     app.logActivity("Application startup", "audit");
@@ -263,6 +271,7 @@ app.init = () => {
     const clearConversation = (notice, activity) => {
         const messages = document.getElementById("chatMessages");
         if (!messages) return;
+        messages.querySelectorAll(".message").forEach(app.cancelMessageAnimation);
         messages.replaceChildren();
         app.addMessage("Peter", notice);
         app.logActivity(activity, "info");
@@ -427,7 +436,6 @@ app.init = () => {
 
     // Initialize voice engine
     app.initVoiceEngine();
-    window.setTimeout(() => app.voiceEngine?.speak(WELCOME_GREETING), 700);
 
     // Start checking backend health
     app.startHealthChecks();
@@ -453,7 +461,114 @@ app.init = () => {
     isInitialized = true;
 };
 
-app.addMessage = (from, text) => {
+function animateResponseWords(bubble, text, waitForSpeech, onFinish) {
+    const messages = document.getElementById("chatMessages");
+    const wordSpans = [];
+    const tokenPattern = /\S+\s*/gu;
+    let match;
+    while ((match = tokenPattern.exec(text))) {
+        const word = match[0].match(/\S+/u)[0];
+        const wordSpan = document.createElement("span");
+        wordSpan.className = "response-word";
+        wordSpan.textContent = word;
+        const whitespace = match[0].slice(word.length);
+        wordSpans.push({
+            element: wordSpan,
+            start: match.index,
+            whitespace: whitespace ? document.createTextNode(whitespace) : null,
+        });
+    }
+
+    let revealedCount = 0;
+    let timer = 0;
+    let speechActive = false;
+    let finished = false;
+
+    const keepLatestVisible = () => {
+        if (!messages) return;
+        const wasAtBottom = messages.scrollHeight - messages.scrollTop - messages.clientHeight < 40;
+        if (wasAtBottom) messages.scrollTop = messages.scrollHeight;
+    };
+    const revealWord = (index) => {
+        const word = wordSpans[index];
+        word.element.classList.add("is-revealing");
+        window.setTimeout(() => word.element.classList.remove("is-revealing"), 850);
+        const speechWave = bubble.querySelector(".speech-wave");
+        bubble.insertBefore(word.element, speechWave);
+        if (word.whitespace) bubble.insertBefore(word.whitespace, speechWave);
+        keepLatestVisible();
+    };
+    const nextWordDelay = () => {
+        const word = wordSpans[revealedCount - 1].element.textContent;
+        const punctuationPause = /[.!?]["')\]]?$/u.test(word) ? 220
+            : /[,;:]$/u.test(word) ? 100
+                : 0;
+        return (speechActive ? 280 : 120) + punctuationPause;
+    };
+    const revealNextWord = () => {
+        if (revealedCount >= wordSpans.length) {
+            finish();
+            return;
+        }
+        revealWord(revealedCount);
+        revealedCount += 1;
+        if (revealedCount === wordSpans.length) finish();
+        else schedule(nextWordDelay());
+    };
+    const schedule = (delay) => {
+        window.clearTimeout(timer);
+        timer = window.setTimeout(revealNextWord, delay);
+    };
+    const finish = () => {
+        if (finished) return;
+        finished = true;
+        window.clearTimeout(timer);
+        for (let index = revealedCount; index < wordSpans.length; index += 1) {
+            revealWord(index);
+        }
+        revealedCount = wordSpans.length;
+        keepLatestVisible();
+        onFinish?.();
+    };
+
+    if (wordSpans.length) schedule(waitForSpeech ? 700 : 65);
+    else finish();
+
+    return {
+        startSpeechSync: () => {
+            if (finished) return;
+            speechActive = true;
+            schedule(700);
+        },
+        revealSpeechBoundary: (characterIndex, characterLength) => {
+            if (finished || !Number.isInteger(characterIndex) || characterIndex < 0) return;
+            speechActive = true;
+            window.clearTimeout(timer);
+            const boundaryEnd = characterIndex + Math.max(characterLength || 1, 1);
+            while (revealedCount < wordSpans.length && wordSpans[revealedCount].start < boundaryEnd) {
+                revealWord(revealedCount);
+                revealedCount += 1;
+            }
+            if (revealedCount === wordSpans.length) finish();
+            else schedule(700);
+        },
+        resumeIndependent: () => {
+            if (finished) return;
+            speechActive = false;
+            schedule(65);
+        },
+        finish,
+        cancel: () => {
+            finished = true;
+            window.clearTimeout(timer);
+            bubble.querySelectorAll(".response-word.is-revealing").forEach((word) => {
+                word.classList.remove("is-revealing");
+            });
+        },
+    };
+}
+
+app.addMessage = (from, text, { animate = false, waitForSpeech = false, onAnimationComplete } = {}) => {
     const messages = document.getElementById("chatMessages");
     if (!messages) return;
     const messageText = from === "Me" ? text : includeUserNameOnce(text);
@@ -463,9 +578,26 @@ app.addMessage = (from, text) => {
         <div class="message-avatar">${from === "Me" ? "Me" : "P"}</div>
         <div class="message-bubble">${escapeHtml(messageText)}${from === "Me" ? "" : '<span class="speech-wave" aria-hidden="true"><i></i><i></i><i></i></span>'}</div>
     `;
+    const bubble = message.querySelector(".message-bubble");
+    if (animate && bubble) {
+        bubble.dataset.fullText = messageText;
+        bubble.replaceChildren();
+        const animation = animateResponseWords(bubble, messageText, waitForSpeech, onAnimationComplete);
+        messageAnimations.set(message, animation);
+        const speechWave = document.createElement("span");
+        speechWave.className = "speech-wave";
+        speechWave.setAttribute("aria-hidden", "true");
+        speechWave.innerHTML = "<i></i><i></i><i></i>";
+        bubble.appendChild(speechWave);
+    }
     messages.appendChild(message);
     messages.scrollTop = messages.scrollHeight;
     return message;
+};
+
+app.cancelMessageAnimation = (message) => {
+    messageAnimations.get(message)?.cancel();
+    messageAnimations.delete(message);
 };
 
 app.setChatMode = (mode) => {
@@ -506,7 +638,9 @@ app.sendMessageToBackend = async (text) => {
                     .filter((message) => message.id !== "chatTypingIndicator")
                     .map((message) => ({
                         role: message.classList.contains("user") ? "user" : "assistant",
-                        content: message.querySelector(".message-bubble")?.textContent.trim() || "",
+                        content: message.querySelector(".message-bubble")?.dataset.fullText
+                            || message.querySelector(".message-bubble")?.textContent.trim()
+                            || "",
                     }))
                     .filter((message) => message.content)
                     .slice(-12),
@@ -523,18 +657,24 @@ app.sendMessageToBackend = async (text) => {
         if (data.mode) app.setChatMode(data.mode);
         const reply = includeUserNameOnce(data.reply || "Sorry, I didn't understand that.");
         document.getElementById("chatTypingIndicator")?.remove();
-        app.addMessage("Peter", reply);
+        const shouldSpeak = !!app.voiceEngine?.speechSynthesisEnabled;
+        const responseMessage = app.addMessage("Peter", reply, {
+            animate: true,
+            waitForSpeech: shouldSpeak,
+            onAnimationComplete: () => {
+                if (app.isSpeaking) return;
+                clearTimeout(app.respondingTimeout);
+                app.respondingTimeout = 0;
+                app.isResponding = false;
+                app.updateNeuralEngineState();
+            },
+        });
         app.logActivity("Backend response received", "audit");
 
         // Speak the response if voice synthesis is enabled
-        if (app.voiceEngine && app.voiceEngine.speechSynthesisEnabled) {
-            app.voiceEngine.speak(reply);
+        if (shouldSpeak) {
+            app.voiceEngine.speak(reply, false, responseMessage);
         }
-        app.respondingTimeout = setTimeout(() => {
-            app.isResponding = false;
-            app.respondingTimeout = 0;
-            app.updateNeuralEngineState();
-        }, 900);
     } catch (error) {
         console.error("Error communicating with backend:", error);
         app.isResponding = false;
@@ -661,6 +801,7 @@ app.checkBackendHealth = async () => {
             const status = await statusResponse.json();
             const services = status.services || {};
 
+            setUserName(status.user_name);
             app.setStatusLabel("backendStatus", status.backend === "running" ? "Running" : "Unavailable", status.backend === "running" ? "ok" : "unavailable");
             app.setStatusLabel("backendSystemStatus", status.backend === "running" ? "Running" : "Unavailable", status.backend === "running" ? "ok" : "unavailable");
             app.setStatusLabel("apiStatus", services.api === "active" ? "Available" : "Unavailable", services.api === "active" ? "ok" : "unavailable");
@@ -671,7 +812,7 @@ app.checkBackendHealth = async () => {
             app.setStatusLabel("databaseStatus", services.database === "disconnected" ? "Not connected" : (services.database || "Unavailable"), services.database === "disconnected" ? "off" : "unavailable");
             app.setChatMode(isDemo ? "demo" : (isOllama ? "ollama" : null));
             const greeting = document.getElementById("greeting");
-            if (greeting) greeting.textContent = WELCOME_GREETING;
+            if (greeting) greeting.textContent = getWelcomeGreeting();
             app.updateNeuralEngineState();
         } catch (statusError) {
             console.warn("Backend status check failed:", statusError);
@@ -680,7 +821,7 @@ app.checkBackendHealth = async () => {
             app.setStatusLabel("databaseStatus", "Unavailable", "unavailable");
             app.setChatMode(null);
             const greeting = document.getElementById("greeting");
-            if (greeting) greeting.textContent = WELCOME_GREETING;
+            if (greeting) greeting.textContent = getWelcomeGreeting();
         }
     } catch (error) {
         console.warn("Health check failed:", error);
@@ -693,7 +834,7 @@ app.checkBackendHealth = async () => {
         app.setStatusLabel("databaseStatus", "Unavailable", "unavailable");
         app.setChatMode(null);
         const greeting = document.getElementById("greeting");
-        if (greeting) greeting.textContent = WELCOME_GREETING;
+        if (greeting) greeting.textContent = getWelcomeGreeting();
         app.updateNeuralEngineState();
     }
 };
@@ -842,11 +983,12 @@ app.initVoiceEngine = () => {
                 await app.voiceEngine.start();
             }
         },
-        speak: (text, force = false) => {
+        speak: (text, force = false, responseMessage = null) => {
             if (app.voiceEngine.synthesis && (app.voiceEngine.speechSynthesisEnabled || force)) {
                 // Cancel any ongoing speech
                 app.voiceEngine.synthesis.cancel();
                 const utterance = new SpeechSynthesisUtterance(text);
+                const animation = responseMessage ? messageAnimations.get(responseMessage) : null;
                 utterance.voice = app.voiceEngine.synthesis.getVoices()
                     .find((voice) => voice.voiceURI === voiceSelection?.value) || null;
                 utterance.lang = utterance.voice?.lang || recognitionLanguage?.value || navigator.language || "en-US";
@@ -854,19 +996,38 @@ app.initVoiceEngine = () => {
                 utterance.pitch = 1;
                 utterance.volume = 1;
                 utterance.onend = () => {
+                    animation?.finish();
                     app.isSpeaking = false;
+                    if (animation) {
+                        clearTimeout(app.respondingTimeout);
+                        app.respondingTimeout = 0;
+                        app.isResponding = false;
+                    }
                     app.updateNeuralEngineState();
                     app.updateVoiceButton();
                 };
                 utterance.onstart = () => {
+                    animation?.startSpeechSync();
                     app.isSpeaking = true;
                     app.updateNeuralEngineState();
                     app.updateVoiceButton();
                 };
+                utterance.onboundary = (event) => {
+                    animation?.revealSpeechBoundary(event.charIndex, event.charLength);
+                };
+                utterance.onerror = (event) => {
+                    animation?.resumeIndependent();
+                    if (animation) {
+                        clearTimeout(app.respondingTimeout);
+                        app.respondingTimeout = 0;
+                    }
+                    console.error("Speech synthesis error:", event.error);
+                    app.logActivity("Speech synthesis error: " + event.error, "error");
+                    app.isSpeaking = false;
+                    app.updateNeuralEngineState();
+                    app.updateVoiceButton();
+                };
                 app.voiceEngine.synthesis.speak(utterance);
-                app.isSpeaking = true;
-                app.updateNeuralEngineState();
-                app.updateVoiceButton();
             }
         },
         isListening: () => app.isListening,
@@ -876,7 +1037,7 @@ app.initVoiceEngine = () => {
     app.voiceEngine.init();
     app.updateVoiceButton();
     voiceSelection?.addEventListener("change", () => savePreference(SPEECH_VOICE_PREFERENCE, voiceSelection.value));
-    previewVoiceButton?.addEventListener("click", () => app.voiceEngine.speak(WELCOME_GREETING, true));
+    previewVoiceButton?.addEventListener("click", () => app.voiceEngine.speak(getWelcomeGreeting(), true));
 };
 
 app.updateVoiceButton = () => {
