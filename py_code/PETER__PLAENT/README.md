@@ -23,6 +23,8 @@ You should see a Python version message. Later, you will create a virtual enviro
 From the project root, double-click `start_peter.bat` to start or reuse local Ollama and Peter's backend, then open `http://127.0.0.1:8000/`. Alternatively, run `\.venv\Scripts\python.exe app\backend\server.py` manually. The immersive galaxy interface loads its Three.js module from `app/frontend/vendor`, with no CDN dependency.
 Chat is labeled Demo Mode when the backend reports canned responses. Optional panels expose verified service status, session activity and modules marked Coming Soon. The Three.js scene caps canvas resolution and animation rate, pauses while the tab is hidden, and has a CSS visual fallback if WebGL initialization fails.
 
+Peter can open YouTube in a new browser tab after confirmation. To open a local document, ask Peter to "open a file" or say "file kholo", then click "Choose a document" or reply "yes" and choose a supported document from Documents, Downloads, or Desktop. Reply "no" or cancel the picker to open nothing. Peter opens the selected document with its Windows default app. Supported types include TXT, Markdown, PDF, CSV, DOCX, XLSX, PPTX, RTF, and common images. Executables, macro-enabled Office files, and other file types are not opened.
+
 ### Optional local AI
 Peter uses Ollama on this computer when the configured model is installed; otherwise chat safely falls back to Demo Mode. Install Ollama, then run `ollama pull qwen2.5:0.5b` before starting the backend. The defaults are `PETER_OLLAMA_URL=http://127.0.0.1:11434` and `PETER_OLLAMA_MODEL=qwen2.5:0.5b`; override them with environment variables if needed. Recent chat turns are sent only to the local Ollama service and are not saved by the backend.
 

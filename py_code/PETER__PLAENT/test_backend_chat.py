@@ -64,6 +64,42 @@ class TestBackendChat(unittest.TestCase):
         self.assertEqual(messages[-1], {"role": "user", "content": "next"})
         self.assertEqual([item["role"] for item in messages], ["system", "user", "assistant", "user"])
 
+    def test_validate_chat_request_requires_a_nonempty_string_message(self):
+        for payload in ({}, {"message": 42}, {"message": "  "}):
+            with self.subTest(payload=payload), self.assertRaises(ValueError):
+                server.validate_chat_request(payload)
+
+    def test_validate_chat_request_rejects_oversized_message(self):
+        with self.assertRaises(server.MessageTooLongError):
+            server.validate_chat_request({"message": "x" * (server.MAX_MESSAGE_CHARS + 1)})
+
+    def test_validate_chat_request_ignores_invalid_history(self):
+        message, history = server.validate_chat_request({
+            "message": "hello",
+            "history": "not a list",
+        })
+
+        self.assertEqual(message, "hello")
+        self.assertEqual(history, [])
+
+    def test_browser_origin_must_match_local_ui(self):
+        self.assertTrue(server.is_trusted_browser_origin(None))
+        self.assertTrue(server.is_trusted_browser_origin(f"http://{server.HOST}:{server.PORT}"))
+        self.assertFalse(server.is_trusted_browser_origin("https://example.com"))
+
+    def test_explicit_memory_request_is_persisted_with_a_size_limit(self):
+        with TemporaryDirectory() as directory:
+            profile_path = Path(directory) / "peter_profile.json"
+            profile_path.write_text(json.dumps(server.PETER_PROFILE), encoding="utf-8")
+            with patch.object(server, "PROFILE_PATH", profile_path):
+                self.assertTrue(server.save_peter_memory("User prefers concise answers"))
+                self.assertFalse(
+                    server.save_peter_memory("x" * (server.MAX_MEMORY_CHARS + 1))
+                )
+
+            saved_profile = json.loads(profile_path.read_text(encoding="utf-8"))
+            self.assertIn("User prefers concise answers", saved_profile["reply_rules"])
+
     def test_generate_ollama_reply_sends_chat_and_parses_reply(self):
         response = FakeResponse({"message": {"content": "Hello from Peter"}})
         messages = [{"role": "user", "content": "hello"}]
@@ -77,6 +113,11 @@ class TestBackendChat(unittest.TestCase):
         self.assertEqual(payload["model"], server.OLLAMA_MODEL)
         self.assertEqual(payload["messages"], messages)
         self.assertFalse(payload["stream"])
+
+    def test_invalid_ollama_url_falls_back_without_raising(self):
+        with patch.object(server, "OLLAMA_URL", "http://[invalid"):
+            self.assertIsNone(server.generate_ollama_reply([]))
+            self.assertFalse(server.ollama_model_available())
 
     def test_unavailable_model_returns_demo_mode(self):
         with patch.object(server, "generate_ollama_reply", return_value=None):
@@ -119,6 +160,11 @@ class TestBackendChat(unittest.TestCase):
         self.assertIn("Sagar created me", reply)
         self.assertIn("multilingual text and voice", reply)
         self.assertIn("Sagar ne mujhe", fallback_reply)
+
+    def test_demo_greeting_match_does_not_trigger_inside_another_word(self):
+        handler = object.__new__(server.PeterPlanetHandler)
+
+        self.assertNotIn("How can I help?", handler.generate_demo_reply("This feature is broken"))
 
 
 if __name__ == "__main__":

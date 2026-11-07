@@ -37,6 +37,8 @@ Never edit `.env.example` to add real values. Instead, copy it to `.env` and fil
 1. Back up `data/` before making major changes.
 2. If you use SQLite, follow SQLite backup best practices.
 3. Do not store passwords or tokens in plain text files.
+4. Peter's local document action requires browser confirmation and a native file-picker selection. It only opens supported document types from Documents, Downloads, or Desktop using their Windows-associated app.
+5. The browser does not send a file path to the backend. The backend accepts this action only from Peter's exact local web origin and returns only the selected file's name.
 
 ## 7. Future AI safety
 When AI features are added later:

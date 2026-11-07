@@ -11,6 +11,7 @@ let startupAudioContext = null;
 let startupSoundEnabled = readStartupSoundPreference();
 let startupSoundPlayed = false;
 let isInitialized = false;
+let pendingDocumentConfirmation = null;
 const messageAnimations = new WeakMap();
 
 function readStartupSoundPreference() {
@@ -87,6 +88,104 @@ function isYouTubeTaskRequest(message) {
         .replace(/^peter[,\s]+/, "")
         .replace(/[.!?]+$/, "");
     return /^(?:(?:please|zara|plz|can you|could you|mujhe)\s+)*(?:(?:open|launch|start)(?:\s+the)?\s+youtube(?:\s+(?:please|for me))?|youtube\s+(?:open(?:\s+(?:karo|kar do|please|for me))?|kholo(?:\s+please)?|khol(?:\s+do)?|khul(?:\s+do)?|chalao|start(?:\s+kar(?:\s+do)?)?)|mujhe\s+youtube\s+(?:open\s+(?:karo|kar\s+do)|kholo|khol\s+do|chalao))$/.test(request);
+}
+
+function isOpenFileTaskRequest(message) {
+    const request = message.trim().toLowerCase()
+        .replace(/^peter[,\s]+/, "")
+        .replace(/[.!?]+$/, "");
+    return /^(?:(?:please|zara|plz|can you|could you|mujhe)\s+)*(?:(?:open|choose|select)(?:\s+the)?(?:\s+(?:a|my))?\s+(?:local\s+)?(?:file|document)|(?:file|document)\s+(?:open|kholo|kholna|khol\s+na|khol\s+do|select\s+karo|chuno))$/.test(request);
+}
+
+function isAffirmativeConfirmation(message) {
+    return /^(?:yes|yeah|yep|sure|ok|okay|haan|han|ji|zaroor|theek hai|kar do)[.! ]*$/i.test(message.trim());
+}
+
+function isNegativeConfirmation(message) {
+    return /^(?:no|nope|nah|cancel|cancel karo|nahi|nahin|mat karo)[.! ]*$/i.test(message.trim());
+}
+
+function addDocumentPickerConfirmation(responseMessage) {
+    const bubble = responseMessage?.querySelector(".message-bubble");
+    if (!bubble) {
+        console.error("Could not display the document action confirmation.");
+        app.logActivity("Document action confirmation could not be displayed", "error");
+        return;
+    }
+
+    const actions = document.createElement("div");
+    actions.className = "task-confirmation";
+    const confirmButton = document.createElement("button");
+    confirmButton.className = "task-confirmation-button";
+    confirmButton.type = "button";
+    confirmButton.textContent = "Choose a document";
+
+    const cancelButton = document.createElement("button");
+    cancelButton.className = "task-cancel-button";
+    cancelButton.type = "button";
+    cancelButton.textContent = "Cancel";
+
+    const status = document.createElement("span");
+    status.className = "task-confirmation-status";
+    status.setAttribute("role", "status");
+
+    const openSelectedDocument = async () => {
+        confirmButton.disabled = true;
+        cancelButton.disabled = true;
+        status.textContent = "Choose a supported document in the file picker.";
+        app.logActivity("Waiting for a document selection", "audit");
+
+        try {
+            const response = await fetch(`${app.apiBase}/api/open-file`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({})
+            });
+            const result = await response.json();
+            if (!response.ok) {
+                throw new Error(result.error || `Request failed (${response.status})`);
+            }
+
+            if (result.cancelled) {
+                status.textContent = "No document was opened.";
+                app.logActivity("Document selection cancelled", "info");
+            } else if (result.opened && typeof result.filename === "string") {
+                status.textContent = `Opened ${result.filename}.`;
+                app.logActivity("Opened a user-selected document", "audit");
+            } else {
+                throw new Error("The backend returned an unexpected response.");
+            }
+        } catch (error) {
+            console.error("Could not open the selected document:", error);
+            status.textContent = error.message || "Could not open the selected document.";
+            app.logActivity("Document action failed", "error");
+        }
+    };
+
+    const cancelDocumentSelection = () => {
+        confirmButton.disabled = true;
+        cancelButton.disabled = true;
+        status.textContent = "Cancelled. No file was selected or opened.";
+        app.logActivity("Document action cancelled", "info");
+    };
+
+    confirmButton.addEventListener("click", () => {
+        pendingDocumentConfirmation = null;
+        openSelectedDocument();
+    });
+
+    cancelButton.addEventListener("click", () => {
+        pendingDocumentConfirmation = null;
+        cancelDocumentSelection();
+    });
+
+    actions.append(confirmButton, cancelButton);
+    bubble.append(actions, status);
+    pendingDocumentConfirmation = {
+        confirm: openSelectedDocument,
+        cancel: cancelDocumentSelection,
+    };
+    app.logActivity("Waiting for confirmation to choose a document", "audit");
 }
 
 // Configuration
@@ -271,6 +370,11 @@ app.init = () => {
     const clearConversation = (notice, activity) => {
         const messages = document.getElementById("chatMessages");
         if (!messages) return;
+        if (pendingDocumentConfirmation) {
+            const confirmation = pendingDocumentConfirmation;
+            pendingDocumentConfirmation = null;
+            confirmation.cancel();
+        }
         messages.querySelectorAll(".message").forEach(app.cancelMessageAnimation);
         messages.replaceChildren();
         app.addMessage("Peter", notice);
@@ -353,12 +457,42 @@ app.init = () => {
             app.logActivity("Waiting for confirmation to open YouTube", "audit");
         };
 
+        const requestDocumentTask = (message) => {
+            app.addMessage("Me", message);
+            const response = app.addMessage(
+                "Peter",
+                "I can show a file picker for a document in Documents, Downloads, or Desktop. Do you want to continue?"
+            );
+            addDocumentPickerConfirmation(response);
+        };
+
         sendBtn.addEventListener("click", () => {
             const text = messageInput.value.trim();
             if (!text) return;
             app.openChat(true);
-            if (isYouTubeTaskRequest(text)) {
+            if (
+                pendingDocumentConfirmation
+                && !isAffirmativeConfirmation(text)
+                && !isNegativeConfirmation(text)
+            ) {
+                const confirmation = pendingDocumentConfirmation;
+                pendingDocumentConfirmation = null;
+                confirmation.cancel();
+            }
+            if (pendingDocumentConfirmation && isAffirmativeConfirmation(text)) {
+                app.addMessage("Me", text);
+                const confirmation = pendingDocumentConfirmation;
+                pendingDocumentConfirmation = null;
+                confirmation.confirm();
+            } else if (pendingDocumentConfirmation && isNegativeConfirmation(text)) {
+                app.addMessage("Me", text);
+                const confirmation = pendingDocumentConfirmation;
+                pendingDocumentConfirmation = null;
+                confirmation.cancel();
+            } else if (isYouTubeTaskRequest(text)) {
                 requestYouTubeTask();
+            } else if (isOpenFileTaskRequest(text)) {
+                requestDocumentTask(text);
             } else {
                 app.sendMessageToBackend(text);
             }
@@ -670,6 +804,10 @@ app.sendMessageToBackend = async (text) => {
             },
         });
         app.logActivity("Backend response received", "audit");
+
+        if (data.action === "open_file") {
+            addDocumentPickerConfirmation(responseMessage);
+        }
 
         // Speak the response if voice synthesis is enabled
         if (shouldSpeak) {
