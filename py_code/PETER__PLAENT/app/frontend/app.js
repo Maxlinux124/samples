@@ -760,6 +760,8 @@ app.sendMessageToBackend = async (text) => {
     app.updateNeuralEngineState();
     app.showChatWaiting();
     app.logActivity("Sending message to backend", "audit");
+    const agentTaskId = app.startAgentTask?.(text);
+    let requestSucceeded = false;
     try {
         const response = await fetch(`${app.apiBase}/api/chat`, {
             method: "POST",
@@ -786,6 +788,7 @@ app.sendMessageToBackend = async (text) => {
         }
 
         const data = await response.json();
+        requestSucceeded = true;
         app.hasBackendError = false;
         app.isResponding = true;
         if (data.mode) app.setChatMode(data.mode);
@@ -822,6 +825,7 @@ app.sendMessageToBackend = async (text) => {
         app.hasBackendError = true;
         app.setConnectionStatus("error");
     } finally {
+        app.finishAgentTask?.(agentTaskId, requestSucceeded);
         document.getElementById("chatTypingIndicator")?.remove();
         app.isProcessing = false;
         app.updateNeuralEngineState();
@@ -1259,6 +1263,756 @@ function escapeHtml(value) {
     div.textContent = value;
     return div.innerHTML;
 }
+
+function initSubAgentAvatars() {
+    if (document.getElementById("peter-agent-overlay")) return;
+
+    const neuralField = document.getElementById("neuralField") || document.querySelector(".neural-field");
+    if (!neuralField) return;
+
+    const style = document.createElement("style");
+    style.id = "peter-agent-overlay-styles";
+    style.textContent = `
+        .peter-agent-overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 4;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        .peter-agent-overlay canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        .peter-agent {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 7px;
+            transform: translate(-50%, -50%) translate(var(--agent-drift-x, 0px), var(--agent-drift-y, 0px)) scale(var(--agent-scale, 1));
+            filter: drop-shadow(0 0 20px rgba(10, 220, 255, 0.18));
+            transition: transform 0.52s cubic-bezier(0.22, 1, 0.36, 1), filter 0.3s ease, opacity 0.3s ease;
+            pointer-events: auto;
+            opacity: 1;
+        }
+        .peter-agent-visual {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 7px;
+            animation: peter-agent-float 3.8s ease-in-out infinite;
+        }
+        .peter-agent[data-agent="local"] .peter-agent-visual { animation-delay: 0.5s; }
+        .peter-agent[data-agent="communication"] .peter-agent-visual { animation-delay: 1s; }
+        .peter-agent[data-agent="client"] .peter-agent-visual { animation-delay: 1.4s; }
+        .peter-agent[data-agent="quality"] .peter-agent-visual { animation-delay: 1.8s; }
+        .agent-shell {
+            position: relative;
+            width: 58px;
+            height: 64px;
+            border-radius: 18px 18px 16px 16px;
+            background: rgba(9, 16, 28, 0.78);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04), 0 12px 22px rgba(2, 8, 14, 0.38), 0 0 24px rgba(103, 224, 255, 0.14);
+        }
+        .agent-shell::before {
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: -10px;
+            width: 12px;
+            height: 12px;
+            transform: translateX(-50%);
+            border-radius: 50%;
+            background: var(--agent-led);
+            box-shadow: 0 0 18px var(--agent-glow), 0 0 24px var(--agent-glow), 0 0 30px var(--agent-glow);
+        }
+        .agent-shell::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            bottom: -7px;
+            width: 18px;
+            height: 7px;
+            transform: translateX(-50%);
+            border-radius: 999px;
+            background: rgba(255,255,255,0.08);
+        }
+        .agent-face {
+            position: absolute;
+            inset: 12px 10px 10px;
+            border-radius: 12px;
+            background: rgba(13, 22, 36, 0.86);
+            border: 1px solid rgba(255,255,255,0.08);
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+        }
+        .agent-eyes {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            width: 28px;
+            height: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transform: translateX(-50%);
+        }
+        .agent-eye {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--agent-eye-color, #8de9ff);
+            box-shadow: 0 0 10px var(--agent-eye-color, rgba(140, 231, 255, 0.95)), 0 0 18px var(--agent-eye-color, rgba(140, 231, 255, 0.7)), 0 0 28px rgba(140, 231, 255, 0.45);
+            animation: peter-eye-blink 4.8s ease-in-out infinite;
+            transform-origin: center center;
+            transition: width 0.22s ease, height 0.22s ease, transform 0.24s ease, border-radius 0.22s ease, background 0.24s ease, box-shadow 0.24s ease;
+        }
+        .agent-mouth {
+            position: absolute;
+            left: 50%;
+            bottom: 11px;
+            width: 18px;
+            height: 9px;
+            transform: translateX(-50%);
+            border-bottom: 2px solid rgba(255,255,255,0.8);
+            border-radius: 0 0 12px 12px;
+            opacity: 0.7;
+            transition: transform 0.24s ease, border-color 0.24s ease, opacity 0.24s ease;
+        }
+        .agent-hands,
+        .agent-feet {
+            position: absolute;
+            left: 50%;
+            width: 64px;
+            height: 18px;
+            transform: translateX(-50%);
+            pointer-events: none;
+        }
+        .agent-hands {
+            top: 20px;
+            opacity: 0.8;
+        }
+        .agent-feet {
+            bottom: -12px;
+            opacity: 0;
+            transition: opacity 0.22s ease, transform 0.2s ease;
+        }
+        .hand,
+        .foot {
+            position: absolute;
+            width: 10px;
+            height: 12px;
+            border-radius: 9px 9px 12px 12px;
+            border: 1px solid rgba(255,255,255,0.22);
+            background: rgba(18, 28, 42, 0.82);
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
+        }
+        .hand-left { left: 0; transform: rotate(24deg); }
+        .hand-right { right: 0; transform: rotate(-24deg); }
+        .foot-left { left: 15px; }
+        .foot-right { right: 15px; }
+        .agent-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 10px 5px 8px;
+            border-radius: 999px;
+            background: rgba(7, 12, 18, 0.72);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: rgba(223, 237, 247, 0.92);
+            font-size: 9px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            white-space: nowrap;
+            box-shadow: 0 0 18px rgba(110, 220, 255, 0.08);
+        }
+        .agent-label .agent-led-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--agent-led);
+            box-shadow: 0 0 12px var(--agent-glow);
+            animation: peter-led-pulse 2.2s ease-in-out infinite;
+        }
+        .agent-task-card {
+            width: min(190px, 42vw);
+            margin-top: 5px;
+            padding: 8px 10px;
+            border: 1px solid rgba(164, 213, 237, 0.18);
+            border-radius: 10px;
+            background: rgba(5, 12, 22, 0.76);
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.22), 0 0 18px var(--agent-task-glow, rgba(103, 224, 255, 0.1));
+            color: rgba(226, 239, 248, 0.92);
+            text-align: left;
+            white-space: normal;
+            backdrop-filter: blur(8px);
+            animation: peter-task-card-in 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+        .peter-agent-visual { position: relative; }
+        .peter-agent[data-agent="client"] .agent-task-card,
+        .peter-agent[data-agent="quality"] .agent-task-card {
+            position: absolute;
+            bottom: calc(100% + 6px);
+            margin: 0;
+        }
+        .agent-task-card[hidden] { display: none; }
+        .agent-task-heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            color: var(--agent-led);
+            font-size: 8px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+        .agent-task-state {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            color: rgba(217, 231, 240, 0.78);
+            font-size: 7px;
+            letter-spacing: 0.08em;
+        }
+        .agent-task-state::before {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--agent-led);
+            box-shadow: 0 0 8px var(--agent-glow);
+            content: "";
+            animation: peter-led-pulse 1.4s ease-in-out infinite;
+        }
+        .agent-task-description {
+            display: -webkit-box;
+            margin: 5px 0 6px;
+            overflow: hidden;
+            color: rgba(226, 239, 248, 0.88);
+            font-size: 9px;
+            line-height: 1.4;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+        }
+        .agent-task-progress {
+            height: 2px;
+            overflow: hidden;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .agent-task-progress::after {
+            display: block;
+            width: 42%;
+            height: 100%;
+            border-radius: inherit;
+            background: var(--agent-led);
+            box-shadow: 0 0 8px var(--agent-glow);
+            content: "";
+            animation: peter-task-progress 1.8s ease-in-out infinite;
+        }
+        .peter-agent[data-task-state="done"] .agent-task-progress::after {
+            width: 100%;
+            animation: none;
+        }
+        .peter-agent[data-task-state="error"] .agent-task-progress::after {
+            width: 100%;
+            background: #ff9a9a;
+            animation: none;
+        }
+        .peter-agent[data-task-state="done"] .agent-task-state::before { background: #8dffb0; }
+        .peter-agent[data-task-state="error"] .agent-task-state::before { background: #ff8a8a; }
+        .peter-agent[data-mood="sad"] .agent-eye {
+            width: 8px;
+            height: 8px;
+            border-radius: 50% 50% 45% 45%;
+            transform: translateY(2px) scaleY(0.7);
+        }
+        .peter-agent[data-mood="sad"] .agent-mouth {
+            border-bottom: 2px solid rgba(255,255,255,0.8);
+            border-top: none;
+            transform: translateX(-50%) rotate(0deg) scaleY(0.8);
+            opacity: 0.8;
+        }
+        .peter-agent[data-mood="angry"] .agent-eye {
+            width: 8px;
+            height: 8px;
+            border-radius: 2px;
+            transform: rotate(-12deg) scaleY(0.9);
+        }
+        .peter-agent[data-mood="angry"] .agent-eye:last-child {
+            transform: rotate(12deg) scaleY(0.9);
+        }
+        .peter-agent[data-mood="angry"] .agent-mouth {
+            border-bottom: 2px solid rgba(255,255,255,0.8);
+            width: 14px;
+            transform: translateX(-50%) rotate(2deg) scaleX(0.8);
+        }
+        .peter-agent[data-mood="action"] .agent-eye {
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+            animation: peter-action-eye 0.55s ease-in-out infinite alternate;
+        }
+        .peter-agent[data-mood="action"] .agent-mouth {
+            width: 22px;
+            border-bottom: 2px solid rgba(255,255,255,0.9);
+            opacity: 1;
+        }
+        .peter-agent[data-mood="action"] .agent-feet {
+            opacity: 1;
+            animation: peter-foot-bounce 0.65s ease-in-out infinite alternate;
+        }
+        .peter-agent[data-hidden="true"] {
+            filter: drop-shadow(0 0 12px rgba(10, 220, 255, 0.08));
+            opacity: 0.95;
+        }
+        .peter-agent[data-hovered="true"] .agent-feet {
+            opacity: 1;
+            animation: peter-foot-bounce 0.7s ease-in-out infinite alternate;
+        }
+        .peter-agent[data-hovered="true"] {
+            --agent-scale: 1.08;
+            filter: drop-shadow(0 0 26px rgba(140, 231, 255, 0.28));
+        }
+        .peter-smart-agent { --agent-led: #5ef4ff; --agent-glow: rgba(94,244,255,1); --agent-eye-color: #78f9ff; }
+        .peter-local-agent { --agent-led: #ffb766; --agent-glow: rgba(255,183,102,1); --agent-eye-color: #ffca73; }
+        .peter-communication-agent { --agent-led: #7efca0; --agent-glow: rgba(126,252,160,1); --agent-eye-color: #79ff9d; }
+        .peter-client-agent { --agent-led: #ff79f8; --agent-glow: rgba(255,121,248,1); --agent-eye-color: #ff8af8; }
+        .peter-quality-agent { --agent-led: #ff7d7d; --agent-glow: rgba(255,125,125,1); --agent-eye-color: #ff8da8; }
+        @keyframes peter-eye-blink {
+            0%, 43%, 47%, 100% { transform: scaleY(1); opacity: 1; }
+            45% { transform: scaleY(0.18); opacity: 0.8; }
+        }
+        @keyframes peter-led-pulse {
+            0%, 100% { transform: scale(1); opacity: 0.9; }
+            50% { transform: scale(1.35); opacity: 1; }
+        }
+        @keyframes peter-agent-float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-7px); }
+        }
+        @keyframes peter-action-eye {
+            0% { transform: scaleY(1) scaleX(1); opacity: 1; }
+            100% { transform: scaleY(1.35) scaleX(1.2); opacity: 1; }
+        }
+        @keyframes peter-foot-bounce {
+            0% { transform: translateX(-50%) translateY(0px); }
+            100% { transform: translateX(-50%) translateY(-2px); }
+        }
+        @keyframes peter-task-card-in {
+            from { opacity: 0; transform: translateY(5px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes peter-task-progress {
+            0% { transform: translateX(-110%); }
+            100% { transform: translateX(250%); }
+        }
+    `;
+    document.head.appendChild(style);
+
+    const overlay = document.createElement("div");
+    overlay.id = "peter-agent-overlay";
+    overlay.className = "peter-agent-overlay";
+    overlay.setAttribute("aria-hidden", "true");
+
+    const canvas = document.createElement("canvas");
+    canvas.id = "peter-agent-wave-canvas";
+
+    const agents = [
+        {
+            key: "smart",
+            className: "peter-smart-agent",
+            label: "Piku",
+            x: 18,
+            y: 26,
+        },
+        {
+            key: "local",
+            className: "peter-local-agent",
+            label: "Achu",
+            x: 73,
+            y: 19,
+        },
+        {
+            key: "communication",
+            className: "peter-communication-agent",
+            label: "Bechu",
+            x: 84,
+            y: 52,
+        },
+        {
+            key: "client",
+            className: "peter-client-agent",
+            label: "Nori",
+            x: 56,
+            y: 80,
+        },
+        {
+            key: "quality",
+            className: "peter-quality-agent",
+            label: "Zuzu",
+            x: 28,
+            y: 77,
+        },
+    ];
+
+    const agentRuntime = new Map();
+
+    agents.forEach((agent) => {
+        const node = document.createElement("div");
+        node.className = `peter-agent ${agent.className}`;
+        node.dataset.agent = agent.key;
+        node.dataset.mood = "happy";
+        node.dataset.hidden = "false";
+        node.dataset.hovered = "false";
+        node.style.left = `${agent.x}%`;
+        node.style.top = `${agent.y}%`;
+        node.innerHTML = `
+            <div class="peter-agent-visual">
+                <div class="agent-shell">
+                    <div class="agent-face">
+                        <div class="agent-eyes">
+                            <span class="agent-eye"></span>
+                            <span class="agent-eye"></span>
+                        </div>
+                        <span class="agent-mouth"></span>
+                    </div>
+                    <div class="agent-hands">
+                        <span class="hand hand-left"></span>
+                        <span class="hand hand-right"></span>
+                    </div>
+                    <div class="agent-feet">
+                        <span class="foot foot-left"></span>
+                        <span class="foot foot-right"></span>
+                    </div>
+                </div>
+                <div class="agent-label"><span class="agent-led-dot"></span><span>${agent.label}</span></div>
+                <div class="agent-task-card" hidden>
+                    <div class="agent-task-heading">
+                        <span>Peter's task</span>
+                        <span class="agent-task-state">Working</span>
+                    </div>
+                    <p class="agent-task-description"></p>
+                    <div class="agent-task-progress"></div>
+                </div>
+            </div>
+        `;
+
+        const state = {
+            key: agent.key,
+            x: 0,
+            y: 0,
+            roamTargetX: null,
+            roamTargetY: null,
+            nextRoamAt: 0,
+            positioned: false,
+            alert: false,
+            hovered: false,
+            seed: Math.random() * 10,
+            finishTimer: 0,
+            pendingTasks: new Map(),
+        };
+
+        const setMood = (mood) => {
+            node.dataset.mood = mood;
+        };
+        node.addEventListener("pointerenter", () => {
+            state.hovered = true;
+            node.dataset.hovered = "true";
+            if (!state.alert) setMood("happy");
+        });
+        node.addEventListener("pointerleave", () => {
+            state.hovered = false;
+            node.dataset.hovered = "false";
+            if (!state.alert) setMood("happy");
+        });
+        overlay.appendChild(node);
+        agentRuntime.set(agent.key, state);
+    });
+
+    overlay.appendChild(canvas);
+    neuralField.appendChild(overlay);
+
+    const waveState = {
+        center: { x: 0, y: 0 },
+        targets: {},
+        particles: [],
+        animationFrame: 0,
+    };
+
+    const updateLayout = () => {
+        const rect = neuralField.getBoundingClientRect();
+        waveState.center.x = rect.width * 0.5;
+        waveState.center.y = rect.height * 0.48;
+
+        const positions = {
+            smart: { x: rect.width * 0.23, y: rect.height * 0.28 },
+            local: { x: rect.width * 0.78, y: rect.height * 0.22 },
+            communication: { x: rect.width * 0.86, y: rect.height * 0.52 },
+            client: { x: rect.width * 0.62, y: rect.height * 0.8 },
+            quality: { x: rect.width * 0.38, y: rect.height * 0.8 },
+        };
+
+        Object.entries(positions).forEach(([key, target]) => {
+            waveState.targets[key] = target;
+            const runtime = agentRuntime.get(key);
+            if (!runtime) return;
+            if (runtime.alert) {
+                runtime.roamTargetX = target.x;
+                runtime.roamTargetY = target.y;
+            } else if (!runtime.positioned) {
+                runtime.x = target.x;
+                runtime.y = target.y;
+                runtime.positioned = true;
+            }
+        });
+    };
+
+    let previousFrameTime = 0;
+    const updateAgentDrift = (width, height, frameTime) => {
+        const deltaSeconds = previousFrameTime
+            ? Math.min((frameTime - previousFrameTime) / 1000, 0.05)
+            : 1 / 60;
+        previousFrameTime = frameTime;
+
+        agentRuntime.forEach((runtime, key) => {
+            const node = overlay.querySelector(`.peter-agent[data-agent="${key}"]`);
+            if (!node) return;
+            const target = waveState.targets[key];
+            if (!target) return;
+
+            if (!runtime.positioned) {
+                runtime.x = target.x;
+                runtime.y = target.y;
+                runtime.positioned = true;
+            }
+
+            if (runtime.alert) {
+                runtime.roamTargetX = target.x;
+                runtime.roamTargetY = target.y;
+            } else if (frameTime >= runtime.nextRoamAt) {
+                let roamX = width * (0.1 + Math.random() * 0.8);
+                const roamY = height * (0.12 + Math.random() * 0.72);
+                const centerDistance = Math.hypot(
+                    (roamX - waveState.center.x) / Math.max(width * 0.27, 1),
+                    (roamY - waveState.center.y) / Math.max(height * 0.32, 1),
+                );
+                if (centerDistance < 1.15) {
+                    roamX = roamX < waveState.center.x ? width * 0.16 : width * 0.84;
+                }
+                runtime.roamTargetX = roamX;
+                runtime.roamTargetY = roamY;
+                runtime.nextRoamAt = frameTime + 8500 + Math.random() * 5500;
+            }
+
+            const destinationX = runtime.roamTargetX ?? target.x;
+            const destinationY = runtime.roamTargetY ?? target.y;
+            const deltaX = destinationX - runtime.x;
+            const deltaY = destinationY - runtime.y;
+            const distance = Math.hypot(deltaX, deltaY);
+            const travel = Math.min(distance, (runtime.alert ? 110 : 28) * deltaSeconds);
+
+            if (distance > 0) {
+                runtime.x += (deltaX / distance) * travel;
+                runtime.y += (deltaY / distance) * travel;
+            }
+
+            const breathingX = Math.sin((frameTime * 0.00022) + runtime.seed) * 2.2;
+            const breathingY = Math.cos((frameTime * 0.00018) + runtime.seed) * 2.8;
+            node.style.left = `${((runtime.x + breathingX) / width) * 100}%`;
+            node.style.top = `${((runtime.y + breathingY) / height) * 100}%`;
+        });
+    };
+
+    function cubicBezier(p0, p1, p2, p3, t) {
+        const u = 1 - t;
+        return (u * u * u * p0) + (3 * u * u * t * p1) + (3 * u * t * t * p2) + (t * t * t * p3);
+    }
+
+    function triggerTaskFlow(agentKey) {
+        const target = waveState.targets[agentKey];
+        if (!target) return;
+
+        const hueMap = {
+            smart: "105, 241, 255",
+            local: "255, 190, 115",
+            communication: "141, 255, 176",
+            client: "255, 122, 244",
+            quality: "255, 122, 122",
+        };
+
+        const tone = hueMap[agentKey] || "105, 241, 255";
+        for (let index = 0; index < 18; index += 1) {
+            waveState.particles.push({
+                agentKey,
+                progress: Math.random() * 0.18,
+                speed: 0.004 + Math.random() * 0.01,
+                size: 6 + Math.random() * 14,
+                offset: index / 18,
+                alpha: 0.2 + Math.random() * 0.6,
+                hue: tone,
+            });
+        }
+    }
+
+    let taskSequence = 0;
+    const taskProfiles = [
+        { key: "quality", pattern: /\b(review|verify|quality|inspect|report|proofread)\b/i },
+        { key: "communication", pattern: /\b(email|call|message|reply|contact|outreach|communication)\b/i },
+        { key: "local", pattern: /\b(file|folder|directory|document|image|local|organize|organise|data)\b/i },
+        { key: "client", pattern: /\b(client|lead|prospect|customer|find.*company|potential customer)\b/i },
+        { key: "smart", pattern: /\b(research|search|website|web|look up|find information|browse)\b/i },
+    ];
+    const taskDescriptions = {
+        smart: "Researching the request",
+        local: "Checking files and data",
+        communication: "Preparing a communication response",
+        client: "Looking into client and lead details",
+        quality: "Reviewing the requested result",
+    };
+
+    app.startAgentTask = (taskText) => {
+        const request = String(taskText || "").trim();
+        const profile = taskProfiles.find((item) => item.pattern.test(request));
+        const agentKey = profile?.key || "smart";
+        const state = agentRuntime.get(agentKey);
+        const node = overlay.querySelector(`.peter-agent[data-agent="${agentKey}"]`);
+        if (!state || !node) return null;
+
+        if (state.finishTimer) window.clearTimeout(state.finishTimer);
+        const taskId = ++taskSequence;
+        const description = request.length > 110 ? `${request.slice(0, 107)}...` : request;
+        state.pendingTasks.set(taskId, {
+            description: description || taskDescriptions[agentKey],
+            summary: taskDescriptions[agentKey],
+        });
+        state.alert = true;
+        state.roamTargetX = waveState.targets[agentKey].x;
+        state.roamTargetY = waveState.targets[agentKey].y;
+        state.nextRoamAt = 0;
+        node.dataset.taskState = "working";
+        node.dataset.mood = "action";
+        node.querySelector(".agent-task-state").textContent = taskDescriptions[agentKey];
+        node.querySelector(".agent-task-description").textContent = description || taskDescriptions[agentKey];
+        node.querySelector(".agent-task-card").hidden = false;
+        triggerTaskFlow(agentKey);
+        return taskId;
+    };
+
+    app.finishAgentTask = (taskId, succeeded) => {
+        if (!taskId) return;
+        agentRuntime.forEach((state, agentKey) => {
+            const completedTask = state.pendingTasks.get(taskId);
+            if (!completedTask) return;
+            state.pendingTasks.delete(taskId);
+            const node = overlay.querySelector(`.peter-agent[data-agent="${agentKey}"]`);
+            if (!node) return;
+
+            if (state.pendingTasks.size > 0) {
+                const latestTask = Array.from(state.pendingTasks.values()).pop();
+                node.dataset.taskState = "working";
+                node.dataset.mood = "action";
+                node.querySelector(".agent-task-state").textContent = latestTask.summary;
+                node.querySelector(".agent-task-description").textContent = latestTask.description;
+                return;
+            }
+
+            node.dataset.taskState = succeeded ? "done" : "error";
+            node.dataset.mood = "happy";
+            node.querySelector(".agent-task-state").textContent = succeeded ? "Reply ready" : "Service unavailable";
+            state.alert = false;
+            state.roamTargetX = null;
+            state.roamTargetY = null;
+            state.nextRoamAt = performance.now();
+            state.finishTimer = window.setTimeout(() => {
+                if (state.pendingTasks.size > 0) return;
+                node.querySelector(".agent-task-card").hidden = true;
+                node.dataset.taskState = "";
+                state.finishTimer = 0;
+            }, 2200);
+        });
+    };
+
+    function renderWaveFrame(frameTime) {
+        const context = canvas.getContext("2d");
+        if (!context) return;
+
+        const width = neuralField.clientWidth;
+        const height = neuralField.clientHeight;
+        if (!width || !height) {
+            waveState.animationFrame = requestAnimationFrame(renderWaveFrame);
+            return;
+        }
+        updateAgentDrift(width, height, frameTime);
+        canvas.width = width;
+        canvas.height = height;
+        context.clearRect(0, 0, width, height);
+
+        const { center } = waveState;
+        for (let index = waveState.particles.length - 1; index >= 0; index -= 1) {
+            const particle = waveState.particles[index];
+            const target = waveState.targets[particle.agentKey];
+            if (!target) {
+                waveState.particles.splice(index, 1);
+                continue;
+            }
+
+            particle.progress += particle.speed;
+            if (particle.progress >= 1) {
+                waveState.particles.splice(index, 1);
+                continue;
+            }
+
+            const t = particle.progress;
+            const midX = (center.x + target.x) / 2 + Math.sin((t + particle.offset) * Math.PI * 2) * 24;
+            const midY = (center.y + target.y) / 2 - 48 - Math.cos((t + particle.offset) * Math.PI * 2) * 16;
+            const x = cubicBezier(center.x, midX, midX, target.x, t);
+            const y = cubicBezier(center.y, midY, midY, target.y, t);
+            const radius = (1 - t) * particle.size;
+            const alpha = (1 - t) * particle.alpha;
+
+            context.beginPath();
+            context.arc(x, y, radius, 0, Math.PI * 2);
+            context.fillStyle = `rgba(${particle.hue}, ${alpha})`;
+            context.fill();
+
+            context.beginPath();
+            context.strokeStyle = `rgba(${particle.hue}, ${alpha * 0.7})`;
+            context.lineWidth = 1.2;
+            context.moveTo(x, y);
+            context.lineTo(x + 4, y + 4);
+            context.stroke();
+        }
+
+        waveState.animationFrame = requestAnimationFrame(renderWaveFrame);
+    }
+
+    updateLayout();
+    renderWaveFrame(performance.now());
+
+    const resizeObserver = new ResizeObserver(() => {
+        updateLayout();
+    });
+    resizeObserver.observe(neuralField);
+    window.addEventListener("resize", updateLayout, { passive: true });
+}
+
+const originalInit = app.init;
+app.init = function peterAgentOverlayInit() {
+    if (typeof originalInit === "function") {
+        originalInit.call(this);
+    }
+    initSubAgentAvatars();
+};
 
 // Export for use in other modules if needed
 window.app = app;
