@@ -11,6 +11,7 @@ import threading
 import urllib.error
 import urllib.parse
 import urllib.request
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -209,6 +210,10 @@ def build_system_prompt(profile: dict[str, Any], user_name: str) -> str:
             f"Languages: {', '.join(profile['languages'])}.",
             "Reply in the same language and writing style the user used.",
             "If Hindi or Urdu is typed in Latin letters, reply in Latin letters too.",
+            "On a first greeting, briefly introduce yourself as Peter, use the user's local time for the greeting, and ask how they are. Do not repeat the introduction in later turns.",
+            "Peter's visual companions have these roles: Piku handles social media, Achu helps with files and documents, Bechu helps with messages and communication, Nori helps with research, and Zuzu reviews quality.",
+            "Do not claim separate AI agents performed work; companions are visual task cues and chat uses one configured model.",
+            "Live weather is not connected. Never guess current weather; explain this honestly if asked.",
             "Include the user's configured name exactly once in every reply.",
             "Never echo or quote the user's request as the answer; provide a useful, direct response.",
             "When the user shares a problem or low mood, acknowledge it kindly and ask one gentle follow-up.",
@@ -227,6 +232,54 @@ def refresh_peter_profile() -> None:
         or PETER_PROFILE["creator_name"]
     )
     SYSTEM_PROMPT = build_system_prompt(PETER_PROFILE, PETER_USER_NAME)
+
+
+def first_greeting_reply(
+    message: str,
+    history: Any,
+    current_time: datetime | None = None,
+) -> str | None:
+    """Introduce Peter on a user's first greeting without inventing live weather."""
+    greeting_pattern = re.compile(
+        r"(?:h+i+|hell?o+|hey+|salam|namaste|good\s+(?:morning|afternoon|evening))"
+        r"(?:\s+peter)?[!,.? ]*",
+        re.IGNORECASE,
+    )
+    if not greeting_pattern.fullmatch(message.strip()):
+        return None
+    if isinstance(history, list) and any(
+        isinstance(turn, dict)
+        and turn.get("role") == "assistant"
+        and isinstance(turn.get("content"), str)
+        and turn["content"].strip()
+        for turn in history
+    ):
+        return None
+
+    hour = (current_time or datetime.now().astimezone()).hour
+    time_greeting = (
+        "Good morning" if hour < 12 else
+        "Good afternoon" if hour < 17 else
+        "Good evening"
+    )
+    english_greeting_pattern = re.compile(
+        r"(?:hi|hello|hey|good\s+(?:morning|afternoon|evening))"
+        r"(?:\s+peter)?[!,.? ]*",
+        re.IGNORECASE,
+    )
+    if english_greeting_pattern.fullmatch(message.strip()):
+        return (
+            f"{time_greeting}! I'm Peter, {PETER_USER_NAME}'s personal local-first AI assistant. "
+            "I can chat naturally and help with social media, files, messages, research, and reviews. "
+            "Live weather isn't connected yet, so I won't guess. How are you?"
+        )
+
+    return (
+        f"{time_greeting}! Main Peter hoon, {PETER_USER_NAME} ka personal local-first AI assistant. "
+        "Main aapse normal baat karunga aur social media, files, messages, research, "
+        "aur review mein madad kar sakta hoon. Live mausam abhi connected nahi hai, "
+        "isliye main guess nahi karunga. Aap kaise ho?"
+    )
 
 
 refresh_peter_profile()
@@ -543,12 +596,14 @@ class PeterPlanetHandler(http.server.SimpleHTTPRequestHandler):
             )
             return
 
-        reply = memory_response_for(message) or creator_reply_for(message)
+        reply = first_greeting_reply(message, history)
+        if reply is None:
+            reply = memory_response_for(message) or creator_reply_for(message)
         mode = "demo"
         if reply is None:
             reply, mode = generate_ai_reply(message, history)
             if reply is None:
-                reply = self.generate_demo_reply(message)
+                reply = self.generate_demo_reply(message, history)
         self.send_api_response({"reply": include_user_name_once(reply), "mode": mode})
 
     def handle_open_file(self) -> None:
@@ -600,14 +655,15 @@ class PeterPlanetHandler(http.server.SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
-    def generate_demo_reply(self, message: str) -> str:
+    def generate_demo_reply(self, message: str, history: Any = None) -> str:
         """Return a clearly labeled local response when Ollama is unavailable."""
         creator_reply = creator_reply_for(message)
         if creator_reply:
             return creator_reply
+        greeting_reply = first_greeting_reply(message, history)
+        if greeting_reply:
+            return greeting_reply
         normalized = message.casefold()
-        if re.search(r"\b(?:hello|hi|salam|namaste)\b", normalized):
-            return "Hello! I am Peter. How can I help?"
         if "status" in normalized:
             return "The frontend is active. The AI engine is not connected yet."
         if "module" in normalized or "show modules" in normalized:

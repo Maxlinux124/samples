@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#030817" />
     <title>Peter Planet | Immersive AI Universe</title>
-    <link rel="stylesheet" href="immersive.css?v=word-animation" />
+    <link rel="stylesheet" href="immersive.css?v=agent-home-v3" />
 </head>
 <body>
     <div class="app immersive-app" id="app">
@@ -45,6 +45,12 @@
         <main class="universe-stage" id="home">
             <div class="galaxy-atmosphere" aria-hidden="true"><span class="nebula-cloud cloud-one"></span><span class="nebula-cloud cloud-two"></span><span class="nebula-cloud cloud-three"></span><span class="galaxy-dust"></span></div>
             <section class="neural-field" id="neuralField" data-state="idle" aria-label="Peter Core visual environment">
+                <aside class="peter-agent-home" id="agentHome" aria-label="Peter's agent home">
+                    <span class="agent-home-sign">
+                        <strong>Agent Home</strong>
+                        <span id="agentHomeStatus" role="status" aria-live="polite">All five friends are home and resting.</span>
+                    </span>
+                </aside>
                 <div class="peter-core-3d" id="peterCore3d" aria-label="Interactive three-dimensional Peter Core. Move the pointer or use the arrow keys to shift the view."></div>
                 <div class="core-ring" aria-hidden="true">
                     <div class="core" id="core">
@@ -118,7 +124,7 @@
             </div>
             <p class="chat-mode-note" id="chatModeNote" hidden></p>
             <div class="chat-messages" id="chatMessages" aria-live="polite" aria-label="Conversation">
-                <div class="message demo"><div class="message-avatar">P</div><div class="message-bubble">Sagar, hello! Peter here. Kaisa haal hai?</div></div>
+                <div class="message demo initial-greeting"><div class="message-avatar">P</div><div class="message-bubble">Sagar, hello! Peter here. Kaisa haal hai?</div></div>
             </div>
             <button class="text-entry-link" id="keyboardInputBtn" type="button">⌨ <span>Focus the message box</span></button>
         </section>
@@ -164,6 +170,6 @@
             </div>
         </div>
     </div>
-    <script type="module" src="app.js?v=word-animation"></script>
+    <script type="module" src="app.js?v=agent-home-v5"></script>
 </body>
 </html>

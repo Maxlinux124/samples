@@ -771,7 +771,7 @@ app.sendMessageToBackend = async (text) => {
             body: JSON.stringify({
                 message: text,
                 history: Array.from(document.querySelectorAll("#chatMessages .message"))
-                    .filter((message) => message.id !== "chatTypingIndicator")
+                    .filter((message) => message.id !== "chatTypingIndicator" && !message.classList.contains("initial-greeting"))
                     .map((message) => ({
                         role: message.classList.contains("user") ? "user" : "assistant",
                         content: message.querySelector(".message-bubble")?.dataset.fullText
@@ -1269,6 +1269,13 @@ function initSubAgentAvatars() {
 
     const neuralField = document.getElementById("neuralField") || document.querySelector(".neural-field");
     if (!neuralField) return;
+    const agentHome = document.getElementById("agentHome");
+    const agentHomeStatus = document.getElementById("agentHomeStatus");
+    if (!agentHome || !agentHomeStatus) {
+        console.error("The agent home could not be initialized.");
+        app.logActivity("The agent home could not be initialized", "error");
+        return;
+    }
 
     const style = document.createElement("style");
     style.id = "peter-agent-overlay-styles";
@@ -1311,7 +1318,7 @@ function initSubAgentAvatars() {
         }
         .peter-agent[data-agent="local"] .peter-agent-visual { animation-delay: 0.5s; }
         .peter-agent[data-agent="communication"] .peter-agent-visual { animation-delay: 1s; }
-        .peter-agent[data-agent="client"] .peter-agent-visual { animation-delay: 1.4s; }
+        .peter-agent[data-agent="research"] .peter-agent-visual { animation-delay: 1.4s; }
         .peter-agent[data-agent="quality"] .peter-agent-visual { animation-delay: 1.8s; }
         .agent-shell {
             position: relative;
@@ -1425,15 +1432,15 @@ function initSubAgentAvatars() {
             align-items: center;
             gap: 6px;
             padding: 5px 10px 5px 8px;
-            border-radius: 999px;
-            background: rgba(7, 12, 18, 0.72);
-            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 8px;
+            background: rgba(7, 12, 18, 0.84);
+            border: 1px solid rgba(145, 172, 208, 0.22);
             color: rgba(223, 237, 247, 0.92);
             font-size: 9px;
             letter-spacing: 0.12em;
             text-transform: uppercase;
             white-space: nowrap;
-            box-shadow: 0 0 18px rgba(110, 220, 255, 0.08);
+            box-shadow: 0 0 12px rgba(110, 220, 255, 0.06);
         }
         .agent-label .agent-led-dot {
             width: 7px;
@@ -1458,7 +1465,7 @@ function initSubAgentAvatars() {
             animation: peter-task-card-in 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
         }
         .peter-agent-visual { position: relative; }
-        .peter-agent[data-agent="client"] .agent-task-card,
+        .peter-agent[data-agent="research"] .agent-task-card,
         .peter-agent[data-agent="quality"] .agent-task-card {
             position: absolute;
             bottom: calc(100% + 6px);
@@ -1583,10 +1590,18 @@ function initSubAgentAvatars() {
             --agent-scale: 1.08;
             filter: drop-shadow(0 0 26px rgba(140, 231, 255, 0.28));
         }
-        .peter-smart-agent { --agent-led: #5ef4ff; --agent-glow: rgba(94,244,255,1); --agent-eye-color: #78f9ff; }
+        .peter-agent[data-resting="true"] { --agent-scale: 0.72; }
+        .peter-agent[data-resting="true"][data-hovered="true"] { --agent-scale: 0.78; }
+        .peter-agent[data-resting="true"] .agent-label { opacity: 0.9; }
+        .agent-label { order: -1; display: grid; grid-template-columns: 7px 1fr; justify-items: start; gap: 1px 5px; padding: 5px 8px; }
+        .agent-label .agent-led-dot { grid-row: 1 / span 2; align-self: center; }
+        .agent-role { grid-column: 2; color: rgba(186, 208, 228, 0.82); font-size: 8px; letter-spacing: 0.04em; text-transform: none; }
+        .peter-agent[data-mood="resting"] .agent-eye { animation-duration: 6s; }
+        .peter-agent[data-agent-state="working"] { z-index: 2; }
+        .peter-social-agent { --agent-led: #5ef4ff; --agent-glow: rgba(94,244,255,1); --agent-eye-color: #78f9ff; }
         .peter-local-agent { --agent-led: #ffb766; --agent-glow: rgba(255,183,102,1); --agent-eye-color: #ffca73; }
         .peter-communication-agent { --agent-led: #7efca0; --agent-glow: rgba(126,252,160,1); --agent-eye-color: #79ff9d; }
-        .peter-client-agent { --agent-led: #ff79f8; --agent-glow: rgba(255,121,248,1); --agent-eye-color: #ff8af8; }
+        .peter-research-agent { --agent-led: #ff79f8; --agent-glow: rgba(255,121,248,1); --agent-eye-color: #ff8af8; }
         .peter-quality-agent { --agent-led: #ff7d7d; --agent-glow: rgba(255,125,125,1); --agent-eye-color: #ff8da8; }
         @keyframes peter-eye-blink {
             0%, 43%, 47%, 100% { transform: scaleY(1); opacity: 1; }
@@ -1629,9 +1644,10 @@ function initSubAgentAvatars() {
 
     const agents = [
         {
-            key: "smart",
-            className: "peter-smart-agent",
+            key: "social",
+            className: "peter-social-agent",
             label: "Piku",
+            role: "Social Media",
             x: 18,
             y: 26,
         },
@@ -1639,6 +1655,7 @@ function initSubAgentAvatars() {
             key: "local",
             className: "peter-local-agent",
             label: "Achu",
+            role: "Files & Documents",
             x: 73,
             y: 19,
         },
@@ -1646,13 +1663,15 @@ function initSubAgentAvatars() {
             key: "communication",
             className: "peter-communication-agent",
             label: "Bechu",
+            role: "Messages",
             x: 84,
             y: 52,
         },
         {
-            key: "client",
-            className: "peter-client-agent",
+            key: "research",
+            className: "peter-research-agent",
             label: "Nori",
+            role: "Research",
             x: 56,
             y: 80,
         },
@@ -1660,6 +1679,7 @@ function initSubAgentAvatars() {
             key: "quality",
             className: "peter-quality-agent",
             label: "Zuzu",
+            role: "Review & Quality",
             x: 28,
             y: 77,
         },
@@ -1671,9 +1691,10 @@ function initSubAgentAvatars() {
         const node = document.createElement("div");
         node.className = `peter-agent ${agent.className}`;
         node.dataset.agent = agent.key;
-        node.dataset.mood = "happy";
+        node.dataset.mood = "resting";
         node.dataset.hidden = "false";
         node.dataset.hovered = "false";
+        node.dataset.resting = "true";
         node.style.left = `${agent.x}%`;
         node.style.top = `${agent.y}%`;
         node.innerHTML = `
@@ -1695,7 +1716,7 @@ function initSubAgentAvatars() {
                         <span class="foot foot-right"></span>
                     </div>
                 </div>
-                <div class="agent-label"><span class="agent-led-dot"></span><span>${agent.label}</span></div>
+                <div class="agent-label"><span class="agent-led-dot"></span><span>${agent.label}</span><span class="agent-role">${agent.role}</span></div>
                 <div class="agent-task-card" hidden>
                     <div class="agent-task-heading">
                         <span>Peter's task</span>
@@ -1711,14 +1732,11 @@ function initSubAgentAvatars() {
             key: agent.key,
             x: 0,
             y: 0,
-            roamTargetX: null,
-            roamTargetY: null,
-            nextRoamAt: 0,
             positioned: false,
             alert: false,
+            returningHome: false,
             hovered: false,
             seed: Math.random() * 10,
-            finishTimer: 0,
             pendingTasks: new Map(),
         };
 
@@ -1745,35 +1763,69 @@ function initSubAgentAvatars() {
     const waveState = {
         center: { x: 0, y: 0 },
         targets: {},
+        restTargets: {},
         particles: [],
         animationFrame: 0,
     };
 
+    const updateHomeStatus = () => {
+        const working = [];
+        const returning = [];
+        agentRuntime.forEach((state, key) => {
+            const agent = agents.find((item) => item.key === key);
+            if (state.pendingTasks.size) working.push(agent.label);
+            else if (state.returningHome) returning.push(agent.label);
+        });
+
+        const restingCount = agents.length - working.length - returning.length;
+        if (!working.length && !returning.length) {
+            agentHomeStatus.textContent = "All five friends are home and resting.";
+            return;
+        }
+
+        const statusParts = [];
+        if (working.length) {
+            const names = working.join(", ");
+            statusParts.push(`${names} ${working.length === 1 ? "is" : "are"} helping Peter`);
+        }
+        if (returning.length) {
+            statusParts.push(`${returning.join(", ")} ${returning.length === 1 ? "is" : "are"} heading home`);
+        }
+        if (restingCount) statusParts.push(`${restingCount} resting at home`);
+        agentHomeStatus.textContent = `${statusParts.join(" · ")}.`;
+    };
+
     const updateLayout = () => {
         const rect = neuralField.getBoundingClientRect();
+        const homeRect = agentHome.getBoundingClientRect();
         waveState.center.x = rect.width * 0.5;
         waveState.center.y = rect.height * 0.48;
+        const homeLeft = homeRect.left - rect.left;
+        const homeTop = homeRect.top - rect.top;
 
         const positions = {
-            smart: { x: rect.width * 0.23, y: rect.height * 0.28 },
+            social: { x: rect.width * 0.23, y: rect.height * 0.28 },
             local: { x: rect.width * 0.78, y: rect.height * 0.22 },
             communication: { x: rect.width * 0.86, y: rect.height * 0.52 },
-            client: { x: rect.width * 0.62, y: rect.height * 0.8 },
+            research: { x: rect.width * 0.62, y: rect.height * 0.8 },
             quality: { x: rect.width * 0.38, y: rect.height * 0.8 },
+        };
+        const homeSlots = {
+            social: { x: 0.2, y: 0.36 },
+            local: { x: 0.5, y: 0.5 },
+            communication: { x: 0.8, y: 0.5 },
+            research: { x: 0.35, y: 0.8 },
+            quality: { x: 0.65, y: 0.8 },
         };
 
         Object.entries(positions).forEach(([key, target]) => {
             waveState.targets[key] = target;
-            const runtime = agentRuntime.get(key);
-            if (!runtime) return;
-            if (runtime.alert) {
-                runtime.roamTargetX = target.x;
-                runtime.roamTargetY = target.y;
-            } else if (!runtime.positioned) {
-                runtime.x = target.x;
-                runtime.y = target.y;
-                runtime.positioned = true;
-            }
+        });
+        Object.entries(homeSlots).forEach(([key, slot]) => {
+            waveState.restTargets[key] = {
+                x: homeLeft + homeRect.width * slot.x,
+                y: homeTop + homeRect.height * slot.y,
+            };
         });
     };
 
@@ -1788,42 +1840,34 @@ function initSubAgentAvatars() {
             const node = overlay.querySelector(`.peter-agent[data-agent="${key}"]`);
             if (!node) return;
             const target = waveState.targets[key];
-            if (!target) return;
+            const homeTarget = waveState.restTargets[key];
+            if (!target || !homeTarget) return;
 
             if (!runtime.positioned) {
-                runtime.x = target.x;
-                runtime.y = target.y;
+                runtime.x = homeTarget.x;
+                runtime.y = homeTarget.y;
                 runtime.positioned = true;
             }
 
-            if (runtime.alert) {
-                runtime.roamTargetX = target.x;
-                runtime.roamTargetY = target.y;
-            } else if (frameTime >= runtime.nextRoamAt) {
-                let roamX = width * (0.1 + Math.random() * 0.8);
-                const roamY = height * (0.12 + Math.random() * 0.72);
-                const centerDistance = Math.hypot(
-                    (roamX - waveState.center.x) / Math.max(width * 0.27, 1),
-                    (roamY - waveState.center.y) / Math.max(height * 0.32, 1),
-                );
-                if (centerDistance < 1.15) {
-                    roamX = roamX < waveState.center.x ? width * 0.16 : width * 0.84;
-                }
-                runtime.roamTargetX = roamX;
-                runtime.roamTargetY = roamY;
-                runtime.nextRoamAt = frameTime + 8500 + Math.random() * 5500;
-            }
-
-            const destinationX = runtime.roamTargetX ?? target.x;
-            const destinationY = runtime.roamTargetY ?? target.y;
+            const destinationX = runtime.alert ? target.x : homeTarget.x;
+            const destinationY = runtime.alert ? target.y : homeTarget.y;
             const deltaX = destinationX - runtime.x;
             const deltaY = destinationY - runtime.y;
             const distance = Math.hypot(deltaX, deltaY);
-            const travel = Math.min(distance, (runtime.alert ? 110 : 28) * deltaSeconds);
+            const travel = Math.min(distance, 110 * deltaSeconds);
 
             if (distance > 0) {
                 runtime.x += (deltaX / distance) * travel;
                 runtime.y += (deltaY / distance) * travel;
+            }
+
+            if (runtime.returningHome && distance <= travel + 2) {
+                runtime.returningHome = false;
+                node.dataset.resting = "true";
+                node.dataset.agentState = "resting";
+                node.querySelector(".agent-task-card").hidden = true;
+                node.dataset.taskState = "";
+                updateHomeStatus();
             }
 
             const breathingX = Math.sin((frameTime * 0.00022) + runtime.seed) * 2.2;
@@ -1843,10 +1887,10 @@ function initSubAgentAvatars() {
         if (!target) return;
 
         const hueMap = {
-            smart: "105, 241, 255",
+            social: "105, 241, 255",
             local: "255, 190, 115",
             communication: "141, 255, 176",
-            client: "255, 122, 244",
+            research: "255, 122, 244",
             quality: "255, 122, 122",
         };
 
@@ -1866,29 +1910,30 @@ function initSubAgentAvatars() {
 
     let taskSequence = 0;
     const taskProfiles = [
-        { key: "quality", pattern: /\b(review|verify|quality|inspect|report|proofread)\b/i },
-        { key: "communication", pattern: /\b(email|call|message|reply|contact|outreach|communication)\b/i },
-        { key: "local", pattern: /\b(file|folder|directory|document|image|local|organize|organise|data)\b/i },
-        { key: "client", pattern: /\b(client|lead|prospect|customer|find.*company|potential customer)\b/i },
-        { key: "smart", pattern: /\b(research|search|website|web|look up|find information|browse)\b/i },
+        { key: "quality", pattern: /\b(review|verify|quality|inspect|report|proofread|check|test|jaanch|janch)\b/i },
+        { key: "communication", pattern: /\b(email|call|message|reply|contact|outreach|communication|jawab|baat|bhejo|bhej do)\b/i },
+        { key: "local", pattern: /\b(file|folder|directory|document|image|local|organize|organise|data|khol|kholo|kholna)\b/i },
+        { key: "research", pattern: /\b(research|search|website|web|look up|find information|browse|jankari|jaankari|dhundo|dhoondo|talash|talaash|client|lead|prospect|customer|find.*company|potential customer|grahak|company.*(dhundo|dhoondo|khojo))\b/i },
+        { key: "social", pattern: /\b(social media|instagram|facebook|youtube|tiktok|post|caption|hashtag|content|reel|tweet)\b/i },
     ];
     const taskDescriptions = {
-        smart: "Researching the request",
+        social: "Preparing social media content",
         local: "Checking files and data",
         communication: "Preparing a communication response",
-        client: "Looking into client and lead details",
+        research: "Researching the request",
         quality: "Reviewing the requested result",
     };
 
     app.startAgentTask = (taskText) => {
         const request = String(taskText || "").trim();
         const profile = taskProfiles.find((item) => item.pattern.test(request));
-        const agentKey = profile?.key || "smart";
+        if (!profile) return null;
+        const agentKey = profile.key;
         const state = agentRuntime.get(agentKey);
         const node = overlay.querySelector(`.peter-agent[data-agent="${agentKey}"]`);
-        if (!state || !node) return null;
+        const target = waveState.targets[agentKey];
+        if (!state || !node || !target) return null;
 
-        if (state.finishTimer) window.clearTimeout(state.finishTimer);
         const taskId = ++taskSequence;
         const description = request.length > 110 ? `${request.slice(0, 107)}...` : request;
         state.pendingTasks.set(taskId, {
@@ -1896,14 +1941,15 @@ function initSubAgentAvatars() {
             summary: taskDescriptions[agentKey],
         });
         state.alert = true;
-        state.roamTargetX = waveState.targets[agentKey].x;
-        state.roamTargetY = waveState.targets[agentKey].y;
-        state.nextRoamAt = 0;
+        state.returningHome = false;
+        node.dataset.resting = "false";
+        node.dataset.agentState = "working";
         node.dataset.taskState = "working";
         node.dataset.mood = "action";
         node.querySelector(".agent-task-state").textContent = taskDescriptions[agentKey];
         node.querySelector(".agent-task-description").textContent = description || taskDescriptions[agentKey];
         node.querySelector(".agent-task-card").hidden = false;
+        updateHomeStatus();
         triggerTaskFlow(agentKey);
         return taskId;
     };
@@ -1927,18 +1973,12 @@ function initSubAgentAvatars() {
             }
 
             node.dataset.taskState = succeeded ? "done" : "error";
-            node.dataset.mood = "happy";
+            node.dataset.mood = "resting";
             node.querySelector(".agent-task-state").textContent = succeeded ? "Reply ready" : "Service unavailable";
             state.alert = false;
-            state.roamTargetX = null;
-            state.roamTargetY = null;
-            state.nextRoamAt = performance.now();
-            state.finishTimer = window.setTimeout(() => {
-                if (state.pendingTasks.size > 0) return;
-                node.querySelector(".agent-task-card").hidden = true;
-                node.dataset.taskState = "";
-                state.finishTimer = 0;
-            }, 2200);
+            state.returningHome = true;
+            node.dataset.agentState = "returning";
+            updateHomeStatus();
         });
     };
 

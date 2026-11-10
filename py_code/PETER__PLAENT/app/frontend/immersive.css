@@ -213,6 +213,44 @@ button:focus-visible, a:focus-visible, textarea:focus-visible {
         radial-gradient(ellipse 38% 36% at 49% 47%, rgba(181, 9, 38, 0.105), transparent 73%),
         radial-gradient(ellipse 32% 34% at 53% 45%, rgba(8, 123, 255, 0.12), transparent 74%);
 }
+.peter-agent-home {
+    position: absolute;
+    z-index: 3;
+    bottom: clamp(100px, 14vh, 120px);
+    left: clamp(12px, 3vw, 34px);
+    width: min(380px, calc(100vw - 24px));
+    height: min(290px, calc(100dvh - clamp(100px, 14vh, 120px) - 16px));
+    overflow: hidden;
+    border: 1px solid rgba(145, 172, 208, 0.3);
+    border-radius: 12px;
+    background: rgba(12, 21, 37, 0.78);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22);
+    pointer-events: none;
+}
+.agent-home-sign {
+    position: absolute;
+    z-index: 2;
+    top: 11px;
+    left: 13px;
+    right: 13px;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+    color: #e6f4ff;
+}
+.agent-home-sign strong {
+    flex: 0 0 auto;
+    font: 600 13px/1.2 "Space Grotesk", "Segoe UI", sans-serif;
+    letter-spacing: 0.04em;
+}
+.agent-home-sign span {
+    min-width: 0;
+    color: #a9bdd6;
+    font-size: 10px;
+    line-height: 1.25;
+    text-align: right;
+}
 .peter-core-3d {
     position: absolute;
     inset: 0;

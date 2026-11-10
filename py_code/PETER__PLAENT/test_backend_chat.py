@@ -1,5 +1,8 @@
 import json
+import io
 import unittest
+from datetime import datetime, timezone
+from email.message import Message
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
@@ -50,6 +53,100 @@ class TestBackendChat(unittest.TestCase):
         self.assertIn("without pretending to be human", prompt)
         self.assertIn("never echo", prompt)
         self.assertIn("low mood", prompt)
+        self.assertIn("piku handles social media", prompt)
+        self.assertIn("live weather is not connected", prompt)
+        self.assertIn("do not claim separate ai agents", prompt)
+
+    def test_first_greeting_introduces_peter_and_uses_local_time(self):
+        cases = (
+            (7, "Good morning"),
+            (14, "Good afternoon"),
+            (20, "Good evening"),
+        )
+        for hour, greeting in cases:
+            with self.subTest(hour=hour):
+                reply = server.first_greeting_reply(
+                    "hii",
+                    [],
+                    datetime(2026, 11, 10, hour, tzinfo=timezone.utc),
+                )
+
+                self.assertIn(greeting, reply)
+                self.assertIn("Main Peter hoon", reply)
+                self.assertIn("social media", reply.lower())
+                self.assertIn("live mausam", reply.lower())
+                self.assertIn("guess nahi karunga", reply.lower())
+
+    def test_first_greeting_supports_time_specific_salutations(self):
+        for message in ("good morning", "good afternoon", "good evening", "salam Peter"):
+            with self.subTest(message=message):
+                self.assertIsNotNone(
+                    server.first_greeting_reply(
+                        message,
+                        [],
+                        datetime(2026, 11, 10, 10, tzinfo=timezone.utc),
+                    )
+                )
+
+    def test_english_greetings_receive_an_english_introduction(self):
+        for message in ("hi", "hello Peter", "Good morning"):
+            with self.subTest(message=message):
+                reply = server.first_greeting_reply(
+                    message,
+                    [],
+                    datetime(2026, 11, 10, 10, tzinfo=timezone.utc),
+                )
+
+                self.assertIn("I'm Peter", reply)
+                self.assertIn("I can chat naturally", reply)
+                self.assertIn("Live weather isn't connected", reply)
+                self.assertNotIn("Main Peter hoon", reply)
+                self.assertEqual(reply.lower().count(server.PETER_USER_NAME.lower()), 1)
+
+    def test_roman_urdu_greeting_keeps_the_roman_urdu_introduction(self):
+        reply = server.first_greeting_reply(
+            "salam Peter",
+            [],
+            datetime(2026, 11, 10, 10, tzinfo=timezone.utc),
+        )
+
+        self.assertIn("Main Peter hoon", reply)
+        self.assertIn("Live mausam", reply)
+
+    def test_first_greeting_does_not_repeat_after_assistant_has_replied(self):
+        reply = server.first_greeting_reply(
+            "hi",
+            [{"role": "assistant", "content": "Hello, Sagar."}],
+            datetime(2026, 11, 10, 10, tzinfo=timezone.utc),
+        )
+
+        self.assertIsNone(reply)
+
+    def test_first_greeting_does_not_match_non_greeting_requests(self):
+        for message in ("This feature is broken", "hi Peter, help me with my file"):
+            with self.subTest(message=message):
+                self.assertIsNone(server.first_greeting_reply(message, []))
+
+    def test_chat_endpoint_introduces_peter_for_the_first_greeting(self):
+        handler = object.__new__(server.PeterPlanetHandler)
+        handler.path = "/api/chat"
+        handler.headers = Message()
+        handler.headers["Origin"] = f"http://{server.HOST}:{server.PORT}"
+        handler.headers["Content-Type"] = "application/json"
+        payload = json.dumps({"message": "hii", "history": []}).encode("utf-8")
+        handler.headers["Content-Length"] = str(len(payload))
+        handler.rfile = io.BytesIO(payload)
+
+        with patch.object(server, "refresh_peter_profile"):
+            with patch.object(server.PeterPlanetHandler, "send_api_response") as response:
+                with patch.object(server, "generate_ai_reply") as generate_reply:
+                    handler.do_POST()
+
+        reply = response.call_args.args[0]["reply"]
+        self.assertIn("Main Peter hoon", reply)
+        self.assertIn("Good", reply)
+        self.assertEqual(reply.lower().count(server.PETER_USER_NAME.lower()), 1)
+        generate_reply.assert_not_called()
 
     def test_build_messages_keeps_recent_valid_turns(self):
         messages = server.build_ollama_messages("next", [
