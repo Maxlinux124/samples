@@ -11,6 +11,7 @@ import threading
 import urllib.error
 import urllib.parse
 import urllib.request
+import webbrowser
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -211,7 +212,9 @@ def build_system_prompt(profile: dict[str, Any], user_name: str) -> str:
             "Reply in the same language and writing style the user used.",
             "If Hindi or Urdu is typed in Latin letters, reply in Latin letters too.",
             "On a first greeting, briefly introduce yourself as Peter, use the user's local time for the greeting, and ask how they are. Do not repeat the introduction in later turns.",
-            "Peter's visual companions have these roles: Piku handles social media, Achu helps with files and documents, Bechu helps with messages and communication, Nori helps with research, and Zuzu reviews quality.",
+            "Peter's visual companions have these roles: Piku handles social media, Achu helps with files and documents, Bechu helps with messages and communication, Nori helps with research, Zuzu reviews quality, and MAX supports computer and system security requests.",
+            "Open YouTube and song-play requests immediately in the default browser, including Hinglish/Roman Urdu commands and requests phrased as tasks for Piku. Do not ask for confirmation or merely describe the action.",
+            "Never include internal action markers such as [OPEN_YT] or [PLAY_YT: ...] in a user-facing reply.",
             "Do not claim separate AI agents performed work; companions are visual task cues and chat uses one configured model.",
             "Live weather is not connected. Never guess current weather; explain this honestly if asked.",
             "Include the user's configured name exactly once in every reply.",
@@ -374,7 +377,7 @@ def generate_ai_reply(message: str, history: Any) -> tuple[str | None, str]:
 
 def include_user_name_once(reply: str) -> str:
     """Ensure every assistant reply contains the user's name exactly once."""
-    reply = str(reply).strip()
+    reply = strip_internal_action_tags(reply) or "I'm ready to help."
     name_pattern = re.compile(rf"\b{re.escape(PETER_USER_NAME)}\b", re.IGNORECASE)
     matches = list(name_pattern.finditer(reply))
     if not matches:
@@ -388,6 +391,13 @@ def include_user_name_once(reply: str) -> str:
     suffix = re.sub(r"([,.;:!?])\s*([,.;:!?])", r"\1", suffix)
     suffix = re.sub(r"\s{2,}", " ", suffix)
     return f"{prefix}{PETER_USER_NAME}{suffix}".strip()
+
+
+def strip_internal_action_tags(reply: str) -> str:
+    """Remove implementation-only YouTube action markers before showing a reply."""
+    reply = re.sub(r"\[(?:OPEN_YT|PLAY_YT\s*:[^\]]*)\]", "", str(reply), flags=re.IGNORECASE)
+    reply = re.sub(r"\s+([,.;:!?])", r"\1", reply)
+    return re.sub(r"\s{2,}", " ", reply).strip()
 
 
 def creator_reply_for(message: str) -> str | None:
@@ -454,6 +464,84 @@ def is_open_file_task_request(message: str) -> bool:
             request,
         )
     )
+
+
+def parse_youtube_action(message: str) -> tuple[str, str] | None:
+    """Recognize explicit YouTube open and song-search requests."""
+    request = message.strip()
+    request = re.sub(r"^peter(?:[\s,:-]+|$)", "", request, flags=re.IGNORECASE).strip()
+    request = re.sub(
+        r"^piku\s+(?:ko\s+)?(?:(?:kaam|task)\s+)?"
+        r"(?:bolo|do|de|assign(?:\s+kar(?:o)?)?)"
+        r"\s*(?:(?:ki|ke\s+liye|to)\s+)?",
+        "",
+        request,
+        flags=re.IGNORECASE,
+    )
+    request = re.sub(r"[.!?,;]+$", "", request).strip()
+    request = re.sub(
+        r"\s+(?:karne\s+ke\s+liye|karne\s+liye|karo|kar\s+do|please|for me)$",
+        "",
+        request,
+        flags=re.IGNORECASE,
+    ).strip()
+
+    if re.fullmatch(
+        r"(?:https?://)?(?:www\.)?youtube\.com/?", request, flags=re.IGNORECASE
+    ):
+        return "open", "https://www.youtube.com/"
+
+    request = re.sub(
+        r"\s+(?:on\s+youtube|youtube\s+(?:pe|par))$",
+        "",
+        request,
+        flags=re.IGNORECASE,
+    ).strip()
+    if re.fullmatch(
+        r"(?:(?:please|zara|plz|can you|could you|mujhe)\s+)*"
+        r"(?:open|launch|start)(?:\s+the)?\s+youtube(?:\.com)?"
+        r"(?:\s+(?:please|for me|karo|kar\s+do))?",
+        request,
+        flags=re.IGNORECASE,
+    ) or re.fullmatch(
+        r"youtube(?:\.com)?\s+"
+        r"(?:open|kholo|khol(?:\s+do)?|khul(?:\s+do)?|chalao|"
+        r"start(?:\s+kar(?:\s+do)?)?)"
+        r"(?:\s+(?:please|karo|kar\s+do|for me))?",
+        request,
+        flags=re.IGNORECASE,
+    ) or re.fullmatch(
+        r"mujhe\s+youtube(?:\.com)?\s+"
+        r"(?:open(?:\s+(?:karo|kar\s+do))?|kholo|khol(?:\s+do)?|chalao)",
+        request,
+        flags=re.IGNORECASE,
+    ):
+        return "open", "https://www.youtube.com/"
+
+    play_match = re.fullmatch(
+        r"(?:play(?:\s+(?:the\s+)?song)?|"
+        r"(?:gana|gaana)\s+(?:chalao|bajao|sunao))\s+(.+)",
+        request,
+        flags=re.IGNORECASE,
+    )
+    if play_match:
+        song = play_match.group(1).strip(" \t\"'")
+        if song:
+            search_url = "https://www.youtube.com/results?" + urllib.parse.urlencode(
+                {"search_query": song}
+            )
+            return "play", search_url
+    song_match = re.fullmatch(
+        r"(.+?)\s+(?:chalao|bajao|sunao)", request, flags=re.IGNORECASE
+    )
+    if song_match:
+        song = song_match.group(1).strip(" \t\"'")
+        if song:
+            search_url = "https://www.youtube.com/results?" + urllib.parse.urlencode(
+                {"search_query": song}
+            )
+            return "play", search_url
+    return None
 
 
 def is_trusted_browser_origin(origin: str | None) -> bool:
@@ -583,6 +671,33 @@ class PeterPlanetHandler(http.server.SimpleHTTPRequestHandler):
             return
 
         refresh_peter_profile()
+        youtube_action = parse_youtube_action(message)
+        if youtube_action:
+            action_kind, youtube_url = youtube_action
+            try:
+                opened = webbrowser.open(youtube_url, new=2)
+            except (webbrowser.Error, OSError) as error:
+                logging.warning("Could not open YouTube in the default browser: %s", error)
+                opened = False
+
+            if opened:
+                reply = (
+                    "YouTube is open in your default browser."
+                    if action_kind == "open"
+                    else "YouTube search results are open in your default browser."
+                )
+            else:
+                reply = "I couldn't open YouTube in the default browser. Please check the browser setup."
+            self.send_api_response(
+                {
+                    "reply": include_user_name_once(reply),
+                    "mode": "demo",
+                    "action": "open_youtube" if action_kind == "open" else "search_youtube",
+                    "opened": bool(opened),
+                }
+            )
+            return
+
         if is_open_file_task_request(message):
             self.send_api_response(
                 {

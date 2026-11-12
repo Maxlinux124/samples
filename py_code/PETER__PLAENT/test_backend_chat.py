@@ -54,6 +54,7 @@ class TestBackendChat(unittest.TestCase):
         self.assertIn("never echo", prompt)
         self.assertIn("low mood", prompt)
         self.assertIn("piku handles social media", prompt)
+        self.assertIn("max supports computer and system security requests", prompt)
         self.assertIn("live weather is not connected", prompt)
         self.assertIn("do not claim separate ai agents", prompt)
 
@@ -178,6 +179,127 @@ class TestBackendChat(unittest.TestCase):
 
         self.assertEqual(message, "hello")
         self.assertEqual(history, [])
+
+    def test_youtube_action_recognizes_direct_and_hinglish_commands(self):
+        youtube_url = "https://www.youtube.com/"
+        commands = (
+            "peter youtube open",
+            "peter youtube open karo",
+            "open youtube",
+            "mujhe youtube kholo",
+            "youtube.com",
+            "piku ko kaam bolo youtube open karne ke liye",
+        )
+
+        for command in commands:
+            with self.subTest(command=command):
+                self.assertEqual(
+                    server.parse_youtube_action(command),
+                    ("open", youtube_url),
+                )
+
+    def test_youtube_song_action_encodes_search_query(self):
+        self.assertEqual(
+            server.parse_youtube_action("play Tum Hi Ho"),
+            (
+                "play",
+                "https://www.youtube.com/results?search_query=Tum+Hi+Ho",
+            ),
+        )
+
+    def test_youtube_action_ignores_unrelated_chat(self):
+        self.assertIsNone(
+            server.parse_youtube_action("I watched a YouTube video yesterday.")
+        )
+        self.assertIsNone(server.parse_youtube_action("Please play"))
+
+    def test_youtube_chat_action_opens_browser_without_calling_model(self):
+        handler = object.__new__(server.PeterPlanetHandler)
+        handler.path = "/api/chat"
+        handler.headers = Message()
+        handler.headers["Origin"] = f"http://{server.HOST}:{server.PORT}"
+        handler.headers["Content-Type"] = "application/json"
+        payload = json.dumps({"message": "peter youtube open"}).encode("utf-8")
+        handler.headers["Content-Length"] = str(len(payload))
+        handler.rfile = io.BytesIO(payload)
+
+        with patch.object(server, "refresh_peter_profile"), \
+                patch.object(server.webbrowser, "open", return_value=True) as open_browser, \
+                patch.object(server, "generate_ai_reply") as generate_reply, \
+                patch.object(server.PeterPlanetHandler, "send_api_response") as response:
+            handler.do_POST()
+
+        self.assertEqual(open_browser.call_args.args[0], "https://www.youtube.com/")
+        self.assertEqual(open_browser.call_args.kwargs, {"new": 2})
+        self.assertEqual(response.call_args.args[0]["action"], "open_youtube")
+        self.assertTrue(response.call_args.args[0]["opened"])
+        self.assertIn("YouTube", response.call_args.args[0]["reply"])
+        generate_reply.assert_not_called()
+
+    def test_failed_youtube_browser_open_returns_clear_action_failure(self):
+        handler = object.__new__(server.PeterPlanetHandler)
+        handler.path = "/api/chat"
+        handler.headers = Message()
+        handler.headers["Origin"] = f"http://{server.HOST}:{server.PORT}"
+        handler.headers["Content-Type"] = "application/json"
+        payload = json.dumps({"message": "open youtube"}).encode("utf-8")
+        handler.headers["Content-Length"] = str(len(payload))
+        handler.rfile = io.BytesIO(payload)
+
+        with patch.object(server, "refresh_peter_profile"), \
+                patch.object(server.webbrowser, "open", return_value=False), \
+                patch.object(server.PeterPlanetHandler, "send_api_response") as response:
+            handler.do_POST()
+
+        self.assertFalse(response.call_args.args[0]["opened"])
+        self.assertIn("couldn't open YouTube", response.call_args.args[0]["reply"])
+
+    def test_youtube_browser_exception_returns_clear_action_failure(self):
+        handler = object.__new__(server.PeterPlanetHandler)
+        handler.path = "/api/chat"
+        handler.headers = Message()
+        handler.headers["Origin"] = f"http://{server.HOST}:{server.PORT}"
+        handler.headers["Content-Type"] = "application/json"
+        payload = json.dumps({"message": "open youtube"}).encode("utf-8")
+        handler.headers["Content-Length"] = str(len(payload))
+        handler.rfile = io.BytesIO(payload)
+
+        with patch.object(server, "refresh_peter_profile"), \
+                patch.object(
+                    server.webbrowser,
+                    "open",
+                    side_effect=server.webbrowser.Error("Browser unavailable"),
+                ), \
+                patch.object(server.PeterPlanetHandler, "send_api_response") as response:
+            handler.do_POST()
+
+        self.assertFalse(response.call_args.args[0]["opened"])
+        self.assertIn("couldn't open YouTube", response.call_args.args[0]["reply"])
+
+    def test_ordinary_chat_does_not_open_youtube(self):
+        handler = object.__new__(server.PeterPlanetHandler)
+        handler.path = "/api/chat"
+        handler.headers = Message()
+        handler.headers["Origin"] = f"http://{server.HOST}:{server.PORT}"
+        handler.headers["Content-Type"] = "application/json"
+        payload = json.dumps({"message": "I watched a YouTube video yesterday."}).encode("utf-8")
+        handler.headers["Content-Length"] = str(len(payload))
+        handler.rfile = io.BytesIO(payload)
+
+        with patch.object(server, "refresh_peter_profile"), \
+                patch.object(server.webbrowser, "open") as open_browser, \
+                patch.object(server, "generate_ai_reply", return_value=("Let's talk about it.", "ollama")), \
+                patch.object(server.PeterPlanetHandler, "send_api_response"):
+            handler.do_POST()
+
+        open_browser.assert_not_called()
+
+    def test_internal_youtube_action_tags_are_removed_from_replies(self):
+        reply = server.include_user_name_once(
+            "Opening YouTube [OPEN_YT]. Search: [PLAY_YT: Tum Hi Ho]"
+        )
+
+        self.assertEqual(reply, "Sagar, Opening YouTube. Search:")
 
     def test_browser_origin_must_match_local_ui(self):
         self.assertTrue(server.is_trusted_browser_origin(None))

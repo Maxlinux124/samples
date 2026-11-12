@@ -714,8 +714,8 @@ export function initPeterCore3D() {
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 30);
-    camera.position.set(0, 0.04, 4.45);
-    camera.lookAt(0, -0.02, 0);
+    camera.position.set(0, 0, 4.45);
+    camera.lookAt(0, 0, 0);
 
     const renderer = new THREE.WebGLRenderer({
         alpha: true,
@@ -758,7 +758,6 @@ export function initPeterCore3D() {
     scene.add(glow);
 
     const coreGroup = new THREE.Group();
-    coreGroup.position.y = 0.19;
     scene.add(coreGroup);
 
     const coreGeometry = new THREE.SphereGeometry(CORE_RADIUS, 36, 28);

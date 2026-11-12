@@ -1,7 +1,7 @@
 import { initPeterCore3D } from "./peter-core-3d.js";
 
-const app = window.app || {};
-const YOUTUBE_TASK_URL = "https://www.youtube.com/";
+const root = typeof globalThis !== "undefined" ? globalThis : {};
+const app = root.app || {};
 let PETER_USER_NAME = "Sagar";
 const getWelcomeGreeting = () => `Hello, ${PETER_USER_NAME}! Kaisa haal hai? Aaj kya kar rahe ho?`;
 const SPEECH_VOICE_PREFERENCE = "peterPlanetVoiceURI";
@@ -23,7 +23,7 @@ function readStartupSoundPreference() {
 }
 
 function includeUserNameOnce(text) {
-    const reply = String(text ?? "").trim();
+    const reply = stripInternalActionTags(text) || "I'm ready to help.";
     const namePattern = new RegExp(`\\b${PETER_USER_NAME}\\b`, "gi");
     const matches = [...reply.matchAll(namePattern)];
     if (!matches.length) return `${PETER_USER_NAME}, ${reply}`;
@@ -36,6 +36,14 @@ function includeUserNameOnce(text) {
     suffix = suffix.replace(/([,.;:!?])\s*([,.;:!?])/g, "$1");
     suffix = suffix.replace(/\s{2,}/g, " ");
     return `${prefix}${PETER_USER_NAME}${suffix}`.trim();
+}
+
+function stripInternalActionTags(text) {
+    return String(text ?? "")
+        .replace(/\[(?:OPEN_YT|PLAY_YT\s*:[^\]]*)\]/gi, "")
+        .replace(/\s+([,.;:!?])/g, "$1")
+        .replace(/\s{2,}/g, " ")
+        .trim();
 }
 
 function setUserName(userName) {
@@ -81,13 +89,6 @@ function playStartupSound(fromUserGesture = false) {
     } catch {
         // Audio is optional; the interface should still start without it.
     }
-}
-
-function isYouTubeTaskRequest(message) {
-    const request = message.trim().toLowerCase()
-        .replace(/^peter[,\s]+/, "")
-        .replace(/[.!?]+$/, "");
-    return /^(?:(?:please|zara|plz|can you|could you|mujhe)\s+)*(?:(?:open|launch|start)(?:\s+the)?\s+youtube(?:\s+(?:please|for me))?|youtube\s+(?:open(?:\s+(?:karo|kar do|please|for me))?|kholo(?:\s+please)?|khol(?:\s+do)?|khul(?:\s+do)?|chalao|start(?:\s+kar(?:\s+do)?)?)|mujhe\s+youtube\s+(?:open\s+(?:karo|kar\s+do)|kholo|khol\s+do|chalao))$/.test(request);
 }
 
 function isOpenFileTaskRequest(message) {
@@ -201,6 +202,7 @@ app.chatMode = null;
 app.hasBackendError = false;
 
 app.init = () => {
+    if (typeof window === "undefined" || typeof document === "undefined") return;
     if (isInitialized) return;
     const startupSoundButton = document.getElementById("startupSoundButton");
     const updateStartupSoundButton = () => {
@@ -398,65 +400,6 @@ app.init = () => {
     const sendBtn = document.getElementById("sendBtn");
     const messageInput = document.getElementById("messageInput");
     if (sendBtn && messageInput) {
-        const requestYouTubeTask = () => {
-            app.addMessage("Me", messageInput.value.trim());
-            const response = app.addMessage("Peter", "I can open YouTube in a new tab. Do you want me to do that?");
-            const bubble = response?.querySelector(".message-bubble");
-            if (!bubble) {
-                console.error("Could not display the YouTube task confirmation.");
-                app.logActivity("YouTube task confirmation could not be displayed", "error");
-                return;
-            }
-
-            const actions = document.createElement("div");
-            actions.className = "task-confirmation";
-            const confirmButton = document.createElement("button");
-            confirmButton.className = "task-confirmation-button";
-            confirmButton.type = "button";
-            confirmButton.textContent = "Open YouTube";
-
-            const cancelButton = document.createElement("button");
-            cancelButton.className = "task-cancel-button";
-            cancelButton.type = "button";
-            cancelButton.textContent = "Cancel";
-
-            const status = document.createElement("span");
-            status.className = "task-confirmation-status";
-            status.setAttribute("role", "status");
-
-            confirmButton.addEventListener("click", () => {
-                try {
-                    const openedWindow = window.open(YOUTUBE_TASK_URL, "_blank");
-                    if (!openedWindow) {
-                        status.textContent = "The browser blocked the new tab. Allow pop-ups, then try again.";
-                        app.logActivity("YouTube task blocked by the browser", "error");
-                        return;
-                    }
-
-                    openedWindow.opener = null;
-                    confirmButton.disabled = true;
-                    cancelButton.disabled = true;
-                    status.textContent = "YouTube opened in a new tab.";
-                    app.logActivity("YouTube opened after user confirmation", "audit");
-                } catch (error) {
-                    console.error("Could not open YouTube:", error);
-                    status.textContent = "Could not open YouTube. Check the browser and try again.";
-                    app.logActivity("YouTube task failed: " + error.message, "error");
-                }
-            });
-
-            cancelButton.addEventListener("click", () => {
-                confirmButton.disabled = true;
-                cancelButton.disabled = true;
-                status.textContent = "Task cancelled. Nothing was opened.";
-                app.logActivity("YouTube task cancelled", "info");
-            });
-
-            actions.append(confirmButton, cancelButton);
-            bubble.append(actions, status);
-            app.logActivity("Waiting for confirmation to open YouTube", "audit");
-        };
-
         const requestDocumentTask = (message) => {
             app.addMessage("Me", message);
             const response = app.addMessage(
@@ -489,8 +432,6 @@ app.init = () => {
                 const confirmation = pendingDocumentConfirmation;
                 pendingDocumentConfirmation = null;
                 confirmation.cancel();
-            } else if (isYouTubeTaskRequest(text)) {
-                requestYouTubeTask();
             } else if (isOpenFileTaskRequest(text)) {
                 requestDocumentTask(text);
             } else {
@@ -1352,6 +1293,22 @@ function initSubAgentAvatars() {
             border-radius: 999px;
             background: rgba(255,255,255,0.08);
         }
+        .agent-security-badge {
+            position: absolute;
+            z-index: 1;
+            top: -11px;
+            right: -9px;
+            display: grid;
+            width: 20px;
+            height: 20px;
+            place-items: center;
+            border: 1px solid rgba(255, 190, 110, 0.7);
+            border-radius: 50%;
+            background: rgba(47, 13, 23, 0.94);
+            color: #ffc16f;
+            box-shadow: 0 0 12px rgba(255, 74, 84, 0.4), inset 0 0 8px rgba(255, 173, 90, 0.14);
+        }
+        .agent-security-badge svg { width: 12px; height: 12px; }
         .agent-face {
             position: absolute;
             inset: 12px 10px 10px;
@@ -1590,10 +1547,21 @@ function initSubAgentAvatars() {
             --agent-scale: 1.08;
             filter: drop-shadow(0 0 26px rgba(140, 231, 255, 0.28));
         }
-        .peter-agent[data-resting="true"] { --agent-scale: 0.72; }
-        .peter-agent[data-resting="true"][data-hovered="true"] { --agent-scale: 0.78; }
+        .peter-agent[data-hovered="true"] .agent-eye {
+            background: #ff526d;
+            box-shadow: 0 0 10px rgba(255, 53, 87, 1), 0 0 21px rgba(255, 45, 80, 0.85);
+            animation: peter-angry-eye-blink 0.48s steps(1, end) infinite;
+        }
+        .peter-agent[data-hovered="true"] .agent-eye:first-child {
+            transform: rotate(-15deg) scaleY(0.82);
+        }
+        .peter-agent[data-hovered="true"] .agent-eye:last-child {
+            transform: rotate(15deg) scaleY(0.82);
+        }
+        .peter-agent[data-resting="true"] { --agent-scale: 0.82; }
+        .peter-agent[data-resting="true"][data-hovered="true"] { --agent-scale: 0.9; }
         .peter-agent[data-resting="true"] .agent-label { opacity: 0.9; }
-        .agent-label { order: -1; display: grid; grid-template-columns: 7px 1fr; justify-items: start; gap: 1px 5px; padding: 5px 8px; }
+        .agent-label { order: -1; display: grid; grid-template-columns: 7px 1fr; justify-items: start; gap: 1px 5px; max-width: 80px; padding: 5px 8px; white-space: normal; }
         .agent-label .agent-led-dot { grid-row: 1 / span 2; align-self: center; }
         .agent-role { grid-column: 2; color: rgba(186, 208, 228, 0.82); font-size: 8px; letter-spacing: 0.04em; text-transform: none; }
         .peter-agent[data-mood="resting"] .agent-eye { animation-duration: 6s; }
@@ -1603,6 +1571,7 @@ function initSubAgentAvatars() {
         .peter-communication-agent { --agent-led: #7efca0; --agent-glow: rgba(126,252,160,1); --agent-eye-color: #79ff9d; }
         .peter-research-agent { --agent-led: #ff79f8; --agent-glow: rgba(255,121,248,1); --agent-eye-color: #ff8af8; }
         .peter-quality-agent { --agent-led: #ff7d7d; --agent-glow: rgba(255,125,125,1); --agent-eye-color: #ff8da8; }
+        .peter-max-agent { --agent-led: #ff4d61; --agent-glow: rgba(255,77,97,1); --agent-eye-color: #ff6d79; --agent-task-glow: rgba(255,77,97,0.2); }
         @keyframes peter-eye-blink {
             0%, 43%, 47%, 100% { transform: scaleY(1); opacity: 1; }
             45% { transform: scaleY(0.18); opacity: 0.8; }
@@ -1618,6 +1587,10 @@ function initSubAgentAvatars() {
         @keyframes peter-action-eye {
             0% { transform: scaleY(1) scaleX(1); opacity: 1; }
             100% { transform: scaleY(1.35) scaleX(1.2); opacity: 1; }
+        }
+        @keyframes peter-angry-eye-blink {
+            0%, 62%, 100% { opacity: 1; }
+            68%, 76% { opacity: 0.15; }
         }
         @keyframes peter-foot-bounce {
             0% { transform: translateX(-50%) translateY(0px); }
@@ -1683,6 +1656,14 @@ function initSubAgentAvatars() {
             x: 28,
             y: 77,
         },
+        {
+            key: "max",
+            className: "peter-max-agent",
+            label: "MAX",
+            role: "Computer & System Security",
+            x: 50,
+            y: 9,
+        },
     ];
 
     const agentRuntime = new Map();
@@ -1700,6 +1681,14 @@ function initSubAgentAvatars() {
         node.innerHTML = `
             <div class="peter-agent-visual">
                 <div class="agent-shell">
+                    ${agent.key === "max" ? `
+                        <span class="agent-security-badge" title="Computer and system security" aria-label="Computer and system security">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M12 2.8 19 5.7v5.2c0 4.7-2.8 8.3-7 10.3-4.2-2-7-5.6-7-10.3V5.7l7-2.9Z"></path>
+                                <path d="m9 12 2 2 4-4"></path>
+                            </svg>
+                        </span>
+                    ` : ""}
                     <div class="agent-face">
                         <div class="agent-eyes">
                             <span class="agent-eye"></span>
@@ -1738,6 +1727,7 @@ function initSubAgentAvatars() {
             hovered: false,
             seed: Math.random() * 10,
             pendingTasks: new Map(),
+            orbitAngle: null,
         };
 
         const setMood = (mood) => {
@@ -1762,6 +1752,7 @@ function initSubAgentAvatars() {
 
     const waveState = {
         center: { x: 0, y: 0 },
+        orbitRadius: 0,
         targets: {},
         restTargets: {},
         particles: [],
@@ -1779,7 +1770,7 @@ function initSubAgentAvatars() {
 
         const restingCount = agents.length - working.length - returning.length;
         if (!working.length && !returning.length) {
-            agentHomeStatus.textContent = "All five friends are home and resting.";
+            agentHomeStatus.textContent = "All six friends are home inside Peter Core.";
             return;
         }
 
@@ -1798,10 +1789,44 @@ function initSubAgentAvatars() {
     const updateLayout = () => {
         const rect = neuralField.getBoundingClientRect();
         const homeRect = agentHome.getBoundingClientRect();
-        waveState.center.x = rect.width * 0.5;
-        waveState.center.y = rect.height * 0.48;
         const homeLeft = homeRect.left - rect.left;
         const homeTop = homeRect.top - rect.top;
+        waveState.center.x = homeLeft + homeRect.width * 0.5;
+        waveState.center.y = homeTop + homeRect.height * 0.5;
+        const orbitClearance = { left: 42, right: 42, top: 42, bottom: 62 };
+        overlay.querySelectorAll(".peter-agent").forEach((node) => {
+            const taskCard = node.querySelector(".agent-task-card");
+            if (!taskCard || taskCard.hidden) return;
+
+            const agentRect = node.getBoundingClientRect();
+            const cardRect = taskCard.getBoundingClientRect();
+            const centerX = agentRect.left + agentRect.width * 0.5;
+            const centerY = agentRect.top + agentRect.height * 0.5;
+            const cardPadding = 12;
+            orbitClearance.left = Math.max(
+                orbitClearance.left,
+                centerX - Math.min(agentRect.left, cardRect.left) + cardPadding,
+            );
+            orbitClearance.right = Math.max(
+                orbitClearance.right,
+                Math.max(agentRect.right, cardRect.right) - centerX + cardPadding,
+            );
+            orbitClearance.top = Math.max(
+                orbitClearance.top,
+                centerY - Math.min(agentRect.top, cardRect.top) + cardPadding,
+            );
+            orbitClearance.bottom = Math.max(
+                orbitClearance.bottom,
+                Math.max(agentRect.bottom, cardRect.bottom) - centerY + cardPadding,
+            );
+        });
+        waveState.orbitRadius = Math.max(0, Math.min(
+            homeRect.width * 0.61,
+            waveState.center.x - orbitClearance.left,
+            rect.width - waveState.center.x - orbitClearance.right,
+            waveState.center.y - orbitClearance.top,
+            rect.height - waveState.center.y - orbitClearance.bottom,
+        ));
 
         const positions = {
             social: { x: rect.width * 0.23, y: rect.height * 0.28 },
@@ -1809,13 +1834,15 @@ function initSubAgentAvatars() {
             communication: { x: rect.width * 0.86, y: rect.height * 0.52 },
             research: { x: rect.width * 0.62, y: rect.height * 0.8 },
             quality: { x: rect.width * 0.38, y: rect.height * 0.8 },
+            max: { x: rect.width * 0.5, y: rect.height * 0.08 },
         };
         const homeSlots = {
-            social: { x: 0.2, y: 0.36 },
-            local: { x: 0.5, y: 0.5 },
-            communication: { x: 0.8, y: 0.5 },
-            research: { x: 0.35, y: 0.8 },
-            quality: { x: 0.65, y: 0.8 },
+            social: { x: 0.77, y: 0.36 },
+            local: { x: 0.77, y: 0.64 },
+            communication: { x: 0.5, y: 0.78 },
+            research: { x: 0.23, y: 0.64 },
+            quality: { x: 0.23, y: 0.36 },
+            max: { x: 0.5, y: 0.22 },
         };
 
         Object.entries(positions).forEach(([key, target]) => {
@@ -1849,8 +1876,19 @@ function initSubAgentAvatars() {
                 runtime.positioned = true;
             }
 
-            const destinationX = runtime.alert ? target.x : homeTarget.x;
-            const destinationY = runtime.alert ? target.y : homeTarget.y;
+            let destinationX = homeTarget.x;
+            let destinationY = homeTarget.y;
+            if (runtime.alert) {
+                if (runtime.orbitAngle == null) {
+                    runtime.orbitAngle = Math.atan2(
+                        target.y - waveState.center.y,
+                        target.x - waveState.center.x,
+                    );
+                }
+                runtime.orbitAngle += deltaSeconds * 0.28;
+                destinationX = waveState.center.x + Math.cos(runtime.orbitAngle) * waveState.orbitRadius;
+                destinationY = waveState.center.y + Math.sin(runtime.orbitAngle) * waveState.orbitRadius;
+            }
             const deltaX = destinationX - runtime.x;
             const deltaY = destinationY - runtime.y;
             const distance = Math.hypot(deltaX, deltaY);
@@ -1867,6 +1905,7 @@ function initSubAgentAvatars() {
                 node.dataset.agentState = "resting";
                 node.querySelector(".agent-task-card").hidden = true;
                 node.dataset.taskState = "";
+                runtime.orbitAngle = null;
                 updateHomeStatus();
             }
 
@@ -1892,6 +1931,7 @@ function initSubAgentAvatars() {
             communication: "141, 255, 176",
             research: "255, 122, 244",
             quality: "255, 122, 122",
+            max: "255, 77, 97",
         };
 
         const tone = hueMap[agentKey] || "105, 241, 255";
@@ -1910,11 +1950,12 @@ function initSubAgentAvatars() {
 
     let taskSequence = 0;
     const taskProfiles = [
+        { key: "max", pattern: /\b(security|secure|safety|privacy|antivirus|malware|virus|vulnerabilit(?:y|ies)|threat|firewall|system protection|computer security|system security|security scan|scan my (?:computer|pc|system)|check my (?:computer|pc|system))\b/i },
         { key: "quality", pattern: /\b(review|verify|quality|inspect|report|proofread|check|test|jaanch|janch)\b/i },
         { key: "communication", pattern: /\b(email|call|message|reply|contact|outreach|communication|jawab|baat|bhejo|bhej do)\b/i },
         { key: "local", pattern: /\b(file|folder|directory|document|image|local|organize|organise|data|khol|kholo|kholna)\b/i },
         { key: "research", pattern: /\b(research|search|website|web|look up|find information|browse|jankari|jaankari|dhundo|dhoondo|talash|talaash|client|lead|prospect|customer|find.*company|potential customer|grahak|company.*(dhundo|dhoondo|khojo))\b/i },
-        { key: "social", pattern: /\b(social media|instagram|facebook|youtube|tiktok|post|caption|hashtag|content|reel|tweet)\b/i },
+        { key: "social", pattern: /\b(social media|instagram|facebook|youtube|tiktok|post|caption|hashtag|content|reel|tweet|play\s+.+|song|music|gana|gaana|bajao|chalao|sunao)\b/i },
     ];
     const taskDescriptions = {
         social: "Preparing social media content",
@@ -1922,6 +1963,7 @@ function initSubAgentAvatars() {
         communication: "Preparing a communication response",
         research: "Researching the request",
         quality: "Reviewing the requested result",
+        max: "Reviewing computer security request",
     };
 
     app.startAgentTask = (taskText) => {
@@ -1936,19 +1978,29 @@ function initSubAgentAvatars() {
 
         const taskId = ++taskSequence;
         const description = request.length > 110 ? `${request.slice(0, 107)}...` : request;
+        const isYouTubeTask = agentKey === "social"
+            && /\b(youtube|play\s+.+|song|music|gana|gaana|bajao|chalao|sunao)\b/i.test(request);
+        const taskSummary = isYouTubeTask ? "Opening YouTube" : taskDescriptions[agentKey];
         state.pendingTasks.set(taskId, {
-            description: description || taskDescriptions[agentKey],
-            summary: taskDescriptions[agentKey],
+            description: description || taskSummary,
+            summary: taskSummary,
         });
+        if (!state.alert) {
+            state.orbitAngle = Math.atan2(
+                target.y - waveState.center.y,
+                target.x - waveState.center.x,
+            );
+        }
         state.alert = true;
         state.returningHome = false;
         node.dataset.resting = "false";
         node.dataset.agentState = "working";
         node.dataset.taskState = "working";
         node.dataset.mood = "action";
-        node.querySelector(".agent-task-state").textContent = taskDescriptions[agentKey];
-        node.querySelector(".agent-task-description").textContent = description || taskDescriptions[agentKey];
+        node.querySelector(".agent-task-state").textContent = taskSummary;
+        node.querySelector(".agent-task-description").textContent = description || taskSummary;
         node.querySelector(".agent-task-card").hidden = false;
+        updateLayout();
         updateHomeStatus();
         triggerTaskFlow(agentKey);
         return taskId;
@@ -1969,6 +2021,7 @@ function initSubAgentAvatars() {
                 node.dataset.mood = "action";
                 node.querySelector(".agent-task-state").textContent = latestTask.summary;
                 node.querySelector(".agent-task-description").textContent = latestTask.description;
+                updateLayout();
                 return;
             }
 
@@ -2055,10 +2108,12 @@ app.init = function peterAgentOverlayInit() {
 };
 
 // Export for use in other modules if needed
-window.app = app;
+root.app = app;
 
-if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", app.init, { once: true });
-} else {
-    app.init();
+if (typeof document !== "undefined") {
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", app.init, { once: true });
+    } else {
+        app.init();
+    }
 }
